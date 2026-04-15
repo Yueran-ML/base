@@ -1,0 +1,51 @@
+{
+  "P1_fourier_fires_grokking": {
+    "cells": {
+      "grok_A": {
+        "seed_pass_frac": 0.0,
+        "passed": false
+      }
+    },
+    "passed": false,
+    "description": "F_corrected > 0.02 in Grokking cells by step 15k, >=2/3 seeds"
+  },
+  "P2_ring_low_at_init": {
+    "cells": {
+      "grok_A": {
+        "init_r2_values": [
+          0.0
+        ],
+        "passed": true
+      }
+    },
+    "passed": true,
+    "description": "R(t) < 0.15 at step 1 in all 6 cells"
+  },
+  "P3_fourier_onset_stable": {
+    "cells": {
+      "grok_A": {
+        "tau_fourier_values": [],
+        "std": null,
+        "passed": false,
+        "note": "fewer than 2 seeds had a detectable tau_Fourier"
+      }
+    },
+    "passed": false,
+    "description": "std(tau_Fourier) < 8000 steps within each Grokking cell"
+  },
+  "P4_ordering_pattern": {
+    "grokking_cells": {
+      "grok_A": {
+        "orderings": [
+          "censored"
+        ],
+        "frac_F<G<R": 0.0,
+        "passed": false
+      }
+    },
+    "comprehension_cells": {},
+    "passed": false,
+    "description": "F<G<R in >=2/3 Grokking seeds; collapsed in >=2/3 Comprehension seeds"
+  },
+  "OVERALL_PASS": false
+}

@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp:*)",
+      "Bash(npx skills:*)",
+      "Bash(python3:*)",
+      "Bash(.venv/Scripts/python.exe -c \":*)",
+      "Bash(.venv/Scripts/python.exe stage1_phase_dynamics.py --cells grokking --seeds 42 --max-steps 500 --log-interval 100 --outdir runs/stage1_smoketest)",
+      "Bash(.venv/Scripts/python.exe stage1_phase_dynamics.py --max-steps 50000 --log-interval 100 --outdir runs/stage1_dynamics)",
+      "Bash(.venv/Scripts/python.exe stage2_boundary_grid.py --seeds 42 --base-steps 500 --log-interval 200 --outdir runs/stage2_smoketest)",
+      "Bash(.venv/Scripts/python.exe stage2_boundary_grid.py --base-steps 30000 --log-interval 100 --outdir runs/stage2_boundary)",
+      "Bash(ls C:/Users/ASUS/Desktop/文件/学术/7841/base/runs/stage2_boundary/*.csv)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); steps=d.get\\(''''steps'''',[]\\); print\\(f''''steps logged: {len\\(steps\\)}, last step: {steps[-1] if steps else None}''''\\)\")",
+      "Bash(python -c \"import json; d=json.load\\(open\\(''''C:/Users/ASUS/Desktop/文件/学术/7841/base/runs/stage2_boundary/cell_wd0.0100_seed42/metrics.json''''\\)\\); print\\(list\\(d.keys\\(\\)\\)[:5]\\)\")",
+      "Bash(python:*)",
+      "Bash(.venv/Scripts/python.exe stage2_boundary_grid.py --seeds 42 --base-steps 500 --log-interval 200 --outdir runs/stage2_smoketest2)",
+      "Bash(.venv/Scripts/python.exe stage3_tau_crossing.py --seeds 42 --base-steps 500 --log-interval 200 --outdir runs/stage3_smoketest)",
+      "Bash(.venv/Scripts/python.exe stage3_tau_crossing.py --base-steps 60000 --log-interval 100 --outdir runs/stage3_tau_crossing)",
+      "Bash(taskkill //F //FI \"WINDOWTITLE eq*stage3*\")",
+      "Bash(pkill -f stage3_tau_crossing)",
+      "Bash(tasklist)",
+      "Bash(taskkill //F //PID 20116)",
+      "Bash(taskkill //F //PID 39156)"
+    ]
+  }
+}

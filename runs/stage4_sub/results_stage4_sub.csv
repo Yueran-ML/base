@@ -1,0 +1,4 @@
+operation,prime,lr,wd,seed,observed_phase,tau_gen,tau_F,delta,ordering,max_train_acc,max_test_acc,max_steps_used,runtime_sec
+sub,53,0.0016,2.175,42,Grokking,43500.0,34500.0,-9000.0,F<G,1.0,1.0,50000,585.8924262523651
+sub,53,0.0016,2.175,7,Grokking,27500.0,33000.0,5500.0,G<F,1.0,1.0,50000,661.4672708511353
+sub,53,0.0016,2.175,2025,Memorization,,15500.0,,F_only,1.0,0.05134722962975502,80000,1344.4699161052704

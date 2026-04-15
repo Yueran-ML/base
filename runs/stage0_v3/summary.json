@@ -1,0 +1,183 @@
+{
+  "P1_fourier_fires_grokking": {
+    "cells": {
+      "grok_A": {
+        "seed_pass_frac": 0.0,
+        "passed": false
+      },
+      "grok_B": {
+        "seed_pass_frac": 1.0,
+        "passed": true
+      },
+      "grok_C": {
+        "seed_pass_frac": 0.0,
+        "passed": false
+      },
+      "grok_D": {
+        "seed_pass_frac": 1.0,
+        "passed": true
+      }
+    },
+    "passed": false,
+    "description": "F_corrected > 0.02 in Grokking cells by step 25k, >=2/3 seeds"
+  },
+  "P2_ring_low_at_init": {
+    "cells": {
+      "grok_A": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      },
+      "grok_B": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      },
+      "grok_C": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      },
+      "grok_D": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      },
+      "memo_A": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      },
+      "memo_B": {
+        "init_circle_score_values": [
+          0.018867924528301886,
+          0.018867924528301886,
+          0.018867924528301886
+        ],
+        "passed": true
+      }
+    },
+    "passed": true,
+    "description": "Circle Score < 0.05 at step 1 in all 6 cells (ring not pre-formed)"
+  },
+  "P3_fourier_onset_stable": {
+    "cells": {
+      "grok_A": {
+        "tau_fourier_values": [
+          35500.0,
+          22700.0,
+          28700.0
+        ],
+        "std": 5228.979080300687,
+        "passed": true
+      },
+      "grok_B": {
+        "tau_fourier_values": [
+          21100.0,
+          12600.0,
+          15000.0
+        ],
+        "std": 3578.0193155183247,
+        "passed": true
+      },
+      "grok_C": {
+        "tau_fourier_values": [
+          10700.0,
+          10500.0,
+          11700.0
+        ],
+        "std": 524.9338582674541,
+        "passed": true
+      },
+      "grok_D": {
+        "tau_fourier_values": [
+          9500.0,
+          9600.0,
+          9100.0
+        ],
+        "std": 216.02468994692867,
+        "passed": true
+      }
+    },
+    "passed": true,
+    "description": "std(tau_Fourier) < 8000 steps within each Grokking cell"
+  },
+  "P4_ordering_pattern": {
+    "grokking_cells": {
+      "grok_A": {
+        "orderings": [
+          "G<F,R_missing",
+          "G<F,R_missing",
+          "F<G,R_missing"
+        ],
+        "frac_ordered": 1.0,
+        "passed": true
+      },
+      "grok_B": {
+        "orderings": [
+          "G<F,R_missing",
+          "G<F,R_missing",
+          "G<F,R_missing"
+        ],
+        "frac_ordered": 1.0,
+        "passed": true
+      },
+      "grok_C": {
+        "orderings": [
+          "censored",
+          "censored",
+          "censored"
+        ],
+        "frac_ordered": 0.0,
+        "passed": false
+      },
+      "grok_D": {
+        "orderings": [
+          "censored",
+          "F<G,R_missing",
+          "censored"
+        ],
+        "frac_ordered": 0.3333333333333333,
+        "passed": false
+      }
+    },
+    "memorization_cells": {
+      "memo_A": {
+        "orderings": [
+          "censored",
+          "censored",
+          "censored"
+        ],
+        "frac_no_gen": 1.0,
+        "passed": true
+      },
+      "memo_B": {
+        "orderings": [
+          "censored",
+          "censored",
+          "censored"
+        ],
+        "frac_no_gen": 1.0,
+        "passed": true
+      }
+    },
+    "passed": false,
+    "description": "Grokking cells: tau_gen+tau_F both present in >=2/3 seeds; Memorization cells: tau_gen absent (never generalizes) in >=2/3 seeds"
+  },
+  "OVERALL_PASS": false
+}

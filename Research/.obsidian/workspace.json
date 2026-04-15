@@ -1,0 +1,237 @@
+{
+  "main": {
+    "id": "d18d741e381ac5c2",
+    "type": "split",
+    "children": [
+      {
+        "id": "9c977c2d078eab0b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f4fc8e312cbeb0bf",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "关系图谱"
+            }
+          }
+        ],
+        "stacked": true
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "0e6df82f3f5cc214",
+    "type": "split",
+    "children": [
+      {
+        "id": "efee78c39db80ce5",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2337530d9ce9f113",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "421c1b7815d0573b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "8cb9c2e791912e6a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "faf69e16b3585b0f",
+    "type": "split",
+    "children": [
+      {
+        "id": "1cb322177c48cc50",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "add5550c06189224",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "研究说明文档.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "研究说明文档 的反向链接列表"
+            }
+          },
+          {
+            "id": "2459f04a09e4b95d",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "研究说明文档.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "研究说明文档 的出链列表"
+            }
+          },
+          {
+            "id": "733bc42c55e7f912",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "e71aacc75fdf40c3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "be3c318524e8f6cd",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "研究说明文档.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "研究说明文档 的大纲"
+            }
+          },
+          {
+            "id": "260413909beab7d7",
+            "type": "leaf",
+            "state": {
+              "type": "claudian-view",
+              "state": {},
+              "icon": "bot",
+              "title": "Claudian"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 320.5,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "claudian:Open Claudian": false,
+      "obsidian-importer:Open Importer": false,
+      "templater-obsidian:Templater": false
+    }
+  },
+  "active": "f4fc8e312cbeb0bf",
+  "lastOpenFiles": [
+    "HumanOmniV2研究/LoRA论文介绍.md",
+    "HumanOmniV2研究/DAPO论文介绍.md",
+    "HumanOmniV2研究/DeepSeek-R1论文介绍.md",
+    "HumanOmniV2研究/Qwen-VL论文介绍.md",
+    "HumanOmniV2研究/HumanOmniV1论文介绍.md",
+    "HumanOmniV2研究/LLaVA论文介绍.md",
+    "HumanOmniV2研究/CLIP论文介绍.md",
+    "HumanOmniV2研究/QLoRA论文介绍.md",
+    "HumanOmniV2研究/DPO论文介绍.md",
+    "HumanOmniV2研究/研究说明文档.md",
+    "HumanOmniV2研究/实验进度.md",
+    "HumanOmniV2研究/HumanOmniV2论文介绍.md",
+    "论文/HumanOmniV2 From Understanding to Omni-Modal.pdf",
+    "论文/HumanOmni A Large Vision-Speech Language Model for Human-Centric Video Understanding.pdf",
+    "论文/mDPO Conditional Preference Optimization for Multimodal Large Language Models.pdf",
+    "论文/DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning.pdf",
+    "论文/Visionary-R1 Mitigating Shortcuts in Visual Reasoning with Reinforcement Learning.pdf",
+    "论文/LORA LOW-RANK ADAPTATION OF LARGE LANGUAGE MODELS.pdf",
+    "论文/Video-R1 Reinforcing Video Reasoning in MLLMs.pdf",
+    "论文/QLORA Efficient Finetuning of Quantized LLMs.pdf",
+    "论文/Direct Preference Optimization Your Language Model is Secretly a Reward Model.pdf",
+    "论文/R1-VL Learning to Reason with Multimodal Large Language Models via Step-wise Group Relative Policy Optimization.pdf",
+    "IDEA_REPORT.md",
+    "refine-logs/EXPERIMENT_PLAN.md",
+    "CLAUDE.md",
+    "refine-logs/FINAL_PROPOSAL.md",
+    "brief.md",
+    "REF_PAPER_SUMMARY.md",
+    "refine-logs/EXPERIMENT_TRACKER.md",
+    "研究说明文档.md",
+    "实验进度.md",
+    "讲解文档.md",
+    "研究图谱/步骤_21_敏感性分析.md",
+    "研究图谱/步骤_20_论文写作.md",
+    "研究图谱/步骤_19_Stage3lr扫描.md",
+    "研究图谱/发现_Comprehension缺失.md",
+    "研究说明文档-思维导图.canvas"
+  ]
+}

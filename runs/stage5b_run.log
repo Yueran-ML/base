@@ -1,0 +1,11 @@
+
+───────────────────────────────────────────────────────
+  Stage 5B — (a+b) mod 97（不同质数）
+  进度: 3/30 已完成，27 待运行
+  输出: C:\Users\ASUS\Desktop\文件\学术\7841\base\runs\stage5_p97\results_stage5_p97.csv
+───────────────────────────────────────────────────────
+  [run] wd=1.3516 seed=42 ... done [2711s]
+           phase=Grokking  ordering=G<F  tau_gen=4000.0  tau_F=29500.0  delta=25500.0  max_test=1.000  t=2708s
+  [run] wd=1.3516 seed=7 ... done [2768s]
+           phase=Grokking  ordering=G<F  tau_gen=3500.0  tau_F=32000.0  delta=28500.0  max_test=1.000  t=2765s
+  [run] wd=1.3516 seed=2025 ... 

@@ -1,0 +1,20 @@
+{
+  "id": "conv-1774626140803-8u5dauxtf",
+  "title": "生成思维导图",
+  "titleGenerationStatus": "success",
+  "createdAt": 1774626140803,
+  "updatedAt": 1775284869714,
+  "lastResponseAt": 1775284869714,
+  "sessionId": "0b94d41c-4aa2-4f6d-8843-1cabb5837db2",
+  "sdkSessionId": "0b94d41c-4aa2-4f6d-8843-1cabb5837db2",
+  "currentNote": "研究说明文档.md",
+  "usage": {
+    "model": "opus",
+    "inputTokens": 1,
+    "cacheCreationInputTokens": 516,
+    "cacheReadInputTokens": 71288,
+    "contextWindow": 200000,
+    "contextTokens": 71805,
+    "percentage": 36
+  }
+}

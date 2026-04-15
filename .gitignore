@@ -1,0 +1,19 @@
+# Python environment
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Tool repos (not research content)
+.aris-repo/
+.aris-backups/
+.uipro-repo/
+.uipro-codex-install/
+
+# IDE
+.idea/
+
+# Claude Code local settings
+.claude/settings.local.json
