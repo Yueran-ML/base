@@ -1,9 +1,0 @@
-{
-  "round": 4,
-  "threadId": "019d85e5-fc65-7f60-a4c8-62403730190a",
-  "status": "completed",
-  "last_score": 6.0,
-  "last_verdict": "TMLR ready",
-  "pending_experiments": ["stage4_sub_seeds_7_2025"],
-  "timestamp": "2026-04-13T12:00:00"
-}

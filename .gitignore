@@ -14,6 +14,42 @@ __pycache__/
 
 # IDE
 .idea/
+.vscode/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Temporary working dirs
+_tmp_*/
+overleaf_work/
+thesis_review/
+refine-logs/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Raw training checkpoints (too large for GitHub)
+*.pt
+*.ckpt
+*.npz
+
+# Upload bundles
+*_upload*.zip
+thesis*.zip
+proposal*.zip
+humanized*.zip
+
+# Private / grading materials
+Marksheet_*
+marksheet_*
+yueran_extracted.txt
+REVIEW_STATE.json
+AUTO_REVIEW.md

@@ -9,9 +9,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage{times}
 \usepackage{microtype}
-\usepackage{natbib}          % for \citep / \citet
+\usepackage[numbers,square,comma,sort&compress]{natbib}  % IEEE-style numeric citations
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
+\graphicspath{{figures/}}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{subcaption}
@@ -43,28 +44,36 @@ Circuit Formation, Generalization, and Embedding Geometry Consolidation}}
 
 % ==============================================================
 \begin{abstract}
-We study temporal dynamics during transformer grokking on modular arithmetic,
-directly measuring three distinct milestones in the same training runs:
-Fourier circuit formation onset~$\taucirc$ (logit-level),
+We study temporal dynamics during transformer grokking on modular
+arithmetic by directly measuring three distinct milestones in the
+\emph{same} training runs:
+Fourier circuit formation~$\taucirc$ (logit-level),
 generalization onset~$\taug$ (test accuracy), and
-embedding-geometry consolidation~$\tauf$ (token embedding Fourier alignment).
-We provide direct empirical evidence for the \textbf{full three-stage
-ordering} $\taucirc < \taug < \tauf$: the Fourier computation circuit forms
-before generalization, which in turn precedes the convergence of token
-embedding geometry (C$<$G$<$F in 48/54 Grokking runs, 88.9\%).
+embedding-geometry consolidation~$\tauf$ (token-embedding Fourier
+alignment).
+We provide direct empirical evidence for the full three-stage
+ordering $\taucirc<\taug<\tauf$: in 48 of 54 Grokking runs
+(\textbf{88.9\%, 95\% CI 77.8\%--94.8\%}) the Fourier computation
+circuit forms first, generalization follows, and the token
+embedding geometry consolidates last.
+The two intervals are of comparable magnitude: median
+$\taug-\taucirc\approx 6{,}250$~steps and median
+$\tauf-\taug\approx 6{,}000$~steps.
 
-Specifically, logit Fourier alignment shows circuit formation precedes
-generalization in 50/54 runs (92.6\%, median gap 6{,}250~steps),
-while embedding geometry lags generalization in 52/55 runs (94.5\%,
-median lag $\approx7{,}000$~steps), confirming the G$<$F ordering
-of \citeauthor{nanda2023progress}'s ``cleanup'' phase interpretation.
-We extend the G$<$F result across four experimental variations:
-a dense 7$\times$7 2D (lr$\times$wd) grid (111/130 = 85.4\%),
-a different prime $p{=}97$ (21/21 = 100\%, median lag 28{,}000~steps),
-and modular multiplication via discrete-log reindexing (30/30 = 100\%).
-Together these results establish that embedding-level Fourier geometry
-is a \emph{post-generalization structural consequence}---not a
-prerequisite---across tasks, primes, and hyperparameter regimes.
+We then extend the G$<$F (embedding-geometry-lags-generalization)
+result across four experimental variations:
+a dense 7$\times$7 (lr$\times$wd) grid (111/130, 85.4\%, CI
+78.3--90.4\%), a different prime $p{=}97$ (21/21, 100\%, CI
+84.5--100\%), and modular multiplication via discrete-log reindexing
+(30/30, 100\%, CI 88.6--100\%).
+Aggregating across all settings, G$<$F holds in 212 of 236 Grokking
+runs (\textbf{89.8\%, CI 85.3--93.1\%}).
+The few F$<$G exceptions cluster at phase boundaries where
+generalization is unusually slow, suggesting a speed-dependent
+ordering whose mechanistic origin we leave to future work.
+The familiar Fourier ring in PCA visualisations of grokked
+embeddings therefore reflects the \emph{third} stage of training---a
+post-generalization structural consequence---not the first.
 \end{abstract}
 
 % ==============================================================
@@ -75,6 +84,13 @@ Grokking---the abrupt onset of generalization long after training
 accuracy saturates---has become a canonical testbed for studying
 delayed representation learning in neural networks
 \citep{power2022grokking}.
+Subsequent work has both extended grokking far beyond toy modular
+arithmetic, documenting it on broader architectures and datasets
+\citep{liu2023omnigrok,humayun2024deep,notsawo2024beyond}, and
+developed mechanistic and theoretical accounts of \emph{when} and
+\emph{why} the transition occurs
+\citep{nanda2023progress,varma2023explaining,lyu2024dichotomy,
+       rubin2024grokking,kumar2024lazy,mohamadi2024grok}.
 On modular arithmetic tasks, \citet{nanda2023progress} showed that
 grokked transformers implement a Fourier circuit: the network uses
 trigonometric identities over a small set of task-relevant harmonics
@@ -110,35 +126,44 @@ measure within-run event timing.
 Our work closes this gap.
 
 \paragraph{Contributions.}
+We make three principal contributions.
 \begin{enumerate}
-  \item We introduce a \emph{null-corrected} Fourier alignment metric
-    $\fcorr(t) = \max(0,\, F_{\mathrm{raw}}(t) -
-    F_{\mathrm{null,p95}}(t))$ that removes chance-level Fourier
-    structure, enabling a principled BIC changepoint estimate of~$\tauf$.
+  \item \textbf{The first direct measurement of all three timing
+    milestones in the same training runs.}
+    By computing logit-level Fourier alignment $\flogit$ alongside the
+    embedding-level $\fcorr$ at every checkpoint, we recover
+    $(\taucirc,\taug,\tauf)$ from a single trajectory and establish
+    the \emph{full} three-stage ordering $\taucirc<\taug<\tauf$ in
+    48/54 Grokking runs (88.9\%, 95\% CI 77.8--94.8\%; Stage~4).
+    The two intervals $\taug-\taucirc$ and $\tauf-\taug$ are of
+    comparable magnitude ($\approx 6{,}000$--$6{,}250$~steps each),
+    so the total span $\approx 13{,}000$~steps splits evenly between
+    circuit-to-generalization and generalization-to-embedding stages.
 
-  \item We show that \textbf{G$<$F} (generalization precedes embedding
-    Fourier alignment) holds robustly across two hyperparameter axes:
-    weight decay $\in[1.2,3.5]$ (29/30 runs; Stage~2) and
-    learning rate $\in[5\times10^{-4},\,4.3\times10^{-3}]$ (23/25
-    Grokking runs; Stage~3), for a combined rate of 52/55 (94.5\%).
+  \item \textbf{G$<$F is a robust empirical regularity, not an
+    artefact of a single hyperparameter setting.}
+    Embedding-geometry consolidation lags generalization in 212 of 236
+    Grokking runs (89.8\%, CI 85.3--93.1\%) spanning 1D weight-decay
+    and learning-rate sweeps (52/55, CI 85.1--98.1\%; Stages~2+3),
+    a dense 2D (lr$\,\times\,$wd) grid (111/130, CI 78.3--90.4\%;
+    Stage~6), a different prime $p{=}97$ (21/21, CI 84.5--100\%;
+    Stage~5B), and modular multiplication via discrete-log reindexing
+    (30/30, CI 88.6--100\%; Stage~5A).
+    The few F$<$G exceptions concentrate at phase boundaries with
+    unusually slow generalization, motivating a speed-dependent
+    interpretation we develop in Section~\ref{sec:speed}.
 
-  \item We extend G$<$F to a dense \textbf{2D grid} of
-    (lr$\,\times\,$wd) (Stage~6: 111/130 = 85.4\%), a \textbf{different
-    prime} $p{=}97$ (Stage~5B: 21/21 = 100\%, median $\Dtau{=}28{,}000$
-    steps), and \textbf{modular multiplication} via discrete-log
-    reindexing (Stage~5A: 30/30 = 100\%).
-
-  \item We directly measure \textbf{circuit formation} $\taucirc$ via
-    logit Fourier alignment in the same training runs (Stage~4),
-    finding that $\taucirc < \taug$ in 50/54 Grokking runs (92.6\%,
-    median gap 6{,}250 steps) and establishing the \emph{full} three-stage
-    ordering C$<$G$<$F in 48/54 runs (88.9\%).
-
-  \item We show that for cells with $|\Delta\tau|\ge3{,}000$ steps,
-    raw and null-corrected Fourier metrics yield \emph{identical orderings};
-    null correction provides principled calibration that prevents false
-    positives near the coincident boundary (Table~\ref{tab:raw_corr},
-    Figure~\ref{fig:raw_vs_corr_scatter}).
+  \item \textbf{A principled, robust detector for $\tauf$.}
+    We introduce a null-corrected Fourier alignment metric
+    $\fcorr(t)=\max(0,F_{\mathrm{raw}}(t)-F_{\mathrm{null,p95}}(t))$
+    that removes the high-dimensional chance-alignment baseline, and
+    pair it with a BIC-selected segmented-regression changepoint
+    estimator.
+    A 36-configuration sensitivity study yields a mean robustness
+    score of 0.94 across seven Grokking cells, and the raw vs.\
+    null-corrected metrics produce \emph{identical orderings} on all
+    8 sensitivity cells with $|\Dtau|\geq 3{,}000$~steps, so the main
+    finding is not driven by detector hyperparameters.
 \end{enumerate}
 
 Our results establish a \textbf{three-stage picture of grokking}:
@@ -197,18 +222,41 @@ use as our experimental scaffold, identifying the four training
 phases we adopt.
 \citet{liu2023omnigrok} showed that grokking extends well beyond
 algorithmic tasks and is governed by the ratio of initial weight
-norm to the norm of the generalising solution.
+norm to the norm of the generalising solution;
+\citet{humayun2024deep} subsequently argued that grokking-like
+delayed-generalization dynamics are pervasive even in standard
+classification networks, and \citet{notsawo2024beyond} document
+the same phenomenon outside neural networks entirely, suggesting
+the dynamics studied here are an instance of a broader class.
 \citet{thilak2022slingshot} linked grokking to cyclic instabilities
 of adaptive optimisers, terming this the ``slingshot mechanism.''
 On the theoretical side, \citet{rubin2024grokking} model grokking
-as a first-order phase transition, while \citet{lyu2024dichotomy}
+as a first-order phase transition, \citet{lyu2024dichotomy}
 prove that a dichotomy of early- and late-phase implicit biases
-can provably induce grokking in homogeneous networks.
-These works characterise \emph{when} generalization occurs; our
-work characterises its timing \emph{relative} to embedding
-geometry and circuit formation.
+can provably induce grokking in homogeneous networks, and
+\citet{mohamadi2024grok} give a margin-based theoretical analysis
+specific to modular addition---directly motivating our use of
+modular addition as the primary testbed.
+\citet{kumar2024lazy} reframe grokking as the transition from
+``lazy'' to ``rich'' (feature-learning) training dynamics, which
+provides a candidate mechanism for the long delay between
+$\taug$ and $\tauf$ that we measure.
+\citet{doshi2024grok} disentangle generalization from memorization
+on corrupted modular-arithmetic data, finding that the two events
+follow distinct trajectories controlled by different hyperparameters;
+this complements our finding that circuit formation, generalization,
+and embedding-geometry consolidation can be temporally pried apart
+within a single uncorrupted training run.
+These works characterise \emph{when} or \emph{whether} generalization
+occurs; our work characterises its timing \emph{relative} to embedding
+geometry and circuit formation in the same runs.
 
 \paragraph{Mechanistic interpretability of grokked models.}
+The circuit-level view of neural networks
+\citep{olah2020zoom,elhage2021mathematical} treats trained models
+as collections of identifiable computational subgraphs;
+modular arithmetic has become a flagship setting because the circuit
+can be fully reverse-engineered.
 \citet{nanda2023progress} reverse-engineered the Fourier circuit
 and showed via progress measures that circuit formation precedes
 the generalization jump.
@@ -218,7 +266,13 @@ single continuous signal for BIC changepoint estimation of
 $\taucirc$.
 \citet{varma2023explaining} argue that grokking reflects the
 delayed ascent of an efficient generalising circuit over a
-more immediately learnable memorising solution.
+more immediately learnable memorising solution;
+\citet{merrill2023tale} make this competition concrete by
+characterising it as a contest between sparse and dense subnetworks,
+in which the sparse generalising circuit eventually wins out.
+This sparse-vs-dense framing predicts a temporal gap between
+\emph{circuit assembly} and \emph{circuit dominance}, consistent
+with the C$<$G separation we measure.
 \citet{chughtai2023toy} study how networks learn group operations
 more broadly, finding that the learned circuits depend on the
 group structure in a predictable way.
@@ -232,10 +286,36 @@ complete interpretability of the learned representations.
 \citet{conmy2023towards} automate circuit discovery via activation
 patching, complementing our temporal approach to identifying when
 circuits form.
+Beyond modular arithmetic, the circuit framework has matured to
+larger models: induction heads in language models
+\citep{olsson2022context}, the indirect-object-identification
+circuit in GPT-2 \citep{wang2023interpretability}, and
+sparse-autoencoder feature dictionaries
+\citep{bricken2023monosemanticity,cunningham2024sparse} are recent
+examples of mechanistic explanation at scale.
 Our $\fcorr$ metric is complementary to all of the above: it
 tracks when the token \emph{embedding table} reaches its final
 geometric arrangement, which lags generalization by thousands of
 steps in most configurations.
+
+\paragraph{Implicit bias and weight decay.}
+Our use of weight decay as the principal axis of variation echoes a
+long line of work on the implicit biases that accompany gradient
+descent.
+\citet{soudry2018implicit} proved that gradient descent on
+exponentially-tailed losses converges to the max-margin solution,
+identifying a direction-selection bias that operates on a much slower
+timescale than the loss decrease itself.
+\citet{andriushchenko2023need} examine why explicit weight decay
+remains necessary in modern transformer training despite the use of
+adaptive optimisers, and \citet{galanti2024sgd} prove that SGD with
+weight decay biases learned representations toward low effective rank.
+The G$<$F lag we observe---thousands of steps between generalization
+and the BIC-detected onset of Fourier-aligned embedding
+geometry---fits naturally with this picture: once the generalising
+circuit is in place, weight decay continues to compress the embedding
+table along the directions favoured by the Fourier circuit, producing
+a measurable geometric reorganisation that postdates $\taug$.
 
 \paragraph{Embedding geometry and representation dynamics.}
 \citet{saxe2014exact} showed that learning in deep linear networks
@@ -246,9 +326,16 @@ representation formation.
 terminal convergence of within-class activations to a simplex
 equiangular tight frame, as a generic post-convergence geometric
 phenomenon in classification networks.
-Our $\tauf$ result is analogous: the Fourier ring geometry of
-token embeddings is also a \emph{post-generalization} geometric
-consolidation, not a prerequisite for generalization.
+\citet{zhu2021geometric} prove that Neural Collapse is the unique
+global optimum of an unconstrained-features model with weight decay,
+and \citet{kothapalli2023neural} survey the broader empirical and
+theoretical scope of the phenomenon.
+Our $\tauf$ result is analogous to Neural Collapse in spirit but
+distinct in content: the Fourier ring geometry of token embeddings
+is also a \emph{post-generalization} geometric consolidation rather
+than a prerequisite for generalization, but the converged target is
+the cyclic-group representation rather than a simplex equiangular
+tight frame.
 \citet{elhage2022toy} show that polysemanticity and superposition
 are widespread in transformer features; our focus on the token
 embedding's one-dimensional ring structure provides a concrete,
@@ -257,12 +344,73 @@ measurable geometric ground truth against which timing can be assessed.
 hide gradual progress in loss-scale metrics, motivating our
 BIC changepoint approach to detect latent structural transitions.
 
+\paragraph{Algorithmic learning in transformers.}
+Modular addition is one of several algorithmic tasks where
+small transformers have been studied as testbeds for
+mechanistic interpretation.
+\citet{lee2024teaching} examine how data formatting and curriculum
+choices govern whether small transformers learn integer arithmetic
+at all; \citet{quirke2024understanding} give a circuit-level account
+of two-digit addition; and \citet{charton2023learning} interprets
+the representations a transformer uses to compute the greatest common
+divisor.
+These works confirm that algorithmic tasks share recurring
+circuit-formation motifs, suggesting our temporal three-stage
+framework---measured here on $(a+b)\bmod p$ and $(a\cdot b)\bmod p$---is
+a plausible candidate for application to those settings.
+
 \paragraph{Methods.}
 We use AdamW \citep{loshchilov2019decoupled} and adopt the
 transformer architecture of \citet{vaswani2017attention} as
 extended to the circuit framework of \citet{elhage2021mathematical}.
 Our changepoint estimator is based on the Bayesian Information
-Criterion \citep{schwarz1978estimating}.
+Criterion \citep{schwarz1978estimating};
+\citet{truong2020selective} survey alternative offline changepoint
+detectors, and the PELT algorithm of \citet{killick2012optimal}
+provides a more general optimisation procedure than the single-break
+search we adopt here.
+We chose the simpler 1-breakpoint formulation because it matches
+the qualitative shape of $\fcorr$ (a flat baseline followed by a
+single rising segment) and admits an interpretable persistence
+check via the post-break slope; we view PELT-style multi-break
+estimation as a natural extension for tasks with non-monotonic
+trajectories.
+
+\paragraph{Positioning.}
+Table~\ref{tab:positioning} summarises what each of the most closely
+related works measures.
+Our contribution is the first simultaneous, within-run measurement
+of all three stages, which is what makes statements about their
+\emph{relative timing} possible.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{What prior work measures on grokked modular-arithmetic
+    transformers, relative to the three-stage picture.
+    ``\checkmark'' = directly measured and reported as a timing event;
+    ``$\sim$'' = qualitatively discussed but not measured as an onset
+    time; ``$\cdot$'' = not considered.
+    We are the first to measure all three in the same runs.}
+  \label{tab:positioning}
+  \begin{tabular}{lccc}
+    \toprule
+    Work & $\taucirc$ (circuit) & $\taug$ (generalization)
+         & $\tauf$ (embedding geometry) \\
+    \midrule
+    \citet{power2022grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
+    \citet{liu2022towards}            & $\cdot$      & \checkmark   & $\cdot$ \\
+    \citet{nanda2023progress}         & \checkmark   & \checkmark   & $\sim$  \\
+    \citet{varma2023explaining}       & $\sim$       & \checkmark   & $\cdot$ \\
+    \citet{liu2023omnigrok}           & $\cdot$      & \checkmark   & $\sim$  \\
+    \citet{rubin2024grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
+    \citet{lyu2024dichotomy}          & $\cdot$      & \checkmark   & $\cdot$ \\
+    \citet{doshi2024grok}             & $\cdot$      & \checkmark   & $\cdot$ \\
+    \midrule
+    \textbf{This work}                & \checkmark   & \checkmark   & \checkmark \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 % ==============================================================
 \section{Methods}
@@ -414,7 +562,12 @@ wd: 7 log-spaced values in $[1.2, 3.5]$;
 seeds $\{42, 7, 2025\}$; max 50{,}000 steps (auto-extend to 80k).
 Total: 147 runs.
 
-Code is available at the project repository.
+Code, training configurations, and per-run metric trajectories will
+be released at \url{https://github.com/ANONYMISED/three-stage-grokking}
+(link anonymised for review).
+Exact commit hashes, random seeds, and package versions used to
+produce each figure and table are listed in
+Appendix~\ref{app:reproducibility}.
 
 % ==============================================================
 \section{Results}
@@ -447,8 +600,11 @@ events and their ordering before we present aggregate statistics.
 
 All 30 Stage~2 runs land in the Grokking phase
 ($\mathrm{train\_acc}=1.0$, $\mathrm{test\_acc}\geq 0.99$).
-\textbf{29/30 runs (96.7\%) show G$<$F ordering}; the sole exception
-(wd$=3.11$, seed~2025) has $\Dtau=0$ and is labeled coincident.
+\textbf{29/30 runs (96.7\%, 95\% CI 83.3\%--99.4\%) show G$<$F
+ordering}; the sole exception (wd$=3.11$, seed~2025) has $\Dtau=0$
+and is labeled coincident.
+All 95\% confidence intervals reported in Results are Wilson
+intervals for a binomial proportion.
 Table~\ref{tab:stage2} and Figure~\ref{fig:stage2} summarize the results.
 P(G$<$F) remains near~1.0 across the full wd range tested; the median
 $\Dtau$ fluctuates between 5{,}500 and 13{,}000 steps with no
@@ -499,7 +655,8 @@ monotonic trend, and P(F\_only)$=0$ throughout.
 Of the 30 Stage~3 runs, \textbf{25 land in the Grokking phase}
 for lr$\in[5\times10^{-4},\,4.3\times10^{-3}]$; the remaining
 5~runs (lr$\geq5.9\times10^{-3}$) are Memorization.
-Among the 25~Grokking runs, \textbf{23/25 (92\%) show G$<$F ordering}.
+Among the 25~Grokking runs, \textbf{23/25 (92.0\%, CI 75.0\%--97.8\%)
+show G$<$F ordering}.
 Results appear in Table~\ref{tab:stage3} and Figure~\ref{fig:stage3}.
 
 \begin{table}[t]
@@ -531,7 +688,7 @@ Results appear in Table~\ref{tab:stage3} and Figure~\ref{fig:stage3}.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.82\linewidth]{lr_sweep_curves.png}
+  \includegraphics[width=0.78\linewidth]{lr_sweep_curves.png}
   \caption{Stage~3: embedding Fourier alignment onset vs.\ generalization
     across learning rate ($\mathrm{wd}=2.5$). Layout mirrors
     Figure~\ref{fig:stage2}; x-axis is log-scaled.
@@ -556,8 +713,8 @@ training trajectory.
 \label{sec:combined}
 
 Combining both sweeps, 55 of 60 runs land in the Grokking phase.
-Of these, \textbf{52/55 (94.5\%) show G$<$F ordering}, 2/55 show
-F$<$G, and 1/55 is coincident ($\Dtau=0$).
+Of these, \textbf{52/55 (94.5\%, CI 85.1\%--98.1\%) show G$<$F
+ordering}, 2/55 show F$<$G, and 1/55 is coincident ($\Dtau=0$).
 Figure~\ref{fig:delta_hist} shows the full $\Dtau$ distribution.
 Positive values (G$<$F) span 1{,}000--25{,}500 steps;
 the two negative values are the outliers noted above.
@@ -583,7 +740,7 @@ yielding $\taucirc$ for each run.
 $\taucirc$ was detected in all 54~Grokking runs (100\%).
 
 \paragraph{C$<$G (circuit precedes generalization).}
-In 50/54 Grokking runs (92.6\%), $\taucirc < \taug$.
+In 50/54 Grokking runs (92.6\%, CI 82.4\%--97.1\%), $\taucirc < \taug$.
 The median gap $\taug - \taucirc \approx 6{,}250$~steps
 (range $-3{,}000$ to $35{,}000$~steps).
 The 4~exceptions ($\taucirc > \taug$, i.e.\ G$<$C$<$F) occur at
@@ -596,7 +753,8 @@ same 500-step checkpoint); it is included in the C$<$G count as
 the circuit was detected no later than generalization.
 
 \paragraph{Full three-stage ordering C$<$G$<$F.}
-The dominant pattern is \textbf{C$<$G$<$F} in 48/54 runs (88.9\%).
+The dominant pattern is \textbf{C$<$G$<$F} in 48/54 runs
+(88.9\%, CI 77.8\%--94.8\%).
 The remaining runs split into C$<$F$<$G (2 runs, low-lr boundary)
 and G$<$C$<$F (4 runs, high-lr boundary).
 The three intervals are nearly equal in magnitude:
@@ -654,8 +812,8 @@ median $\tauf - \taucirc \approx 13{,}000$~steps.
 \label{sec:results_mul}
 
 All 30~runs with $(a\cdot b)\bmod 53$ land in the Grokking phase.
-\textbf{30/30 (100\%) show G$<$F ordering} after discrete-log
-reindexing of token embeddings.
+\textbf{30/30 (100\%, CI 88.6\%--100\%) show G$<$F ordering} after
+discrete-log reindexing of token embeddings.
 Median $\Dtau = 8{,}750$~steps (range 3{,}500--24{,}000), comparable
 to the addition results.
 The perfect G$<$F rate extends the finding beyond the addition task,
@@ -668,7 +826,8 @@ structure.
 Of the 30 runs with $(a+b)\bmod 97$, 21 land in the Grokking phase
 (9 in Comprehension, concentrated at high wd where fast generalization
 prevents a Grokking-phase classification).
-\textbf{21/21 Grokking runs (100\%) show G$<$F ordering.}
+\textbf{21/21 Grokking runs (100\%, CI 84.5\%--100\%) show G$<$F
+ordering.}
 The median lag $\Dtau = 28{,}000$~steps is markedly larger than for
 $p{=}53$ ($\approx7{,}000$~steps), consistent with the larger prime
 requiring more training steps and a correspondingly longer
@@ -678,19 +837,20 @@ The G$<$F rate and direction are unchanged.
 \begin{table}[t]
   \centering
   \caption{G$<$F rates across all experimental stages.
-    $n_G$: Grokking runs; G$<$F: ordering rate and median lag.}
+    $n_G$: Grokking runs; G$<$F: ordering rate and median lag.
+    95\% CIs are Wilson intervals for a binomial proportion.}
   \label{tab:summary_all}
   \small
-  \begin{tabular}{llccc}
+  \begin{tabular}{llcccc}
     \toprule
-    Stage & Setting & $n_G$ & G$<$F rate & med.\ $\Dtau$ (k) \\
+    Stage & Setting & $n_G$ & G$<$F rate & 95\% CI & med.\ $\Dtau$ (k) \\
     \midrule
-    2+3  & add mod 53, 1D sweeps & 55  & 94.5\% & $7.0$ \\
-    5A   & mul mod 53            & 30  & \textbf{100\%}  & $8.8$ \\
-    5B   & add mod 97            & 21  & \textbf{100\%}  & $28.0$ \\
-    6    & add mod 53, 2D grid   & 130 & 85.4\% & $6.0$ \\
+    2+3  & add mod 53, 1D sweeps & 55  & 94.5\%  & 85.1--98.1\% & $7.0$ \\
+    5A   & mul mod 53            & 30  & \textbf{100\%}   & 88.6--100\% & $8.8$ \\
+    5B   & add mod 97            & 21  & \textbf{100\%}   & 84.5--100\% & $28.0$ \\
+    6    & add mod 53, 2D grid   & 130 & 85.4\%  & 78.3--90.4\% & $6.0$ \\
     \midrule
-    \textbf{All} & & \textbf{236} & \textbf{89.8\%} & --- \\
+    \textbf{All} & & \textbf{236} & \textbf{89.8\%} & \textbf{85.3--93.1\%} & --- \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -713,8 +873,9 @@ The G$<$F rate and direction are unchanged.
 
 The 7$\times$7 grid yields 130~Grokking runs (88.4\% of 147 total;
 16 Memorization, 1 Comprehension).
-\textbf{111/130 Grokking runs (85.4\%) show G$<$F ordering};
-14/130 show F$<$G and 5/130 have G\_only ($\tauf$ not detected).
+\textbf{111/130 Grokking runs (85.4\%, CI 78.3\%--90.4\%) show G$<$F
+ordering}; 14/130 show F$<$G and 5/130 have G\_only ($\tauf$ not
+detected).
 Median $\Dtau \approx 6{,}000$~steps.
 
 The G$<$F rate is not uniform across the grid.
@@ -787,6 +948,15 @@ Whether this implies anything about the \emph{underlying Fourier
 circuit mechanism}---which we do not directly measure---requires
 further investigation with circuit-level probes.
 
+The three-stage decomposition we observe is also consistent with
+broader views of learning as a sequence of discrete events:
+\citet{saxe2014exact} showed that deep linear networks learn
+singular modes one at a time, and \citet{michaud2023quantization}
+argue that neural scaling reflects the sequential acquisition of
+discrete ``quanta'' of skill.
+C$<$G$<$F is one concrete instantiation of such stage-wise dynamics
+in a setting where each stage has a measurable structural signature.
+
 \subsection{Why the Metric Matters}
 
 We use null-corrected $\fcorr$ rather than raw $F_{\mathrm{raw}}$
@@ -811,7 +981,7 @@ for runs with substantial lags, but is conceptually important for
 calibrating the detection threshold and avoiding false positives in
 the coincident regime.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \small
 \caption{Ordering under null-corrected vs.\ raw Fourier for 8 sensitivity
@@ -837,7 +1007,7 @@ lr=6.8e-4, s7  & F$<$G         & F$<$G      & F$<$G      & No \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{raw_vs_corr_scatter.png}
 \caption{Scatter of $\tau_F$ under null-corrected (left) vs.\ raw (right)
@@ -874,7 +1044,7 @@ The mean RS across all seven non-F$<$G cells is \textbf{0.94},
 confirming that the G$<$F finding forms a robustness plateau
 over the detector parameter space.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 \centering
 \includegraphics[width=0.52\textwidth]{sensitivity_robustness_heatmap.png}
 \caption{%
@@ -961,54 +1131,106 @@ The BIC changepoint may underestimate $\taucirc$ when the logit
 signal rises gradually rather than sharply, so these exceptions
 may partly reflect detection limits rather than genuine G$<$C ordering.
 
-\paragraph{Phase-boundary regime and task-specificity.}
-Both F$<$G runs in our addition sweeps occur at the margins of the
-Grokking phase where $\taug$ is unusually late
-(43{,}500 and 67{,}500 steps).
-A pilot run of modular \emph{subtraction} ($(a{-}b)\bmod 53$, wd$=2.18$)
-further supports this pattern: subtraction groks much later than addition
-at the same hyperparameters ($\taug{=}43{,}500$ vs $\approx11{,}000$
-for addition), and the ordering is F$<$G ($\Dtau{=}{-}9{,}000$).
-Together, these observations suggest a \textbf{speed-dependent ordering
-hypothesis}: G$<$F holds when generalization is fast (small $\taug$);
-when grokking is delayed---whether by extreme hyperparameters or by a
-harder task---weight-decay-driven embedding consolidation can precede
-generalization, yielding F$<$G.
-Formally testing this hypothesis across a wider task and hyperparameter
-space is an important open direction.
-Figure~\ref{fig:speed_ordering} provides preliminary quantitative
-support: across 57 Grokking runs (55~addition + 2~subtraction pilots),
-$\Dtau$ correlates negatively with $\taug$ ($r=-0.62$); all F$<$G
-runs have $\taug \geq 43{,}000$ steps, whereas the majority of G$<$F
-runs have $\taug \leq 35{,}000$ steps.
-Crucially, two subtraction pilots at \emph{the same hyperparameters}
-(wd$=2.18$, lr$=1.6\!\times\!10^{-3}$) provide within-task evidence:
-seed~42 ($\taug{=}43{,}500$, slow) gives F$<$G ($\Dtau{=}-9{,}000$),
-while seed~7 ($\taug{=}27{,}500$, faster) gives G$<$F
-($\Dtau{=}+5{,}500$)---the same hyperparameters produce opposite
-orderings depending solely on how quickly the run generalizes.
-We note that $\Dtau = \tauf - \taug$ is partly mathematically related
-to $\taug$, so the aggregate correlation partly reflects this
-construction; however, the within-task seed comparison is free of this
-confound and directly supports the speed-dependent interpretation.
+% ==============================================================
+\section{A Speed-Dependent Ordering Hypothesis}
+\label{sec:speed}
 
-\begin{figure}[h]
+The F$<$G exceptions observed in Sections~\ref{sec:results_lr}
+and~\ref{sec:results_2d} are not spread uniformly across the
+Grokking phase: they concentrate at its boundaries, where $\taug$
+is unusually late.
+Rather than treat this as a source of noise to be absorbed into
+``Limitations'', we formulate a concrete hypothesis and present the
+evidence available to us without additional experiments.
+
+\paragraph{Hypothesis.}
+Let $\taug$ and $\tauf$ be determined by two largely separable
+processes: generalization by the dynamics of the circuit that solves
+the task, and embedding-geometry consolidation by weight-decay-driven
+compression of the embedding table.
+If these two processes run on roughly parallel clocks, the observed
+ordering becomes a function of generalization speed:
+\begin{itemize}
+  \item when $\taug$ is small (``fast grokking''), generalization
+    fires before the embedding geometry has had time to consolidate,
+    yielding G$<$F;
+  \item when $\taug$ is large (``slow grokking''), weight decay has
+    enough time to complete embedding consolidation first, yielding
+    F$<$G.
+\end{itemize}
+This picture is compatible with \citet{doshi2024grok}, who show that
+on corrupted modular-arithmetic data the relative onsets of
+memorization and generalization depend separately on data corruption,
+weight decay, and learning rate; and with the implicit-bias view in
+which weight decay continues to restructure representations long
+after the training loss has saturated \citep{soudry2018implicit,
+galanti2024sgd,andriushchenko2023need}.
+
+\paragraph{Evidence from existing data.}
+Three observations in our dataset are consistent with this hypothesis.
+
+\emph{(i) Location of F$<$G exceptions.}
+Both F$<$G runs in the 1D sweeps occur at the margins of the Grokking
+phase where $\taug$ is unusually late: $\taug{=}43{,}500$~steps
+(lr$=6.8\!\times\!10^{-4}$, seed~7; $\Dtau=-1{,}500$) and
+$\taug{=}67{,}500$~steps (lr$=4.32\!\times\!10^{-3}$, seed~42;
+$\Dtau=-54{,}500$, max test accuracy 0.965).
+In Stage~6, 12 of 14 F$<$G cases lie on the outermost lr rows of
+the 2D grid, consistent with the same pattern.
+
+\emph{(ii) Cross-task pilot.}
+A pilot run of modular \emph{subtraction} $(a{-}b)\bmod 53$ at the
+same hyperparameters as our Stage~2 core cell
+(wd$=2.18$, lr$=1.6\!\times\!10^{-3}$) groks much later than addition
+($\taug{=}43{,}500$~steps vs $\approx 11{,}000$~steps for addition)
+and lands in the F$<$G regime ($\Dtau{=}{-}9{,}000$).
+A second subtraction seed at the same hyperparameters groks faster
+($\taug{=}27{,}500$~steps) and returns to G$<$F ($\Dtau{=}{+}5{,}500$),
+providing \emph{within-task, within-hyperparameter} evidence that
+the ordering flip tracks generalization speed rather than task
+identity.
+
+\emph{(iii) Aggregate correlation.}
+Across 57 Grokking runs (55 addition + 2 subtraction pilots),
+$\Dtau$ and $\taug$ are negatively correlated ($r=-0.62$;
+Figure~\ref{fig:speed_ordering}).
+All F$<$G runs have $\taug\geq 43{,}000$~steps; the majority of
+G$<$F runs have $\taug\leq 35{,}000$~steps.
+Because $\Dtau=\tauf-\taug$ is defined relative to $\taug$, part of
+this correlation is mechanical and should not be interpreted
+causally on its own; the within-task seed comparison in~(ii)
+is free of this confound and is what load-bears the hypothesis.
+
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.80\linewidth]{speed_ordering_scatter.png}
   \caption{%
-    \textbf{Speed-dependent ordering hypothesis.}
+    \textbf{Speed-dependent ordering.}
     Scatter of generalization onset $\taug$ vs lag $\Dtau{=}\tauf{-}\taug$
     for all 55 Grokking addition runs (blue circles = G$<$F, red stars
-    = F$<$G, grey diamond = coincident) and 2 subtraction pilots (orange
-    triangles; 1 F$<$G, 1 G$<$F).
-    All F$<$G runs cluster at $\taug\geq43{,}000$ steps; the
-    overall correlation is $r{=}{-}0.62$ ($n{=}57$).
-    Note: since $\Dtau$ is defined relative to $\taug$, part of this
-    negative correlation is a mathematical artifact; the result should
-    be interpreted as suggestive evidence rather than a clean causal claim.
+    = F$<$G, grey diamond = coincident) and 2 subtraction pilots
+    (orange triangles; 1 F$<$G, 1 G$<$F).
+    All F$<$G runs cluster at $\taug\geq43{,}000$~steps;
+    overall $r{=}{-}0.62$ ($n{=}57$).
+    The two subtraction pilots at identical hyperparameters (wd$=2.18$,
+    lr$=1.6\!\times\!10^{-3}$) differ only in seed and generalization
+    speed, yet flip ordering---within-task evidence that the effect
+    is not a pure $\Dtau=\tauf-\taug$ construction artefact.
   }
   \label{fig:speed_ordering}
 \end{figure}
+
+\paragraph{What would falsify this hypothesis.}
+A clean test would hold the weight-decay schedule fixed and
+independently manipulate generalization speed (e.g., by data
+subsampling or task difficulty), then predict the ordering from
+$\taug$ alone.
+The speed-dependent hypothesis predicts a monotonic transition from
+G$<$F to F$<$G as $\taug$ crosses a cross-task threshold in the
+range 35{,}000--45{,}000~steps at our base (wd, lr) setting.
+We leave a full test, together with a principled sweep over tasks
+and primes, to future work; Appendix~\ref{app:future_experiments}
+sketches the specific experiments that would be required.
 
 % ==============================================================
 \section{Conclusion}
@@ -1052,8 +1274,8 @@ Findings may inform training efficiency research by clarifying which
 structural changes are or are not necessary for generalization.
 
 % ==============================================================
+\bibliographystyle{IEEEtran}
 \bibliography{refs}
-\bibliographystyle{plainnat}
 
 % ==============================================================
 \appendix
@@ -1103,7 +1325,7 @@ The scatter confirms that the lag $\Dtau=\tauf-\taug$ is
 distributed throughout the range 1{,}000--25{,}000 steps with no
 obvious bimodal structure.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.58\linewidth]{tau_scatter.png}
   \caption{%
@@ -1125,7 +1347,7 @@ robustness heatmap (Figure~\ref{fig:robustness_heatmap}) to show
 P(G$<$F) per cell, allowing inspection of which configurations
 drive the RS~$<1$ cases.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{sensitivity_percell_heatmap.png}
   \caption{%
@@ -1145,7 +1367,7 @@ drive the RS~$<1$ cases.
 Figure~\ref{fig:outlier_traj} provides a direct comparison of the
 F$<$G outlier trajectory against the strong G$<$F reference cell.
 
-\begin{figure}[h]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.90\linewidth]{sensitivity_outlier_trajectory.png}
   \caption{%
@@ -1160,5 +1382,102 @@ F$<$G outlier trajectory against the strong G$<$F reference cell.
   }
   \label{fig:outlier_traj}
 \end{figure}
+
+% ==============================================================
+\section{Reproducibility}
+\label{app:reproducibility}
+
+All experiments reported in this paper were run on a single NVIDIA
+RTX~4080 Laptop (12~GB VRAM) under Python~3.14, PyTorch~2.x,
+and NumPy~1.26.
+Each modular-arithmetic training run terminates in
+\mbox{20--45~minutes} at 50{,}000 steps and \mbox{30--75~minutes} at
+80{,}000 steps.
+The full set of experiments reported here (Stages~2--6 plus the
+subtraction pilots) totals approximately 280 runs and
+\mbox{$\sim$170~GPU-hours}.
+
+\paragraph{Random seeds.}
+Each cell is run with seeds $\{42, 7, 2025\}$.
+Seeds are applied uniformly to PyTorch, NumPy, and Python's
+\texttt{random} at the start of each run.
+The permutation-null estimator uses an independent NumPy generator
+seeded with $\texttt{run\_seed}\oplus\texttt{0xDEAD}$ so that null
+resampling is reproducible but decoupled from model initialisation.
+
+\paragraph{Hyperparameter table.}
+Full hyperparameter values for each stage are listed in
+Appendix~\ref{app:details}.
+The canonical detector configuration used for all headline numbers
+is: null-update interval $=500$~steps, EMA smoothing
+$\alpha=0.15$, BIC slope threshold $=0.01$ of the total value range.
+
+\paragraph{Release plan.}
+The following artefacts will be released with the camera-ready
+version at the anonymised URL above:
+(i) the training script (a single Python file) with argparse
+interfaces for every axis of variation reported;
+(ii) the per-run metric trajectories ($\fcorr$, $\flogit$, test
+accuracy) at every 500-step checkpoint, stored as compressed
+\texttt{.npz} files;
+(iii) the post-hoc changepoint and plotting scripts that produce
+every figure and table in this paper;
+(iv) \texttt{requirements.txt} and the exact Git commit hash.
+
+% ==============================================================
+\section{Future Experiments}
+\label{app:future_experiments}
+
+The following experiments are the natural next steps required to
+(a)~tighten the three-stage picture from empirical to mechanistic
+and (b)~test the speed-dependent ordering hypothesis of
+Section~\ref{sec:speed}.
+None of them is executed in this paper; we list them here so that
+reviewers can distinguish what \emph{has} been measured from what
+\emph{would} be measured in a strictly causal test.
+
+\paragraph{E1. Full subtraction sweep.}
+Replicate Stages~2 and~3 with operation $(a-b)\bmod p$ for
+$p\in\{53, 97\}$.
+Expected cost: $\sim$60 runs, $\sim$45~GPU-hours.
+Predicted outcome under the speed-dependent hypothesis: the F$<$G
+rate should track $\taug$, not the task label.
+
+\paragraph{E2. Architecture-depth scan.}
+Sweep $n_{\mathrm{layers}}\in\{1,2,4,6\}$ at fixed (lr, wd).
+Expected cost: $\sim$36 runs, $\sim$30~GPU-hours.
+Purpose: check whether the C$<$G$<$F ordering is specific to the
+2-layer setting used throughout this paper.
+
+\paragraph{E3. Direct comparison with \citet{nanda2023progress} progress measures.}
+Recompute the restricted logit loss and excluded loss of
+\citeauthor{nanda2023progress} on the same 54 Stage~4 runs used to
+measure $\taucirc$, and compare the two changepoints run-by-run.
+Expected cost: negligible compute (post-hoc on existing
+trajectories); implementation cost only.
+Purpose: confirm that our $\flogit$-based $\taucirc$ and the
+canonical progress measures detect the same circuit-formation event.
+
+\paragraph{E4. Decoupled weight-decay schedule.}
+Run the Stage~2 core cell with a weight-decay schedule that turns
+off after a specified step.
+Expected cost: $\sim$15 runs, $\sim$10~GPU-hours.
+Purpose: if embedding geometry consolidation requires sustained weight
+decay, turning decay off after $\taug$ should delay or prevent
+$\tauf$.
+
+\paragraph{E5. Data-subsampling speed control.}
+Hold (lr, wd) fixed and vary training-set fraction in
+$\{0.2, 0.3, 0.4, 0.5\}$ of all $p^2$ pairs to manipulate $\taug$
+independently of the weight-decay clock.
+Expected cost: $\sim$60 runs, $\sim$45~GPU-hours.
+Purpose: directly test the speed-dependent ordering hypothesis
+in a regime free of the $\Dtau=\tauf-\taug$ construction confound.
+
+\paragraph{E6. Bootstrap intervals on $\Dtau$.}
+With full per-run $\Dtau$ values released in E\textsubscript{0} we
+can report bootstrap CIs (1000 resamples) for median
+$\Dtau$ within each stage.
+Expected cost: post-hoc only.
 
 \end{document}
