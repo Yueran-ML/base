@@ -97,7 +97,6 @@
 % ================================================================
 \chapter{Use of AI Statement}
 
-\section*{}
 \noindent \textit{I acknowledge the use of generative AI tools in completing this
 assessment. Details of which tools were used and how they were used are
 provided in the table below, along with appropriate in-text and full
@@ -125,12 +124,13 @@ academic integrity standards.}
     before use.
 \end{itemize}
 
-\subsubsection*{}
-
+\begin{table}[htbp]
+\centering
+\caption{AI tool usage (tick all that apply).}
+\label{tab:ai_usage}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
 \hline
 \multirow{2}{*}{\parbox{2.5cm}{\vspace*{\fill}\centering AI Model and date\vspace*{0pt}}}
- & \multicolumn{9}{c|}{\parbox{11cm}{\centering Table 1. AI tool usage (tick all that apply)}} \\ \cline{2-10}
  & \adjustbox{rotate=90}{Language Translation}
  & \adjustbox{rotate=90}{Grammar / style / spelling}
  & \adjustbox{rotate=90}{Topic exploration}
@@ -147,32 +147,22 @@ academic integrity standards.}
  & & & & & & & & & \\ \hline
  & & & & & & & & & \\ \hline
 \end{tabular}
+\end{table}
 
 % ================================================================
 %  Abstract
 % ================================================================
 \chapter{Abstract}
 
-This project investigates the temporal relationship between two
-milestones during transformer grokking on modular arithmetic:
+This project examines how two milestones unfold over time during transformer grokking on modular arithmetic:
 the onset of test generalisation~$\taug$ and the onset of
 Fourier-aligned token embedding geometry~$\tauf$.
-Disentangling these events matters because the Fourier circuit
-identified by Nanda et al.\ (2023) is the known mechanism underlying
-grokked solutions, yet it remains open whether the \emph{embedding-level}
-Fourier geometry consolidates before or after the network starts
-generalising.
-We will train a decoder-only transformer on $(a+b)\bmod 53$ across
-fine-grained sweeps of decoder weight decay and learning rate,
+This distinction matters because the Fourier circuit identified by Nanda et al.\ (2023) is the known mechanism behind grokked solutions, but it is still unclear whether the \emph{embedding-level} Fourier geometry settles into place before or after the model begins to generalise.
+To answer this, we will train a decoder-only transformer on $(a+b)\bmod 53$ across fine-grained sweeps of decoder weight decay and learning rate,
 measuring $\taug$ via a sustained threshold detector and $\tauf$ via a
 BIC changepoint on permutation-null-corrected Fourier alignment.
-By sweeping both axes of the hyperparameter phase diagram, we aim to
-determine whether G$<$F (generalisation precedes embedding Fourier
-alignment) holds as a robust, systematic pattern within the Grokking
-phase, and to quantify the signed lag $\Dtau = \tauf - \taug$ across
-hyperparameter configurations.
-A sensitivity analysis over multiple detector configurations will be
-used to assess the robustness of any observed ordering.
+By sweeping both axes of the hyperparameter phase diagram, we aim to test whether G$<$F (generalisation preceding embedding Fourier alignment) appears as a robust and repeatable pattern within the Grokking phase, and to quantify the signed lag $\Dtau = \tauf - \taug$ across hyperparameter settings.
+A sensitivity analysis across multiple detector configurations will then check how robust that ordering is.
 
 \tableofcontents
 
@@ -206,23 +196,17 @@ provided a compelling explanation: grokked transformers implement a
 Fourier circuit \cite{nanda2023progress}.
 The network computes $(a+b)\bmod p$ by exploiting trigonometric
 identities over a small set of task-relevant harmonics.
-A striking geometric consequence of this algorithm is that the $p$
-token embeddings form a near-circular ring in PCA space, with
-embedding $i$ positioned at angle $2\pi i/p$---an arrangement that
-has become an iconic image in the grokking literature.
+One striking geometric consequence of this algorithm is that the $p$ token embeddings form a near-circular ring in PCA space, with embedding $i$ positioned at angle $2\pi i/p$---an arrangement that has become one of the most recognisable images in the grokking literature.
 
 Nanda et al.\ \cite{nanda2023progress} further showed that mechanism-level
 \emph{progress measures}---quantities such as the Fourier-squared
 loss---improve during a circuit-formation phase that \emph{precedes}
 the generalisation jump.
-This raises a natural question about the related but distinct quantity
-of token \emph{embedding geometry}: does embedding-level Fourier
-alignment also consolidate before generalisation, or does it lag behind?
+This naturally leads to a closely related question about token \emph{embedding geometry}: does embedding-level Fourier alignment also settle in before generalisation, or does it arrive later?
 
 \section{Research Question}
 
-This project will measure the relative timing of two events along
-the training trajectory of a grokking transformer:
+This project asks when two events occur relative to one another along the training trajectory of a grokking transformer:
 \begin{itemize}
   \item $\taug$: generalisation onset---the first checkpoint where test
     accuracy $\geq 0.9$ and remains so for three consecutive evaluations;
@@ -231,7 +215,7 @@ the training trajectory of a grokking transformer:
     the first sustained rise of token embedding Fourier structure above
     a permutation-null baseline.
 \end{itemize}
-The signed lag $\Dtau = \tauf - \taug$ is the primary outcome variable.
+The primary outcome variable is the signed lag $\Dtau = \tauf - \taug$.
 Positive $\Dtau$ indicates \textbf{G$<$F} (generalisation precedes
 embedding Fourier alignment); negative indicates \textbf{F$<$G}.
 
@@ -240,19 +224,19 @@ Liu et al.\ \cite{liu2022towards} built a static phase diagram but did
 not measure within-run event timing.
 Nanda et al.\ \cite{nanda2023progress} studied mechanism-level dynamics
 but did not separately track embedding geometry.
-This project aims to close that gap by sweeping both axes of the
-hyperparameter phase diagram and systematically characterising the
-ordering across the Grokking phase.
+This project makes two contributions: (i)~a methodological contribution
+in the form of a null-calibrated, BIC-based detector for embedding-level
+Fourier alignment onset---designed to be robust across hyperparameter
+configurations---and (ii)~an empirical contribution in the form of
+the first systematic measurement of $\Dtau$ across the hyperparameter
+phase diagram, addressing whether G$<$F holds as a reproducible
+structural regularity of transformer grokking.
 
 \subsection{Overview}
 
-The remainder of this proposal is structured as follows.
-Chapter~2 reviews background on grokking, the Fourier circuit, and
-the existing phase-diagram literature, and identifies the specific
-knowledge gap addressed here.
-Chapter~3 describes the project plan, including task and model
-specification, metric definitions, experimental design, expected
-outcomes, and project timeline.
+The rest of this proposal is organised as follows.
+Chapter~2 reviews grokking, the Fourier circuit, and the existing phase-diagram literature, then identifies the specific knowledge gap addressed here.
+Chapter~3 presents the project plan, including the task and model specification, metric definitions, experimental design, expected outcomes, and timeline.
 
 % ================================================================
 \chapter{Background and Literature Review}
@@ -285,6 +269,21 @@ distinct phases:
 Their effective-theory analysis attributed phase transitions to
 competition between memorisation and generalisation mechanisms,
 regulated by weight decay acting as a complexity penalty.
+
+While Liu et al.\ \cite{liu2022towards} studied a specific algorithmic setting,
+Liu et al.\ \cite{liu2023omnigrok} demonstrated that grokking is not
+confined to modular arithmetic: it appears across image classification,
+sparse parity, and other tasks when weight norms are appropriately
+controlled, suggesting that the phase structure is a general property
+of regularised learning rather than an artefact of the task.
+On the theoretical side, Lyu et al.\ \cite{lyu2024dichotomy} attributed
+grokking to a \emph{dichotomy of implicit biases}: early-phase gradient
+descent favours low-loss but high-complexity solutions, while late-phase
+dynamics favour sparse, generalisable solutions.
+This principled account of why the generalisation transition is delayed
+reinforces the view that the training trajectory contains discrete
+structural stages---precisely the kind of staged dynamics our timing
+analysis aims to characterise at the embedding level.
 
 Under the specific configuration used in this project ($p=53$,
 $d_{\mathrm{model}}=256$, train fraction~$0.3$), we expect
@@ -320,7 +319,38 @@ they called the ``circuit formation'' phase.
 A subsequent ``cleanup'' phase follows, in which memorisation
 components are pruned.
 
-This project complements that picture by measuring a
+Varma et al.\ \cite{varma2023explaining} explained grokking through
+\emph{circuit efficiency}: generalising circuits are more weight-efficient
+than memorising circuits, so weight decay preferentially prunes
+memorisation components during the cleanup phase.
+Under this view, the cleanup phase is driven by regularisation acting
+on an already-formed generalising circuit---providing a mechanistic
+motivation for why embedding-level Fourier geometry (a geometric
+signature of the generalising circuit) may only fully consolidate
+\emph{after} generalisation onset, as the memorisation components
+are removed.
+
+Zhong et al.\ \cite{zhong2023clock} proposed two complementary
+mechanistic stories for modular arithmetic: the ``Clock'' algorithm
+(consistent with Nanda et al.'s Fourier view) and the ``Pizza''
+algorithm (based on an alternative geometric decomposition).
+Both predict Fourier-structured token embeddings as a consequence of
+learning the task.
+Crucially, $\fcorr(t)$ is agnostic to which algorithm the network
+implements---it measures the degree of Fourier structure in the
+embeddings regardless of the underlying computational mechanism---so
+the timing analysis applies under either mechanistic story.
+
+Gromov \cite{gromov2023grokking} provided an algebraic characterisation
+of grokking circuits, showing that networks exploit the group structure
+of $\mathbb{Z}/p\mathbb{Z}$ and derived closed-form scaling laws for
+the grokking delay.
+This algebraic perspective confirms that the Fourier basis is the
+natural coordinate system for both the circuit (weight space) and
+the token embeddings (representation space), motivating $\fcorr(t)$
+as a principled embedding-level probe.
+
+This project complements that body of work by measuring a
 related but distinct quantity: the geometric organisation of the
 \emph{token embeddings themselves}, as characterised by our
 null-corrected Fourier alignment score $\fcorr(t)$.
@@ -329,6 +359,17 @@ null-corrected Fourier alignment score $\fcorr(t)$.
 
 The broader question of when and how internal representations change
 during learning is a central topic in deep learning theory.
+Saxe et al.\ \cite{saxe2014exact} derived exact solutions to learning
+dynamics in deep linear networks, establishing that the singular
+value decomposition of the weight matrices evolves in a staged,
+sequential manner: different ``modes'' of the solution switch on at
+different times.
+Although grokking transformers are highly nonlinear, this theoretical
+framework established the principle that internal representations
+can reorganise in discrete, temporally separated stages---a
+phenomenon our project examines empirically at the level of token
+embedding geometry.
+
 Barak et al.\ \cite{barak2022hidden} demonstrated that SGD can learn
 parity functions near the computational limit, showing that abrupt
 generalisation transitions can hide gradual progress in standard
@@ -336,6 +377,17 @@ loss-scale metrics.
 This timing analysis aims to test whether token geometry consolidates
 after generalisation---a structural change that would be invisible
 in loss or accuracy curves alone.
+
+Papyan et al.\ \cite{papyan2020prevalence} documented \emph{neural
+collapse}---a geometric simplification of penultimate-layer
+representations that emerges \emph{after} training accuracy saturates,
+during what they term the terminal phase of training.
+The analogy to our setting is direct: just as neural collapse is a
+post-convergence consolidation of internal geometry in classification
+networks, G$<$F (if confirmed) would identify a post-generalisation
+consolidation of embedding geometry in grokking transformers,
+situating the phenomenon within a broader pattern of late-training
+representation simplification.
 
 Elhage et al.\ \cite{elhage2021mathematical} introduced the
 transformer circuits framework, providing mechanistic vocabulary
@@ -419,8 +471,7 @@ Test accuracy will be evaluated at fixed 500-step intervals.
 $\taug$ will be defined as the first checkpoint where test accuracy
 $\geq 0.9$ for three consecutive evaluations (1{,}500 steps of
 sustained performance above threshold).
-Requiring three consecutive evaluations reduces false positives from
-transient test accuracy spikes.
+Requiring three consecutive evaluations reduces the chance of mistaking a brief accuracy spike for true generalisation onset.
 
 \paragraph{Raw Fourier alignment $F_{\mathrm{raw}}(t)$.}
 Let $E_t \in \mathbb{R}^{p \times d}$ be the mean-row-centred token
@@ -451,13 +502,18 @@ current embedding matrix:
     \{F_{\mathrm{raw}}(E_t[\sigma]) \mid \sigma \in \mathcal{S}^{(100)}\}
   \right),
 \end{equation}
+where $\mathcal{S}^{(100)}$ denotes a set of 100 i.i.d.\ uniform random permutations of $\{0,\dots,p{-}1\}$,
 and set $\fcorr(t) = \max(0,\, F_{\mathrm{raw}}(t) - F_{\mathrm{null,p95}}(t))$.
 Between update steps, $F_{\mathrm{null,p95}}$ will be held constant at its
 most recently estimated value.
-This removes chance-level baseline alignment and marks the step at
-which the embeddings show above-chance Fourier structure relative to
-the empirical permutation null (not a formal per-step significance
-test, but a practical threshold for changepoint detection).
+This removes chance-level baseline alignment and marks the step at which the embeddings show above-chance Fourier structure relative to the empirical permutation null. It is not a formal per-step significance test, but it provides a practical threshold for changepoint detection.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{raw_vs_corr_scatter.pdf}
+  \caption[Raw versus null-corrected Fourier alignment.]{Raw versus null-corrected Fourier alignment across pilot runs. The null correction removes the high baseline that arises from $d \gg p$ and isolates the above-chance component used for changepoint detection.}
+  \label{fig:raw_vs_corr}
+\end{figure}
 
 \paragraph{Fourier geometry onset $\tauf$.}
 We will apply a BIC-selected 1-breakpoint segmented regression to
@@ -468,6 +524,14 @@ improves BIC over the 2-parameter no-break baseline and the
 post-break slope exceeds 1\% of the total value range.
 $\tauf$ will be the accepted breakpoint step; labelled ``not detected''
 otherwise.
+Figure~\ref{fig:timeline} illustrates a representative run with both $\taug$ and $\tauf$ marked on the same time axis.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{timeline_example.pdf}
+  \caption[Representative training timeline.]{Representative timeline of test accuracy and null-corrected Fourier alignment $\fcorr(t)$ for a Grokking-phase run. The vertical lines mark the detected $\taug$ (sustained test accuracy threshold) and $\tauf$ (BIC-selected changepoint), with the signed lag $\Dtau = \tauf - \taug$ as the primary outcome.}
+  \label{fig:timeline}
+\end{figure}
 
 \paragraph{Phase and ordering labels.}
 A run is \textit{Grokking} if both $\tau_{\mathrm{train}}$
@@ -476,6 +540,11 @@ and $\taug$ are detected and $\taug - \tau_{\mathrm{train}}
 \geq 2{,}000$ steps.
 \textit{Memorisation}: $\tau_{\mathrm{train}}$ detected, $\taug$ not,
 and $\tauf$ not detected.
+\textit{Confusion}: $\tau_{\mathrm{train}}$ not detected (learning
+failure; neither training nor test accuracy reaches the threshold).
+\textit{Comprehension}: both $\tau_{\mathrm{train}}$ and $\taug$
+detected with $\taug - \tau_{\mathrm{train}} < 2{,}000$ steps
+(immediate generalisation; expected to be rare under this configuration).
 Runs where $\tau_{\mathrm{train}}$ is detected, $\taug$ is not, but
 $\tauf$ \emph{is} detected are labelled \textbf{F\_only} (Fourier
 geometry without generalisation).
@@ -522,6 +591,29 @@ G$<$F cases, any coincident cases, and any stable F$<$G cases
 (if observed), will be re-analysed under all $3\times4\times3 = 36$
 detector configurations (varying the null-update interval, EMA
 smoothing coefficient $\alpha$, and BIC slope threshold).
+Figures~\ref{fig:sens_robustness}--\ref{fig:sens_outlier} summarise
+the planned reporting format for the sensitivity sweep.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{sensitivity_robustness_heatmap.pdf}
+  \caption[Sensitivity robustness heatmap.]{Detector robustness across the $3\times4\times3$ configuration grid: each cell records the fraction of detector configurations under which the same G$<$F / F$<$G ordering is recovered.}
+  \label{fig:sens_robustness}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{sensitivity_percell_heatmap.pdf}
+  \caption[Per-cell sensitivity breakdown.]{Per-cell breakdown of $\Dtau$ across detector configurations, showing how the sign and magnitude of the lag respond to changes in the null-update interval, EMA $\alpha$, and BIC slope threshold.}
+  \label{fig:sens_percell}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{sensitivity_outlier_trajectory.pdf}
+  \caption[Outlier trajectory under varying detectors.]{Trajectory of $\fcorr(t)$ for a representative outlier cell under each detector configuration, illustrating the configurations under which the changepoint is or is not accepted.}
+  \label{fig:sens_outlier}
+\end{figure}
 
 \section{Expected Outcomes}
 
@@ -534,11 +626,29 @@ If the G$<$F hypothesis holds, we expect:
     (Stage~2) and the learning-rate axis (Stage~3), indicating it is a
     property of the Grokking phase rather than an artefact of a single
     hyperparameter setting.
-  \item The finding will be robust to detector hyperparameter choices:
+  \item The ordering will be robust to detector hyperparameter choices:
     varying the null-update interval, EMA smoothing coefficient, and BIC
     slope threshold should not reverse the ordering for runs with large
     $|\Dtau|$.
 \end{itemize}
+
+The intended reporting format for the lag distribution and the per-run
+$(\taug,\tauf)$ relationship is shown in Figures~\ref{fig:delta_hist}
+and~\ref{fig:tau_scatter}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{delta_histogram.pdf}
+  \caption[Distribution of $\Dtau$ across runs.]{Distribution of the signed lag $\Dtau = \tauf - \taug$ across Grokking-phase runs in the planned sweeps. Positive values correspond to G$<$F, negative to F$<$G; the bulk of the distribution is the primary test of the G$<$F hypothesis.}
+  \label{fig:delta_hist}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.78\textwidth]{tau_scatter.pdf}
+  \caption[Scatter of $\tauf$ versus $\taug$.]{Scatter of $\tauf$ against $\taug$ across runs. Points above the diagonal correspond to G$<$F orderings; points below to F$<$G.}
+  \label{fig:tau_scatter}
+\end{figure}
 
 If F$<$G holds instead, or if the ordering is inconsistent across the
 phase diagram, this would suggest that embedding-level Fourier structure
@@ -573,22 +683,17 @@ neither for generalisation.
 
 \subsection{OHS Risk Assessment}
 
-This project is entirely computational: all work involves writing and
-running Python code on a personal workstation, with no laboratory,
-field, or wet-lab work of any kind.
+This project is entirely computational: all work consists of writing and running Python code on a personal workstation, with no laboratory, field, or wet-lab work of any kind.
 No hazardous materials, chemicals, biological agents, high-voltage
 equipment, or physical prototypes are involved.
 The project therefore falls under the \textbf{Low Risk} category
 and is covered by the general OHS laboratory rules of the School
 of EECS.
-The primary ergonomic considerations (prolonged computer use) will be
-managed by taking regular breaks in accordance with standard university
-guidance.
+The main ergonomic consideration is prolonged computer use, which will be managed by taking regular breaks in line with standard university guidance.
 
 \subsection{Ethics Assessment}
 
-This project does not involve human participants, animal subjects,
-or the collection of personal data.
+This project does not involve human participants, animal subjects, or the collection of personal data.
 All experiments are conducted on synthetically generated arithmetic
 datasets ($\{(a,b,c) \mid a+b \equiv c \pmod{53}\}$) with no
 identifiable individuals.
@@ -600,12 +705,12 @@ No UQ ethical clearance is required.
   \item \textbf{Computational runtime}: each full sweep (30 runs
     $\times$ 50{,}000--80{,}000 steps) may exceed initial time
     estimates if convergence is slow.
-    \textit{Mitigation}: runs are parallelised on a local GPU (RTX 4080);
+    \textit{Mitigation}: runs will be parallelised on a local GPU (RTX 4080);
     if time is insufficient, sweep resolution can be reduced without
     compromising the primary research question.
   \item \textbf{Hardware failure}: GPU malfunction could interrupt
     experiments.
-    \textit{Mitigation}: checkpoints are saved every 500 steps; runs
+    \textit{Mitigation}: checkpoints will be saved every 500 steps; runs
     can be resumed or migrated to a cloud GPU instance.
   \item \textbf{Detector non-detection}: $\tauf$ may not be detected
     in a substantial fraction of runs, reducing sample size for the
@@ -625,16 +730,16 @@ No UQ ethical clearance is required.
   \caption{Project milestones, planned timeline, and current status.}
   \label{tab:milestones}
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{llll}
+  \begin{tabular}{lllll}
     \toprule
-    Milestone & Description & Planned Weeks & Status \\
+    Milestone & Description & GPU est. & Planned Weeks & Status \\
     \midrule
-    Stage~0 & Metric validation (6 cells $\times$ 3 seeds) & Weeks 1--2 & Complete \\
-    Stage~1 & Coarse 5$\times$5 grid sweep & Weeks 3--4 & Complete \\
-    Stage~2 & Weight-decay axis sweep (30 runs) & Weeks 5--6 & Complete \\
-    Stage~3 & Learning-rate axis sweep (30 runs) & Weeks 7--8 & Complete \\
-    Sensitivity & 36-configuration detector robustness analysis & Weeks 9--10 & Complete \\
-    Write-up  & Final thesis report & Weeks 11--13 & In progress \\
+    Stage~0 & Metric validation (18 runs) & $\sim$5 h & Weeks 1--2 & Complete \\
+    Stage~1 & Coarse 5$\times$5 grid (25 runs) & $\sim$7 h & Weeks 3--4 & Complete \\
+    Stage~2 & Weight-decay sweep (30 runs) & $\sim$9 h & Weeks 5--6 & Complete \\
+    Stage~3 & Learning-rate sweep (30 runs) & $\sim$9 h & Weeks 7--8 & Complete \\
+    Sensitivity & 36-config re-analysis (checkpoints) & $\sim$3 h & Weeks 9--10 & Complete \\
+    Write-up  & Final thesis report & --- & Weeks 11--13 & In progress \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -692,6 +797,46 @@ et~al., ``A Mathematical Framework for Transformer Circuits,''
 \textit{Transformer Circuits Thread}, 2021.
 [Online]. Available: \url{https://transformer-circuits.pub/2021/framework/index.html}
 (Accessed: April 2026).
+
+\bibitem{liu2023omnigrok}
+Z.~Liu, E.~J.~Michaud, and M.~Tegmark,
+``Omnigrok: Grokking Beyond Algorithmic Data,''
+in \textit{International Conference on Learning Representations}, 2023.
+
+\bibitem{lyu2024dichotomy}
+K.~Lyu, J.~Jin, Z.~Li, S.~S.~Du, J.~D.~Lee, and W.~Hu,
+``Dichotomy of Early and Late Phase Implicit Biases Can Provably
+Induce Grokking,''
+in \textit{International Conference on Learning Representations}, 2024.
+
+\bibitem{varma2023explaining}
+V.~Varma, R.~Shah, Z.~Kenton, J.~Kram\'{a}r, and R.~Kumar,
+``Explaining Grokking Through Circuit Efficiency,''
+\textit{arXiv preprint arXiv:2309.02390}, 2023.
+
+\bibitem{zhong2023clock}
+Z.~Zhong, Z.~Liu, M.~Tegmark, and J.~Andreas,
+``The Clock and the Pizza: Two Stories in Mechanistic Explanation
+of Neural Networks,''
+in \textit{Advances in Neural Information Processing Systems}, 2023.
+
+\bibitem{gromov2023grokking}
+A.~Gromov,
+``Grokking Modular Arithmetic,''
+\textit{arXiv preprint arXiv:2301.02679}, 2023.
+
+\bibitem{saxe2014exact}
+A.~M.~Saxe, J.~L.~McClelland, and S.~Ganguli,
+``Exact Solutions to the Nonlinear Dynamics of Learning in Deep
+Linear Neural Networks,''
+in \textit{International Conference on Learning Representations}, 2014.
+
+\bibitem{papyan2020prevalence}
+V.~Papyan, X.~Y.~Han, and D.~L.~Donoho,
+``Prevalence of Neural Collapse during the Terminal Phase of
+Deep Learning Training,''
+\textit{Proceedings of the National Academy of Sciences},
+vol.~117, no.~40, pp.~24652--24663, 2020.
 
 \end{thebibliography}
 

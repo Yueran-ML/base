@@ -1,0 +1,804 @@
+                  A Three-Stage Picture of Grokking:
+ Circuit Formation, Generalization, and Embedding Geometry
+
+                                Consolidation
+
+                                              Anonymous Authors
+
+                                                                         Abstract
+
+             We study temporal dynamics during transformer grokking on modular arithmetic, directly measuring three distinct
+        milestones in the same training runs: Fourier circuit formation onset circuit (logit-level), generalization onset gen
+        (test accuracy), and embedding-geometry consolidation F (token embedding Fourier alignment). We provide direct
+        empirical evidence for the full three-stage ordering circuit < gen < F : the Fourier computation circuit forms
+        before generalization, which in turn precedes the convergence of token embedding geometry (C<G<F in 48/54
+        Grokking runs, 88.9%).
+
+             Specifically, logit Fourier alignment shows circuit formation precedes generalization in 50/54 runs (92.6%, median
+        gap 6,250 steps), while embedding geometry lags generalization in 52/55 runs (94.5%, median lag  7,000 steps),
+        confirming the G<F ordering of Nanda et al.'s "cleanup" phase interpretation. We extend the G<F result across
+        four experimental variations: a dense 7×7 2D (lr×wd) grid (111/130 = 85.4%), a different prime p=97 (21/21 =
+        100%, median lag 28,000 steps), and modular multiplication via discrete-log reindexing (30/30 = 100%). Together
+        these results establish that embedding-level Fourier geometry is a post-generalization structural consequence--not a
+        prerequisite--across tasks, primes, and hyperparameter regimes.
+
+1 Introduction
+
+Grokking--the abrupt onset of generalization long after training accuracy saturates--has become a canonical testbed
+for studying delayed representation learning in neural networks [Power et al., 2022]. On modular arithmetic tasks,
+Nanda et al. [2023] showed that grokked transformers implement a Fourier circuit: the network uses trigonometric
+identities over a small set of task-relevant harmonics to compute modular addition. As a consequence, the p token
+embeddings form a near-circular ring in PCA space, with embedding i at angle 2i/p.
+
+    Nanda et al. [2023] also introduced mechanism-level progress measures--quantities such as the Fourier-squared
+loss--and found that these measures improve during a circuit-formation phase that precedes the generalization jump.
+This raises a natural question about a related but distinct quantity: the token embedding geometry itself. Does
+embedding-level Fourier alignment also consolidate before generalization, or does it lag behind?
+
+    Answering this requires measuring the relative timing of two events:
+
+     · gen: generalization onset--the first checkpoint where test accuracy  0.9 and remains there for three consecutive
+       evaluations;
+
+     · F : embedding-geometry onset--the step at which token embeddings first show significantly Fourier-aligned
+       structure above a permutation-null baseline (BIC changepoint on null-corrected Fourier R2).
+
+    Prior work has not directly measured  = F - gen. Nanda et al. [2023] studied mechanism-level dynamics
+but did not separately track embedding geometry. Liu et al. [2022] built a static phase diagram but did not measure
+within-run event timing. Our work closes this gap.
+
+Contributions.
+
+   1. We introduce a null-corrected Fourier alignment metric Fcorr(t) = max(0, Fraw(t) - Fnull,p95(t)) that removes
+       chance-level Fourier structure, enabling a principled BIC changepoint estimate of F .
+
+                                                                      1
+   2. We show that G<F (generalization precedes embedding Fourier alignment) holds robustly across two hyperpa-
+       rameter axes: weight decay  [1.2, 3.5] (29/30 runs; Stage 2) and learning rate  [5 × 10-4, 4.3 × 10-3] (23/25
+       Grokking runs; Stage 3), for a combined rate of 52/55 (94.5%).
+
+   3. We extend G<F to a dense 2D grid of (lr × wd) (Stage 6: 111/130 = 85.4%), a different prime p=97 (Stage 5B:
+       21/21 = 100%, median  =28,000 steps), and modular multiplication via discrete-log reindexing (Stage 5A:
+       30/30 = 100%).
+
+   4. We directly measure circuit formation circuit via logit Fourier alignment in the same training runs (Stage 4),
+       finding that circuit < gen in 50/54 Grokking runs (92.6%, median gap 6,250 steps) and establishing the full
+       three-stage ordering C<G<F in 48/54 runs (88.9%).
+
+   5. We show that for cells with | |  3,000 steps, raw and null-corrected Fourier metrics yield identical orderings;
+       null correction provides principled calibration that prevents false positives near the coincident boundary (Table 5,
+       Figure 9).
+
+    Our results establish a three-stage picture of grokking: (1) Fourier circuit formation circuit, (2) generalization
+onset gen, (3) embedding-geometry consolidation F . All three timescales are measured directly in the same runs. The
+familiar Fourier ring visible in PCA visualizations reflects stage (3)--a post-generalization structural consequence--
+rather than stage (1), which drives the generalization jump.
+
+2 Background
+
+2.1 Grokking and the Phase Diagram
+
+Power et al. [2022] documented grokking in small transformers on binary operations including (a + b) mod p. Liu et al.
+[2022] mapped training behavior across a (decoder learning rate, weight decay) grid, identifying four phases: Grokking
+(delayed generalization), Memorization (no generalization), Comprehension (immediate generalization), and Confusion
+(no learning). Our experiments follow their architecture and phase conventions.
+
+2.2 Fourier Circuits and Embedding Geometry
+
+Nanda et al. [2023] reverse-engineered the algorithm underlying grokked transformers: the network computes modular
+sums via trigonometric identities over task-relevant Fourier harmonics. They introduced mechanism-level progress
+measures and found that circuit formation--the process by which the model constructs the Fourier computation--
+precedes the test-accuracy jump, followed by a "cleanup" phase in which memorization components are removed. Their
+analysis focused on the computational mechanism (logit-level Fourier structure and progress measures); we study both
+that mechanism and a complementary quantity: the geometric organization of the token embeddings themselves. We
+introduce a logit Fourier alignment score FL that measures circuit-level structure (how much logit variance is explained
+by Fourier harmonics of the answer class), and compare its onset circuit with embedding-geometry onset F in the
+same runs. Progress measures / FL track how much of the Fourier computation is already in place; Fcorr tracks when
+the token embedding table has converged to its final geometry.
+
+3 Related Work
+
+Grokking and delayed generalization. Power et al. [2022] introduced grokking on modular arithmetic. Liu et al.
+[2022] constructed the (lr, wd) phase diagram we use as our experimental scaffold, identifying the four training phases
+we adopt. Liu et al. [2023] showed that grokking extends well beyond algorithmic tasks and is governed by the ratio of
+initial weight norm to the norm of the generalising solution. Thilak et al. [2022] linked grokking to cyclic instabilities
+of adaptive optimisers, terming this the "slingshot mechanism." On the theoretical side, Rubin et al. [2024] model
+grokking as a first-order phase transition, while Lyu et al. [2024] prove that a dichotomy of early- and late-phase implicit
+biases can provably induce grokking in homogeneous networks. These works characterise when generalization occurs;
+our work characterises its timing relative to embedding geometry and circuit formation.
+
+                                                                      2
+Mechanistic interpretability of grokked models. Nanda et al. [2023] reverse-engineered the Fourier circuit and
+showed via progress measures that circuit formation precedes the generalization jump. Our FL metric is analogous to
+their restricted logit loss but computed for all (a, b) pairs simultaneously, providing a single continuous signal for BIC
+changepoint estimation of circuit. Varma et al. [2023] argue that grokking reflects the delayed ascent of an efficient
+generalising circuit over a more immediately learnable memorising solution. Chughtai et al. [2023] study how networks
+learn group operations more broadly, finding that the learned circuits depend on the group structure in a predictable
+way. Zhong et al. [2023] show that modular addition admits two distinct algorithms (the "Clock" and "Pizza" variants),
+depending on initialisation and architecture, revealing that the Fourier circuit is not the unique generalising solution.
+Gromov [2023] provides analytic weight solutions for two-layer networks on modular arithmetic tasks, establishing
+complete interpretability of the learned representations. Conmy et al. [2023] automate circuit discovery via activation
+patching, complementing our temporal approach to identifying when circuits form. Our Fcorr metric is complementary
+to all of the above: it tracks when the token embedding table reaches its final geometric arrangement, which lags
+generalization by thousands of steps in most configurations.
+
+Embedding geometry and representation dynamics. Saxe et al. [2014] showed that learning in deep linear networks
+proceeds in discrete stages corresponding to singular value decomposition, an early theoretical account of structured
+representation formation. Papyan et al. [2020] identified "Neural Collapse," the terminal convergence of within-class
+activations to a simplex equiangular tight frame, as a generic post-convergence geometric phenomenon in classification
+networks. Our F result is analogous: the Fourier ring geometry of token embeddings is also a post-generalization
+geometric consolidation, not a prerequisite for generalization. Elhage et al. [2022] show that polysemanticity and
+superposition are widespread in transformer features; our focus on the token embedding's one-dimensional ring structure
+provides a concrete, measurable geometric ground truth against which timing can be assessed. Barak et al. [2022]
+demonstrate that abrupt generalization can hide gradual progress in loss-scale metrics, motivating our BIC changepoint
+approach to detect latent structural transitions.
+
+Methods. We use AdamW [Loshchilov and Hutter, 2019] and adopt the transformer architecture of Vaswani et al.
+[2017] as extended to the circuit framework of Elhage et al. [2021]. Our changepoint estimator is based on the Bayesian
+Information Criterion [Schwarz, 1978].
+
+4 Methods
+
+4.1 Task and Model
+
+We train a decoder-only transformer [Vaswani et al., 2017] on (a + b) mod 53. All p2 = 2,809 input pairs are
+generated; 30% (843 pairs) form the training set. The model uses dmodel = 256, 4 attention heads, 2 layers, feed-
+forward dimension 1024, no dropout. The embedding layer has fixed learning rate emb = 10-3 and weight decay 0;
+only decoder parameters are swept. We use AdamW [Loshchilov and Hutter, 2019] with a 10-step linear warmup
+followed by constant learning rate, and gradient clipping at norm 1.0.
+
+4.2 Metrics
+
+Generalization onset gen. Test accuracy is evaluated every 500 steps. gen is the first checkpoint where test accuracy
+ 0.9 for three consecutive evaluations (1,500 steps of sustained performance).
+
+Fourier alignment score F (t). Let Et  Rp×d be the (mean-row-centered) token embedding matrix at step t. We
+compute the fraction of variance explained by the best single Fourier harmonic:
+
+                     p/2   1  -  Et  - QkQk Et2F                      ,  (1)
+                                       Et2F
+Fraw(t) = max
+
+                      k=1
+
+where Qk is an orthonormal basis for [cos(2ki/p), sin(2ki/p)]ip=-01.
+
+                              3
+Null correction. With p = 53 and d = 256, any embedding matrix achieves non-trivial Fraw by chance. Every 5,000
+
+steps we estimate the 95th percentile of Fraw under 100 random token-index permutations of the current embedding
+
+matrix:
+
+         Fnull,p95(t) = Pct95 {Fraw(Et[]) |   S(100)} ,                            (2)
+
+and set Fcorr(t) = max(0, Fraw(t) - Fnull,p95(t)).
+
+Fourier geometry onset F . We apply a BIC-selected [Schwarz, 1978] 1-breakpoint segmented regression to Fcorr(t)
+on a log-time scale after exponential-moving-average smoothing (=0.15). A changepoint is accepted only if the
+4-parameter model strictly improves BIC over the 2-parameter no-break baseline and the post-break slope exceeds 1%
+of the total value range. F is the accepted breakpoint step; "not detected" otherwise.
+
+Logit Fourier alignment score FL(t) and circuit onset circuit. Let Lt  Rp2×p be the full logit matrix at step t,
+where row (ap + b) is the output logit vector for input pair (a, b). Let sab = (a + b) mod p be the target class.
+Column-centering Lct = Lt - L¯t, we compute:
+
+         FL(t)  =                                   -  Lct  -  Qk(s)Qk(s)Ltc2F     (3)
+                                                                Lct 2F          ,
+                   p/2
+
+                   max1
+
+                    k=1
+
+where Qk(s) is an orthonormal basis for [cos(2ksab/p), sin(2ksab/p)] indexed over all p2 input pairs. This measures
+the fraction of total logit variance explained by the best single Fourier harmonic of the answer class, analogous to Nanda
+et al.'s restricted logit loss. A permutation-null-corrected version FLcorr is computed identically to Fcorr (permuting the
+sab labels). circuit is the BIC changepoint of FLcorr, estimated with the same procedure as F .
+
+Ordering labels. Given (gen, F ), each run is labeled: G<F (gen < F ); F<G (gen > F ); coincident (| | 
+500); F_only (F detected, gen not); or none (neither detected). Three-way ordering among (circuit, gen, F ) is
+denoted by the corresponding inequality string (e.g., C<G<F).
+
+4.3 Experimental Design
+
+Phase classification. A run is Grokking if both train and gen are detected and gen - train  2,000 steps.
+Memorization: train detected, gen not. Comprehension: both detected, gap < 2,000 steps.
+
+Stage 2 -- weight decay sweep. Fixed lr=1.6×10-3. Weight decay: 10 log-spaced values in [1.2, 3.5]: {1.20, 1.35, 1.52, 1.71, 1.93, 2.18
+Seeds {42, 7, 2025}. Total: 30 runs.
+
+Stage 3 -- learning rate sweep. Fixed wd=2.5. Learning rate: 10 log-spaced values in [5 × 10-4, 8 × 10-3]:
+{5.0, 6.8, 9.3, 12.6, 17.1, 23.3, 31.7, 43.2, 58.8, 80.0} × 10-4. Seeds {42, 7, 2025}. Total: 30 runs.
+
+    Training runs up to 50,000 steps, extended to 80,000 if train_acc > 0.9 but gen not yet detected.
+
+Stage 4 -- circuit timing (circuit). We retrain all Stage 2 and Stage 3 cells (60 runs total), augmenting the training
+loop with FL computed every 500 steps. The same null-correction and BIC changepoint procedure yields circuit for
+each run. Three-way ordering (circuit, gen, F ) is reported.
+
+Stage 5A -- modular multiplication. Operation: (a · b) mod 53. For the multiplication task, token i should be
+indexed by its discrete logarithm logg(i) mod (p-1) rather than by i directly. We reorder embeddings by the discrete
+log before computing Fraw, and redefine sab = (a · b) mod p in FL. Fixed lr=1.6 × 10-3; wd: 10 log-spaced values
+in [1.2, 3.5]; seeds {42, 7, 2025}; max 50,000 steps. Total: 30 runs.
+
+Stage 5B -- different prime (p=97). Operation: (a + b) mod 97. Grid: same lr and wd as Stage 2 (lr= 1.6 × 10-3,
+10 wd values); max 80,000 steps (larger prime groks slower). Total: 30 runs.
+
+                                                       4
+Figure 1: Example training trajectories for three representative runs. Red curves: test accuracy (left axis). Blue
+curves: null-corrected Fourier alignment Fcorr (right axis, dotted = raw Fraw, grey dashed = null p95 baseline). Dashed
+verticals mark gen (red) and F (blue). Left and centre: G<F runs where generalization fires first and the green-
+shaded  gap follows; Fcorr rises only after test accuracy has already reached 1. Right: the sole stable F<G case
+(lr= 6.8×10-4, seed 7), where Fcorr barely exceeds the null baseline (0.015) one log-interval before an unusually late
+gen = 43,500.
+
+Stage 6 -- dense 2D grid. Operation: (a + b) mod 53. lr: 7 log-spaced values in [5 × 10-4, 4.3 × 10-3]; wd: 7
+log-spaced values in [1.2, 3.5]; seeds {42, 7, 2025}; max 50,000 steps (auto-extend to 80k). Total: 147 runs.
+
+    Code is available at the project repository.
+
+5 Results
+
+Figure 1 provides intuition for the two key events and their ordering before we present aggregate statistics.
+
+5.1 Stage 2: G<F Across Weight Decay
+
+All 30 Stage 2 runs land in the Grokking phase (train_acc = 1.0, test_acc  0.99). 29/30 runs (96.7%) show G<F
+ordering; the sole exception (wd= 3.11, seed 2025) has  = 0 and is labeled coincident. Table 1 and Figure 2
+summarize the results. P(G<F) remains near 1.0 across the full wd range tested; the median  fluctuates between
+5,500 and 13,000 steps with no monotonic trend, and P(F_only)= 0 throughout.
+
+5.2 Stage 3: G<F Across Learning Rate
+
+Of the 30 Stage 3 runs, 25 land in the Grokking phase for lr [5 × 10-4, 4.3 × 10-3]; the remaining 5 runs
+(lr 5.9 × 10-3) are Memorization. Among the 25 Grokking runs, 23/25 (92%) show G<F ordering. Results appear
+in Table 2 and Figure 3.
+
+    The two exceptions to G<F deserve comment. (i) lr= 6.8 × 10-4, seed 7:  = -1,500 steps, above the 500-step
+resolution floor but spanning only 3 checkpoints; the sensitivity analysis confirms F<G is stable across all 36 detector
+configurations (see Section 6.3). (ii) lr= 4.32 × 10-3, seed 42:  = -54,500 steps and max test accuracy only 0.965
+(required 80k-step extension). This seed sits at the edge of the Grokking phase and had an atypical training trajectory.
+
+5.3 Combined:  Distribution
+
+Combining both sweeps, 55 of 60 runs land in the Grokking phase. Of these, 52/55 (94.5%) show G<F ordering,
+2/55 show F<G, and 1/55 is coincident ( = 0). Figure 4 shows the full  distribution. Positive values (G<F)
+
+                                                                      5
+Table 1: Stage 2: wd sweep at lr = 1.6 × 10-3 (3 seeds per wd value). All 30 runs are Grokking phase.  =F -gen
+in thousands of steps (positive = G<F). Medians computed across seeds.
+
+wd P(G<F) med. gen (k) med. F (k) med.  (k)
+
+1.20 3/3     26.0                  34.0       +7.0
+
+1.35 3/3     20.5                  28.5       +9.0
+
+1.52 3/3     14.5                  21.5       +5.5
+
+1.71 3/3     14.0                  26.5       +6.5
+
+1.93 3/3     14.0                  23.5       +11.0
+
+2.18 3/3     11.0                  23.5       +8.5
+
+2.45 3/3     11.0                  16.0       +5.5
+
+2.76 3/3     10.5                  18.5       +8.5
+
+3.11 2/3     11.0                  16.5       +6.5
+
+3.50 3/3     12.0                  21.5       +9.0
+
+All 29/30    --                    --         +7.8
+
+Table 2: Stage 3: lr sweep at wd = 2.5 (3 seeds per lr). "Phase" = majority phase across seeds. "--" = Memorization
+(no gen detected).
+
+lr                Phase    P(G<F)  med.  (k)  P(F_only)
+
+5.0 × 10-4     Grokking       3/3      +2.5       0/3
+6.8 × 10-4     Grokking       2/3      +4.0       0/3
+9.3 × 10-4     Grokking       3/3      +7.5       0/3
+1.26 × 10-3    Grokking       3/3      +9.5       0/3
+1.71 × 10-3    Grokking       3/3      +6.0       0/3
+2.33 × 10-3    Grokking       3/3      +4.0       0/3
+3.17 × 10-3    Grokking       3/3      +6.0       0/3
+4.32 × 10-3    Grokking       2/3      +7.5       0/3
+5.88 × 10-3                   1/1      +2.5       2/3
+8.00 × 10-3      Mixed        --                  3/3
+             Memorization                --
+Grokking                    23/25                0/25
+                    --                 +4.0
+
+span 1,000­25,500 steps; the two negative values are the outliers noted above. Median   7,000 steps (IQR
+ 4,000 steps).
+
+5.4 Stage 4: Circuit Onset circuit and Three-Stage Ordering
+
+We retrained all Stage 2+3 cells with the additional FL metric, yielding circuit for each run. circuit was detected in all
+54 Grokking runs (100%).
+
+C<G (circuit precedes generalization). In 50/54 Grokking runs (92.6%), circuit < gen. The median gap gen -
+circuit  6,250 steps (range -3,000 to 35,000 steps). The 4 exceptions (circuit > gen, i.e. G<C<F) occur at the
+highest learning rates (lr 2.3 × 10-3, wd= 2.5), where generalization is very fast (gen  6,500 steps) and the logit
+Fourier signal rises too gradually for BIC to detect a changepoint before gen. One additional run has circuit = gen
+(both detected at the same 500-step checkpoint); it is included in the C<G count as the circuit was detected no later
+than generalization.
+
+Full three-stage ordering C<G<F. The dominant pattern is C<G<F in 48/54 runs (88.9%). The remaining runs split
+into C<F<G (2 runs, low-lr boundary) and G<C<F (4 runs, high-lr boundary). The three intervals are nearly equal in
+magnitude: median gen - circuit  6,250 steps, median F - gen  6,000 steps, median F - circuit  13,000 steps.
+
+                           6
+Table 3: Stage 4: three-stage timing across Stage 2 (lr= 1.6 × 10-3) and Stage 3 (wd= 2.5) Grokking runs. Medians in
+thousands of steps.
+
+Subset              C<G<F   C<G rate     med. gen-circuit (k)  med. F -gen (k)
+                                                    6.3                 6.0
+Stage 2 (lr fixed)   30/30    100%                  6.3                 6.0
+Stage 3 (wd fixed)   18/24    79.2%
+All                  48/54   92.6%                  6.3                6.0
+
+Table 4: G<F rates across all experimental stages. nG: Grokking runs; G<F: ordering rate and median lag.
+
+Stage Setting                            nG G<F rate med.  (k)
+
+2+3 add mod 53, 1D sweeps 55 94.5%                             7.0
+
+5A mul mod 53                            30 100%               8.8
+
+5B add mod 97                            21 100%               28.0
+
+6                   add mod 53, 2D grid 130 85.4%              6.0
+
+All                                      236 89.8%             --
+
+5.5 Stage 5A: Modular Multiplication
+
+All 30 runs with (a · b) mod 53 land in the Grokking phase. 30/30 (100%) show G<F ordering after discrete-log
+reindexing of token embeddings. Median  = 8,750 steps (range 3,500­24,000), comparable to the addition results.
+The perfect G<F rate extends the finding beyond the addition task, suggesting the ordering is not specific to the
+(a + b) mod p circuit structure.
+
+5.6 Stage 5B: Different Prime (p=97)
+
+Of the 30 runs with (a + b) mod 97, 21 land in the Grokking phase (9 in Comprehension, concentrated at high wd where
+fast generalization prevents a Grokking-phase classification). 21/21 Grokking runs (100%) show G<F ordering.
+The median lag  = 28,000 steps is markedly larger than for p=53 ( 7,000 steps), consistent with the larger prime
+requiring more training steps and a correspondingly longer consolidation period. The G<F rate and direction are
+unchanged.
+
+5.7 Stage 6: G<F Across the Full 2D Phase Diagram
+
+The 7×7 grid yields 130 Grokking runs (88.4% of 147 total; 16 Memorization, 1 Comprehension). 111/130 Grokking
+runs (85.4%) show G<F ordering; 14/130 show F<G and 5/130 have G_only (F not detected). Median  
+6,000 steps.
+
+    The G<F rate is not uniform across the grid. By learning rate, G<F peaks at intermediate lr (95% for lr
+[10-3, 2 × 10-3]) and decreases toward both boundaries (58% at lr= 5 × 10-4, 78% at lr= 4.3 × 10-3). By weight
+decay, G<F increases monotonically from 72% at wd= 1.43 to 95% at wd 2.93. F<G cases concentrate at the low-lr
+and high-lr boundaries (12 of 14 cases), consistent with the speed-dependent ordering hypothesis: runs at the phase
+margin generalize slowly, giving weight decay more time to structure the embeddings before gen. The interior of the
+Grokking phase is robustly G<F. Figure 8 shows the full spatial structure.
+
+6 Discussion
+
+6.1 Embedding Geometry as a Lagging Indicator
+
+Our results are compatible with a picture of grokking that distinguishes mechanism formation from embedding
+consolidation. Nanda et al. [2023] showed that the Fourier computation circuit forms--and progress measures improve--
+before the generalization jump gen. Our complementary finding is that the token embedding geometry (measured by
+Fcorr) continues to consolidate for thousands of steps after gen.
+
+                                      7
+    Our results directly support a three-stage picture: (1) Fourier circuit formation circuit (this work, via logit Fourier
+alignment); (2) generalization onset gen; (3) embedding-geometry consolidation F (this work). All three timescales
+are measured in the same runs, without relying on Nanda et al.'s separate dataset. The three intervals are approximately
+equal: median gen - circuit  F - gen  6,000­6,250 steps, so the total span F - circuit  13,000 steps is
+split nearly evenly between stages (12) and (23). The familiar Fourier ring visible in PCA visualizations reflects
+
+stage (3)--a post-generalization structural consequence--not stage (1), which drives the generalization jump.
+
+    A further finding is consistent with this view: F_only runs (Fourier geometry detected but no generalization) exist at
+lr  5.9 × 10-3, showing that Fourier geometric organization is insufficient for generalization near the phase boundary.
+Together, G<F and F_only runs suggest that this measured Fcorr-based embedding alignment is neither synchronized
+with generalization (it lags gen in the G<F regime) nor predictive of it (Fourier structure can accumulate without
+triggering generalization in the F_only regime). Whether this implies anything about the underlying Fourier circuit
+mechanism--which we do not directly measure--requires further investigation with circuit-level probes.
+
+6.2 Why the Metric Matters
+
+We use null-corrected Fcorr rather than raw Fraw because random embeddings already exhibit non-trivial Fraw in high
+dimensions (p = 53, d = 256): any projection of 53 points in 256 dimensions partially aligns with some harmonic by
+chance. The null-corrected Fcorr removes this baseline and marks the step at which embeddings show significantly
+above-chance harmonic structure.
+
+    To assess whether null correction changes the conclusions of this paper, we applied the BIC changepoint estimator
+independently to Fcorr and Fraw for all 8 sensitivity cells (Table 5). For cells with | |  3,000 steps, the two metrics
+agree: 6 of 6 G<F cells remain G<F under raw Fourier, because the sharp post-gen rise in Fraw dominates the
+changepoint detection regardless of baseline. The null correction matters most for marginal cases: the coincident cell
+(wd= 3.11) and the F<G outlier remain unchanged. We conclude that null correction does not alter the main finding
+for runs with substantial lags, but is conceptually important for calibrating the detection threshold and avoiding false
+positives in the coincident regime.
+
+Table 5: Ordering under null-corrected vs. raw Fourier for 8 sensitivity cells (canonical detector config). For cells with
+| |  3,000 both metrics agree; null correction is relevant primarily near the coincident boundary.
+
+Cell              Category    Order (Fcorr)  Order (raw)  Flipped?
+
+wd=1.71, s7      strong G<F       G<F            G<F         No
+wd=2.76, s42     strong G<F       G<F            G<F         No
+wd=1.52, s42    medium G<F        G<F            G<F         No
+wd=2.18, s42    medium G<F        G<F            G<F         No
+wd=2.45, s7      weak G<F         G<F            G<F         No
+wd=3.50, s7      weak G<F         G<F            G<F         No
+wd=3.11, s2025    coincident   coincident    coincident      No
+lr=6.8e-4, s7                     F<G            F<G         No
+                     F<G
+Total                           6/8 G<F       6/8 G<F        0/8
+
+6.3 Detector Robustness
+
+A natural concern is whether the G<F finding depends on the specific choice of detector hyperparameters: the null-
+update interval, the EMA smoothing coefficient, and the BIC slope threshold. To address this, we trained 8 representative
+cells spanning strong, medium, and weak G<F cases, one coincident case, and the sole stable F<G case, and applied
+all 3 × 4 × 3 = 36 detector configurations post-hoc to the same saved trajectories.
+
+    We define the Robustness Score RS = NG<F /Ntotal for each cell, where Ntotal = 36. Results are shown in
+Figure 10. The five cells with | |  5,000 steps achieve RS = 1.00 (36/36 configurations yield G<F). The two cells
+with | |  2,000­3,000 steps achieve RS= 0.83 and RS= 0.75, with the remaining configurations classifying as
+coincident rather than F<G. Crucially, no G<F cell is ever classified as F<G under any configuration. The mean RS
+across all seven non-F<G cells is 0.94, confirming that the G<F finding forms a robustness plateau over the detector
+parameter space.
+
+                                                                      8
+The two F<G cases. Honest treatment requires acknowledging both F<G runs as genuine in the metric sense, while
+characterizing what they reveal.
+
+    lr= 6.8 × 10-4, seed 7 ( = -1,500, RS= 0/36). All 36 detector configurations agree this is F<G, so the
+ordering is stable and cannot be dismissed as a detection artifact. However, trajectory inspection reveals that Fcorr at
+gen is only 0.015--near the detection floor--while gen = 43,500 is the latest generalization time in our dataset. At
+this very low learning rate, the weight-decay-to-learning-rate ratio is wd/lr  3,700, compared to  1,070 for a typical
+G<F cell. A plausible interpretation is that strong relative weight decay slowly compresses the embeddings toward
+Fourier-structured geometry during the long wait before generalization, accumulating a barely detectable Fcorr signal
+before the sharp gen transition. Whether this reflects a qualitatively different mechanism or an extreme-parameter-ratio
+edge case of the same process requires further investigation.
+
+    lr= 4.32×10-3, seed 42 ( = -54,500, RS not assessed). This is the most extreme case: F = 13,000 but
+gen = 67,500 (extended to 80k steps), with max_test_acc= 0.965 (below 1.0, indicating incomplete generalization).
+This run sits near the Grokking/Memorization phase boundary. We conjecture that at high lr, the model can develop
+embedding Fourier structure early--perhaps because weight decay acts more aggressively on shallow features--while
+the slow, incomplete generalization process unfolds on a much longer timescale. This case may reflect genuinely
+different dynamics near the phase boundary rather than the typical G<F consolidation regime, and warrants a dedicated
+study.
+
+    Both cases occur near the boundaries of the Grokking phase (low-lr edge and high-lr edge), suggesting the G<F
+ordering is most reliable in the interior of the Grokking region and may break down at the phase margins.
+
+6.4 Limitations
+
+Task scope. Our three-stage confirmation covers (a + b) mod p and (a · b) mod 53. Stage 5B extends to p=97.
+Generalization to non-modular tasks, deeper architectures, or non-algorithmic settings remains open.
+
+Measurement resolution.  is measured with 500-step resolution; small lags (| |  500) cannot be reliably
+classified. One F<G run has | | = 1,500 (three log-intervals), above the resolution floor but warranting caution.
+
+Logit metric alignment. Our FL captures the aggregate Fourier structure of logits across all (a, b) pairs, which
+is related but not identical to Nanda et al.'s restricted logit loss. Whether the two metrics detect exactly the same
+circuit-formation event or slightly different aspects of it remains to be verified by direct comparison on the same runs.
+
+Phase-boundary regime. The 4 G<C<F exceptions in Stage 4 all occur at high lr where generalization is very fast.
+The BIC changepoint may underestimate circuit when the logit signal rises gradually rather than sharply, so these
+exceptions may partly reflect detection limits rather than genuine G<C ordering.
+
+Phase-boundary regime and task-specificity. Both F<G runs in our addition sweeps occur at the margins of
+the Grokking phase where gen is unusually late (43,500 and 67,500 steps). A pilot run of modular subtraction
+((a-b) mod 53, wd= 2.18) further supports this pattern: subtraction groks much later than addition at the same
+hyperparameters (gen=43,500 vs  11,000 for addition), and the ordering is F<G ( =-9,000). Together, these
+observations suggest a speed-dependent ordering hypothesis: G<F holds when generalization is fast (small gen);
+when grokking is delayed--whether by extreme hyperparameters or by a harder task--weight-decay-driven embedding
+consolidation can precede generalization, yielding F<G. Formally testing this hypothesis across a wider task and
+hyperparameter space is an important open direction. Figure 11 provides preliminary quantitative support: across 57
+Grokking runs (55 addition + 2 subtraction pilots),  correlates negatively with gen (r = -0.62); all F<G runs have
+gen  43,000 steps, whereas the majority of G<F runs have gen  35,000 steps. Crucially, two subtraction pilots
+at the same hyperparameters (wd= 2.18, lr= 1.6×10-3) provide within-task evidence: seed 42 (gen=43,500, slow)
+gives F<G ( = - 9,000), while seed 7 (gen=27,500, faster) gives G<F ( = + 5,500)--the same hyperparameters
+produce opposite orderings depending solely on how quickly the run generalizes. We note that  = F - gen is partly
+mathematically related to gen, so the aggregate correlation partly reflects this construction; however, the within-task
+seed comparison is free of this confound and directly supports the speed-dependent interpretation.
+
+                                                                      9
+7 Conclusion
+
+We have directly measured all three stages of a three-stage picture of grokking in the same training runs: Fourier circuit
+formation circuit, generalization onset gen, and embedding-geometry consolidation F . The full C<G<F ordering
+holds in 48/54 Grokking runs (88.9%), with approximately equal gaps between consecutive stages ( 6,000­6,250 steps
+each).
+
+    Across 236 Grokking runs spanning two tasks, two primes, and a dense 2D hyperparameter grid, 89.8% show
+G<F ordering. The G<F rate reaches 100% on 1D hyperparameter slices (Stages 2, 5A, 5B) and 85.4% on the full
+2D grid (Stage 6), with exceptions concentrated at phase boundaries where grokking is abnormally slow. Median
+embedding-geometry lag ranges from  6,000 steps (p=53) to 28,000 steps (p=97), scaling with the difficulty of the
+task.
+
+    The familiar Fourier ring in grokking PCA visualizations reflects the third stage--a post-generalization structural
+consequence--not the first (circuit formation), which drives the generalization jump.
+
+    A methodological takeaway: raw Fourier alignment can shift the estimated onset earlier, but in our sensitivity
+cells it does not reverse the ordering sign (0/8 flips; Table 5). Null correction is nonetheless important for principled
+calibration, as it prevents false positives near the coincident boundary where Fraw reflects high-dimensional chance
+alignment rather than genuine Fourier structure.
+
+Broader impact. This work studies a small-scale neural network training phenomenon. No immediate harmful
+applications are foreseen. Findings may inform training efficiency research by clarifying which structural changes are
+or are not necessary for generalization.
+
+References
+
+Boaz Barak, Benjamin L. Edelman, Surbhi Goel, Sham Kakade, Eran Malach, and Cyril Zhang. Hidden progress in
+   deep learning: SGD learns parities near the computational limit. In Advances in Neural Information Processing
+   Systems, volume 35, 2022. arXiv:2207.08799.
+
+Bilal Chughtai, Lawrence Chan, and Neel Nanda. A toy model of universality: Reverse engineering how networks
+   learn group operations. In International Conference on Machine Learning, 2023. arXiv:2302.03025.
+
+Arthur Conmy, Augustine N. Mavor-Parker, Aengus Lynch, Stefan Heimersheim, and Adrià Garriga-Alonso. Towards
+   automated circuit discovery for mechanistic interpretability. In Advances in Neural Information Processing Systems,
+   2023. arXiv:2304.14997.
+
+Nelson Elhage, Neel Nanda, Catherine Olsson, Tom Henighan, Nicholas Joseph, Ben Mann, Amanda Askell, Yuntao
+   Bai, Anna Chen, Tom Conerly, et al. A mathematical framework for transformer circuits. Transformer Circuits
+   Thread, 2021. URL https://transformer-circuits.pub/2021/framework/index.html.
+
+Nelson Elhage, Tristan Hume, Catherine Olsson, Nicholas Schiefer, Tom Henighan, Shauna Kravec, Zac Hatfield-Dodds,
+   Robert Lasenby, Dawn Drain, Carol Chen, et al. Toy models of superposition. Transformer Circuits Thread, 2022.
+   URL https://transformer-circuits.pub/2022/toy_model/index.html.
+
+Andrey Gromov. Grokking modular arithmetic. arXiv preprint arXiv:2301.02679, 2023.
+
+Ziming Liu, Ouail Kitouni, Niklas Nolte, Eric J. Michaud, Max Tegmark, and Mike Williams. Towards understanding
+   grokking: An effective theory of representation learning. In Advances in Neural Information Processing Systems,
+   volume 35, 2022.
+
+Ziming Liu, Eric J. Michaud, and Max Tegmark. Omnigrok: Grokking beyond algorithmic data. In International
+   Conference on Learning Representations, 2023. arXiv:2210.01117.
+
+Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. In International Conference on Learning
+   Representations, 2019. arXiv:1711.05101.
+
+                                                                     10
+Kaifeng Lyu, Jikai Jin, Zhiyuan Li, Simon S. Du, Jason D. Lee, and Wei Hu. Dichotomy of early and late phase
+   implicit biases can provably induce grokking. In International Conference on Learning Representations, 2024.
+   arXiv:2311.18817.
+
+Neel Nanda, Lawrence Chan, Tom Lieberum, Jess Smith, and Jacob Steinhardt. Progress measures for grokking via
+   mechanistic interpretability. In International Conference on Learning Representations, 2023.
+
+Vardan Papyan, X. Y. Han, and David L. Donoho. Prevalence of neural collapse during the terminal phase of deep
+   learning training. Proceedings of the National Academy of Sciences, 117(40):24652­24663, 2020. arXiv:2008.08186.
+
+Alethea Power, Yuri Burda, Harri Edwards, Igor Babuschkin, and Vedant Misra. Grokking: Generalization beyond
+   overfitting on small algorithmic datasets. arXiv preprint arXiv:2201.02177, 2022.
+
+Noa Rubin, Inbar Seroussi, and Zohar Ringel. Grokking as a first order phase transition in two layer networks. In
+   International Conference on Learning Representations, 2024. arXiv:2310.03789.
+
+Andrew M. Saxe, James L. McClelland, and Surya Ganguli. Exact solutions to the nonlinear dynamics of learning in
+   deep linear neural networks. In International Conference on Learning Representations, 2014. arXiv:1312.6120.
+
+Gideon Schwarz. Estimating the dimension of a model. The Annals of Statistics, 6(2):461­464, 1978.
+Vimal Thilak, Etai Littwin, Shuangfei Zhai, Omid Saremi, Roni Paiss, and Joshua Susskind. The slingshot mechanism:
+
+   An empirical study of adaptive optimizers and the grokking phenomenon. arXiv preprint arXiv:2206.04817, 2022.
+Vikrant Varma, Rohin Shah, Zachary Kenton, János Kramár, and Ramana Kumar. Explaining grokking through circuit
+
+   efficiency. arXiv preprint arXiv:2309.02390, 2023.
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, and Illia
+
+   Polosukhin. Attention is all you need. In Advances in Neural Information Processing Systems, volume 30, 2017.
+Ziqian Zhong, Ziming Liu, Max Tegmark, and Jacob Andreas. The clock and the pizza: Two stories in mechanistic
+
+   explanation of neural networks. In Advances in Neural Information Processing Systems, 2023. arXiv:2306.17844.
+
+A Experimental Details
+
+A.1 BIC Changepoint Estimator
+
+We apply an exponential moving average (=0.15) to the Fcorr trajectory, then operate on log(1 + t). We search all
+candidate breakpoints in the interior two-thirds of the sequence, fitting OLS regressions before and after each candidate.
+The 4-parameter breakpoint model is accepted if BICbreak < BICno-break, where BICk = n log(RSS/n) + k log(n). A
+persistence check requires the post-break slope to exceed 1% of the total value range.
+
+A.2 Null Permutation Estimation
+
+Each run maintains a fixed NumPy RNG seeded as run_seed  0xDEAD, independent of the model RNG. We shuffle
+the p token indices 100 times every 5,000 steps to estimate Fnull,p95.
+
+A.3 Hyperparameter Values
+
+Stage 2. wd  {1.20, 1.35, 1.52, 1.71, 1.93, 2.18, 2.45, 2.76, 3.11, 3.50}; lr = 1.6 × 10-3; seeds = {42, 7, 2025}.
+
+Stage 3. lr  {5.00, 6.80, 9.26, 12.6, 17.1, 23.3, 31.7, 43.2, 58.8, 80.0} × 10-4; wd = 2.5; seeds = {42, 7, 2025}.
+
+                                                                     11
+B Complete Timing Results
+
+Figure 12 shows the full scatter of (gen, F ) for all 55 Grokking runs. Points above the diagonal (F > gen) correspond
+to G<F; the two red star () points below are the F<G cases discussed in Section 5.2. The scatter confirms that the lag
+ = F - gen is distributed throughout the range 1,000­25,000 steps with no obvious bimodal structure.
+
+C Per-Cell Detector Sensitivity
+
+Figure 13 extends the aggregate robustness heatmap (Figure 10) to show P(G<F) per cell, allowing inspection of which
+configurations drive the RS < 1 cases.
+
+    Figure 14 provides a direct comparison of the F<G outlier trajectory against the strong G<F reference cell.
+
+                                                                     12
+Figure 2: Stage 2: embedding Fourier alignment onset vs. generalization across weight decay. Top: P(G<F) per wd
+value. Middle: median  =F -gen (k steps). Bottom: P(F_only) (Fourier detected, no generalization). The G<F
+plateau is wide: it holds throughout wd  [1.2, 3.5].
+
+                                                                     13
+Figure 3: Stage 3: embedding Fourier alignment onset vs. generalization across learning rate (wd = 2.5). Layout
+mirrors Figure 2; x-axis is log-scaled. The bottom panel shows P(Grokking) per lr: cells at lr 5.9 × 10-3 enter
+Memorization. The vertical dotted line marks the Stage 2 fixed lr (1.6 × 10-3), which lies firmly in the G<F plateau.
+
+                                                                     14
+                     distribution addition p = 53 (Stage 2+3, n = 55 Grokking runs)
+
+           10                    G<F                              G<F: 52 | F<G: 2 | coincident: 1
+                                 F<G
+                                 median = 7.0k
+           8
+
+    Count  6
+
+           4
+
+           2
+
+           0 60                                 40      =   20    (k steps0)                                   20
+
+                                                           F gen
+
+Figure 4: Distribution of  =F -gen across all 55 Grokking runs (Stage 2 blue, Stage 3 red). Positive values indicate
+G<F (generalization first). Median   7,000 steps; 52/55 runs (94.5%) are positive. The two negative values are
+discussed in Section 5.2.
+
+                                 Stage 4 three-stage timing scatter (n = 54 Grokking runs)
+
+    C<G:C5<0/G54<(F92(.n6=%4)8)                                                  G<F: C52</5G4<(F96(.n3=%4)8)
+    C < F < G (n=2)                                                              C < F < G (n=2)
+70  G < C < F (n=4)                                                          70  G < C < F (n=4)
+
+60                                                                           60
+
+50                                                                           50
+gen (k steps)
+40                                                              F (k steps)  40
+
+30                                                                           30
+
+20                                                                           20
+
+10                                                                           10
+
+00  10     20  30                4(k0 step5s0)  60  70                       00  10  20  30                    (4k0step5s0)  60  70
+
+               circuit                                                                    gen
+
+Figure 5: Three-stage timing scatter (Stage 4). Left: circuit (circuit) vs gen (generalization). Points above the
+diagonal (y > x) confirm C<G ordering. Blue: C<G<F (dominant); orange: C<F<G; pink: G<C<F. Right: gen
+vs F (embedding geometry). Points above diagonal confirm G<F. C<G holds in 50/54 runs (92.6%); G<F holds in
+52/54 runs (96.3%).
+
+                                                           15
+                                             Stage 4 interval distributions (n = 54 Grokking runs)
+
+                                   30
+
+          Time interval (k steps)  20                                                                       med=13.0k
+                                   10
+                                                                                     med=6.0k
+                                                med=6.2k
+
+                                    0
+
+                                         ge(nC Gci)rcuit                             (FG Fge)n              (CF F tcoirctuaitl)
+
+Figure 6: Three-stage interval distributions (Stage 4, n=54 Grokking runs). All three intervals are positive on
+the median, with the total span F - circuit  13,000 steps split nearly equally between circuitgeneralization and
+generalizationembedding-geometry.
+
+          G<F ordering rate per stage                     Cross-experiment summary                          Median per stage (G<F runs only)
+
+                                                                                25                                                           28k
+                                                             85%
+100  97%                           100%  100%
+                                                                                20
+G<F rate among Grokking runs (%)92%
+                                                                          Median = F gen (k steps)
+80
+
+60                                                                                                  15
+
+40                                                                                                  10  8k                       9k
+
+                                                                                                            6k                                    6k
+
+20                                                                                                  5
+
+0 (wSdtasgweee2p) (lSrtsawgeee3p) (mStualg,edl5oAg) (aSdtadgpe=59B7) (S2tDaggerid6)                 0 (wSdtasgweee2p) (lSrtsawgeee3p) (mStualg,edl5oAg) (aSdtadgpe=59B7) (S2tDaggerid6)
+
+Figure 7: G<F rate and median lag across all experimental stages. Left: G<F ordering rate; all stages exceed 85%.
+Right: median  =F -gen; the larger prime p=97 (Stage 5B) shows a markedly larger lag, consistent with slower
+grokking requiring a longer consolidation period.
+
+                                                                                     16
+Stage 6: 2D phase diagram (lr × wd grid, 7×7, 3 seeds each)
+
+(aGv<gForvaeter 3pesreecedlsl)          1.0                                                                   Majority phase per cell
+
+3.50 100% 100% 100% 100% 67% 100% 100%                                                       3.50 Grok  Grok  Grok  Grok  Grok         Grok Grok
+                                                                                                                                       Grok Grok
+2.93 67% 100% 100% 100% 100% 100% 100%  0.8                                                  2.93 Grok  Grok  Grok  Grok  Grok         Grok Grok
+                                                                                                                                       Grok Mem
+2.45 67% 100% 100% 100% 100% 100% 67%                                                        2.45 Grok  Grok  Grok  Grok  Grok         Grok Mem
+Weight decay                            0.6                                                                                            GroGkrokkingMem
+                                                                               G<F rate
+                                                                                                                                          Comprehension
+                                                                               Weight decay                                            GroCMkoenmfuosriiozanMtieomn
+2.05 33% 100% 100% 100% 100% 100% 0%                                                         2.05 Grok  Grok  Grok  Grok  Grok         3.00 4.30
+
+1.71 67% 33% 67% 100% 100% 100%         0.4                                                  1.71 Grok  Grok  Grok  Grok  Grok
+
+1.43 33% 67% 100% 100% 100% 33%         0.2                                                  1.43 Grok  Grok  Grok  Grok  Grok
+
+1.20 50% 100% 100% 67% 100% 50%                                                              1.20 Grok  Grok  Grok  Grok  Grok
+
+0.50 0.72 1.02 1.47 2.10 3.00 4.30      0.0                                                  0.50 0.72 1.02 1.47 2.10
+
+Learning rate ×10 3                                                                                            Learning rate ×10 3
+
+Figure 8: Stage 6: 2D phase diagram and G<F rate. Left: G<F rate per (lr, wd) cell, averaged over 3 seeds. G<F is
+strongest in the interior (lr [10-3, 2 × 10-3], wd 2.5) and weakens toward phase boundaries. Right: majority phase
+
+per cell. Memorization occupies the high-lr, low-wd corner.
+
+Figure 9: Scatter of F under null-corrected (left) vs. raw (right) Fourier for 8 sensitivity cells. Points above the diagonal
+indicate G<F ordering; points below indicate F<G. Blue points remain G<F under both metrics; the red point (F<G
+outlier) remains below the diagonal. No ordering flips across the two metrics.
+
+                                                                     17
+Figure 10: Robustness plateau. Each cell shows P(G<F) for a given (BIC slope threshold, EMA ) combination,
+averaged over null-update intervals {500, 2500, 5000} and over all seven Grokking cells. Strong and medium G<F
+cells achieve 1.00 across all configurations; weaker cells (| |  3,000 steps) degrade gracefully to coincident, never
+to F<G.
+
+Figure 11: Speed-dependent ordering hypothesis. Scatter of generalization onset gen vs lag  =F -gen for all
+55 Grokking addition runs (blue circles = G<F, red stars = F<G, grey diamond = coincident) and 2 subtraction pilots
+(orange triangles; 1 F<G, 1 G<F). All F<G runs cluster at gen  43,000 steps; the overall correlation is r=-0.62
+(n=57). Note: since  is defined relative to gen, part of this negative correlation is a mathematical artifact; the result
+should be interpreted as suggestive evidence rather than a clean causal claim.
+
+                                                                     18
+Figure 12: Scatter plot of gen vs F for all 55 Grokking runs (blue = Stage 2 wd sweep; orange = Stage 3 lr sweep).
+All points above the dashed diagonal are G<F. The two red star () points below the diagonal are the F<G outliers
+discussed in Section 5.2.
+
+Figure 13: Per-cell P(G<F) across all 36 detector configurations, marginalized over null-update interval. Strong and
+medium G<F cells (first four panels) are uniformly blue (RS= 1.00). Weak G<F cells degrade to coincident (not
+F<G) under the strictest slope threshold. The F<G outlier (bottom right) is uniformly red across all 36 configurations,
+confirming that its ordering is stable with respect to detector parameters.
+
+                                                                     19
+Figure 14: Trajectory comparison: F<G outlier (lr= 6.8×10-4, seed 7; left) vs. a strong G<F reference (wd= 1.71,
+seed 7; right). In the outlier, Fraw (dotted blue) hovers near the null baseline (grey dashed) throughout training and
+Fcorr only barely exceeds zero near the very late gen = 43,500. In the reference cell, Fcorr shows a clear, sustained
+rise well after the sharp test-accuracy jump.
+
+                                                                     20
+

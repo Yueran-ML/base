@@ -158,7 +158,7 @@ milestones during transformer grokking on modular arithmetic:
 the onset of test generalisation~$\taug$ and the onset of
 Fourier-aligned token embedding geometry~$\tauf$.
 Disentangling these events matters because the Fourier circuit
-identified by Nanda et al.\ (2023) is the known mechanism underlying
+identified by Nanda et al.~\cite{nanda2023progress} is the known mechanism underlying
 grokked solutions, yet it remains open whether the \emph{embedding-level}
 Fourier geometry consolidates before or after the network starts
 generalising.
@@ -201,9 +201,10 @@ Understanding \emph{why} generalisation is delayed, and what internal
 changes accompany the transition, is a central open problem in the
 study of neural network learning dynamics.
 
-On modular arithmetic tasks, mechanistic interpretability work has
-provided a compelling explanation: grokked transformers implement a
-Fourier circuit \cite{nanda2023progress}.
+On modular arithmetic tasks, mechanistic interpretability
+\cite{olah2020circuits} has provided a compelling explanation:
+grokked transformers implement a Fourier circuit
+\cite{nanda2023progress}.
 The network computes $(a+b)\bmod p$ by exploiting trigonometric
 identities over a small set of task-relevant harmonics.
 A striking geometric consequence of this algorithm is that the $p$
@@ -250,7 +251,7 @@ The remainder of this proposal is structured as follows.
 Chapter~2 reviews background on grokking, the Fourier circuit, and
 the existing phase-diagram literature, and identifies the specific
 knowledge gap addressed here.
-Chapter~3 describes the project plan, including task and model
+Chapter~\ref{chap:plan} describes the project plan, including task and model
 specification, metric definitions, experimental design, expected
 outcomes, and project timeline.
 
@@ -284,7 +285,36 @@ distinct phases:
 \end{itemize}
 Their effective-theory analysis attributed phase transitions to
 competition between memorisation and generalisation mechanisms,
-regulated by weight decay acting as a complexity penalty.
+regulated by weight decay acting as a complexity penalty
+\cite{krogh1991weightdecay}.
+
+A growing body of recent work has further refined the picture.
+Thilak et al.\ \cite{thilak2022slingshot} reported a
+\emph{slingshot} mechanism by which adaptive optimisers traverse a
+brief instability before generalisation, suggesting that
+optimisation dynamics are not monotonic during the grokking
+transition.
+Notsawo et al.\ \cite{notsawo2023predicting} showed that early
+spectral signatures of the loss landscape can predict whether and
+when grokking will occur, well before the test-accuracy jump.
+Davies et al.\ \cite{davies2023unifying} cast grokking and double
+descent as two manifestations of the same underlying competition
+between rote and structured solutions.
+Merrill et al.\ \cite{merrill2023tale} proposed an alternative
+``two-circuit'' account in which grokking arises from competition
+between a sparse generalising subnetwork and a dense memorising
+one.
+
+While Liu et al.\ \cite{liu2022towards} studied a specific
+algorithmic setting, a follow-up paper \cite{liu2023omnigrok}
+demonstrated that grokking is not unique to algorithmic tasks but
+also appears in vision and language settings under appropriate
+weight-decay and data-fraction regimes.
+On the theoretical side, Lyu et al.\ \cite{lyu2024dichotomy}
+attributed grokking to a dichotomy between an early kernel-like
+implicit bias and a late feature-learning bias, providing a
+provable mechanism by which weight decay can induce delayed
+generalisation.
 
 Under the specific configuration used in this project ($p=53$,
 $d_{\mathrm{model}}=256$, train fraction~$0.3$), we expect
@@ -320,6 +350,27 @@ they called the ``circuit formation'' phase.
 A subsequent ``cleanup'' phase follows, in which memorisation
 components are pruned.
 
+Several complementary mechanistic accounts have since been proposed.
+Varma et al.\ \cite{varma2023explaining} explained grokking through
+\emph{circuit efficiency}: when generalising and memorising circuits
+coexist, weight decay shifts the equilibrium toward the more
+efficient (generalising) circuit, producing the delayed transition.
+Zhong et al.\ \cite{zhong2023clock} proposed two complementary
+mechanisms---``the clock'' and ``the pizza''---arguing that
+different model and task configurations realise different geometric
+implementations of modular arithmetic.
+Gromov \cite{gromov2023grokking} provided an algebraic
+characterisation of the grokked solution on modular tasks,
+showing that the learned representation closely matches a clean
+algebraic factorisation.
+The accounts of Nanda et al.\ \cite{nanda2023progress},
+Varma et al.\ \cite{varma2023explaining}, and
+Lyu et al.\ \cite{lyu2024dichotomy} are mutually compatible at the
+level of mechanism but differ in what they predict about the
+\emph{timing} of representation consolidation relative to
+generalisation onset---a question this project addresses
+empirically.
+
 This project complements that picture by measuring a
 related but distinct quantity: the geometric organisation of the
 \emph{token embeddings themselves}, as characterised by our
@@ -329,10 +380,19 @@ null-corrected Fourier alignment score $\fcorr(t)$.
 
 The broader question of when and how internal representations change
 during learning is a central topic in deep learning theory.
+Saxe et al.\ \cite{saxe2014exact} derived exact solutions to learning
+dynamics in deep linear networks, showing that representational
+structure can emerge in distinct, sequential stages even when loss
+decreases smoothly.
 Barak et al.\ \cite{barak2022hidden} demonstrated that SGD can learn
 parity functions near the computational limit, showing that abrupt
 generalisation transitions can hide gradual progress in standard
 loss-scale metrics.
+Papyan et al.\ \cite{papyan2020prevalence} documented \emph{neural
+collapse}, in which class-mean features collapse onto a simplex
+equiangular tight frame during the terminal phase of training, as
+another example of late-training geometric consolidation that is
+invisible in standard loss or accuracy curves.
 This timing analysis aims to test whether token geometry consolidates
 after generalisation---a structural change that would be invisible
 in loss or accuracy curves alone.
@@ -341,7 +401,7 @@ Elhage et al.\ \cite{elhage2021mathematical} introduced the
 transformer circuits framework, providing mechanistic vocabulary
 for understanding how attention and MLP layers implement specific
 computations, which underpins the Fourier circuit analysis of
-Nanda et al.
+Nanda et al.~\cite{nanda2023progress}.
 
 Rubin et al.\ \cite{rubin2024grokking} characterised grokking as
 a first-order phase transition in two-layer networks, providing a
@@ -370,7 +430,11 @@ Specifically:
 Answering whether G$<$F or F$<$G holds---and whether the answer is
 consistent across hyperparameter configurations---has direct implications
 for our understanding of the relationship between algorithm learning
-and representation consolidation in grokking.
+and representation consolidation in grokking, and bears on the broader
+question of whether interpretable geometric structure---of the kind
+also studied under the linear representation hypothesis
+\cite{park2024linear}---is a \emph{cause} or a \emph{consequence} of
+generalisation.
 
 % ================================================================
 \chapter{Project Plan}
@@ -398,17 +462,23 @@ This project aims to:
 
 \subsection{Task and Model}
 
-We will train a decoder-only transformer \cite{vaswani2017attention}
-on $(a+b)\bmod 53$.
+We will train a decoder-only transformer \cite{vaswani2017attention},
+following the GPT-style autoregressive architecture
+\cite{radford2018gpt}, on $(a+b)\bmod 53$.
 All $p^2 = 2{,}809$ input pairs will be generated; 30\% (843 pairs)
 will form the training set, randomly sampled.
 The model architecture follows Liu et al.\ \cite{liu2022towards}:
 $d_{\mathrm{model}}=256$, 4 attention heads, 2 transformer layers,
 feed-forward dimension 1024, no dropout.
+Standard architectural components---residual connections
+\cite{he2016resnet} and layer normalisation \cite{ba2016layernorm}---are
+used as in the reference implementation.
 The embedding layer will have fixed learning rate $\eta_{\mathrm{emb}}
 = 10^{-3}$ and weight decay~0; only decoder parameters will be swept.
-Optimiser: AdamW with 10-step linear warmup, constant learning rate
-thereafter, and gradient clipping at norm~1.0.
+Optimiser: AdamW \cite{loshchilov2019adamw} (the decoupled
+weight-decay variant of Adam \cite{kingma2015adam}) with 10-step
+linear warmup, constant learning rate thereafter, and gradient
+clipping at norm~1.0.
 Training will run to 50{,}000 steps by default, extended to 80{,}000
 if training accuracy exceeds~0.9 but $\taug$ has not been detected.
 
@@ -425,7 +495,7 @@ transient test accuracy spikes.
 \paragraph{Raw Fourier alignment $F_{\mathrm{raw}}(t)$.}
 Let $E_t \in \mathbb{R}^{p \times d}$ be the mean-row-centred token
 embedding matrix at step $t$.
-The raw Fourier alignment is:
+The raw Fourier alignment is defined in \eq{eq:f_raw}:
 \begin{equation}
   F_{\mathrm{raw}}(t) \;=\;
   \max_{k=1}^{\lfloor p/2\rfloor}
@@ -460,9 +530,10 @@ the empirical permutation null (not a formal per-step significance
 test, but a practical threshold for changepoint detection).
 
 \paragraph{Fourier geometry onset $\tauf$.}
-We will apply a BIC-selected 1-breakpoint segmented regression to
-$\fcorr(t)$ on a log-time scale after exponential-moving-average
-smoothing ($\alpha = 0.15$).
+We will apply a BIC-selected
+\cite{schwarz1978bic} 1-breakpoint segmented regression
+\cite{muggeo2003segmented} to $\fcorr(t)$ on a log-time scale
+after exponential-moving-average smoothing ($\alpha = 0.15$).
 A changepoint will be accepted only if the 4-parameter model strictly
 improves BIC over the 2-parameter no-break baseline and the
 post-break slope exceeds 1\% of the total value range.
@@ -524,6 +595,18 @@ detector configurations (varying the null-update interval, EMA
 smoothing coefficient $\alpha$, and BIC slope threshold).
 
 \section{Expected Outcomes}
+
+\paragraph{Decision rule.}
+The G$<$F hypothesis is declared \emph{supported} on a given sweep
+when (i)~at least 80\% of Grokking-phase runs have $\Dtau > 0$
+under the default detector configuration, (ii)~the median of
+$\{\Dtau_i\}$ has a one-sided $95\%$ bootstrap lower confidence
+bound \cite{efron1993bootstrap} strictly greater than zero
+($10{,}000$ resamples), and (iii)~the sign of the median $\Dtau$
+is preserved in $\geq 30/36$ detector configurations from the
+sensitivity sweep.
+The symmetric criterion declares F$<$G; any other outcome is
+reported as \emph{inconclusive}.
 
 If the G$<$F hypothesis holds, we expect:
 \begin{itemize}
@@ -620,6 +703,8 @@ No UQ ethical clearance is required.
 
 \section{Project Milestones and Timeline}
 
+The planned milestones and current status are summarised in \tab{tab:milestones}.
+
 \begin{table}[htbp]
   \centering
   \caption{Project milestones, planned timeline, and current status.}
@@ -641,7 +726,7 @@ No UQ ethical clearance is required.
 
 As of the time of submission, Stages~0 through~3 and the sensitivity
 analysis have been completed on schedule.
-Experiment data are archived under \texttt{runs/}.
+Experimental data are archived under \texttt{runs/}.
 The remaining deliverable is the final thesis write-up (Weeks~11--13),
 which is currently in progress.
 All experiments were run on a local GPU workstation
@@ -652,46 +737,178 @@ Python~3.14, PyTorch~2.5, and CUDA~12.4.
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{References}
 
-\bibitem{power2022grokking}
-A.~Power, Y.~Burda, H.~Edwards, I.~Babuschkin, and V.~Misra,
-``Grokking: Generalization Beyond Overfitting on Small Algorithmic
-Datasets,'' \textit{arXiv preprint arXiv:2201.02177}, 2022.
-
 \bibitem{nanda2023progress}
 N.~Nanda, L.~Chan, T.~Lieberum, J.~Smith, and J.~Steinhardt,
-``Progress Measures for Grokking via Mechanistic Interpretability,''
-in \textit{International Conference on Learning Representations}, 2023.
+``Progress measures for grokking via mechanistic interpretability,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2023.
+
+\bibitem{power2022grokking}
+A.~Power, Y.~Burda, H.~Edwards, I.~Babuschkin, and V.~Misra,
+``Grokking: Generalization beyond overfitting on small algorithmic
+datasets,'' \textit{arXiv preprint arXiv:2201.02177}, 2022.
+
+\bibitem{olah2020circuits}
+C.~Olah, N.~Cammarata, L.~Schubert, G.~Goh, M.~Petrov, and
+S.~Carter,
+``Zoom in: An introduction to circuits,''
+\textit{Distill}, vol.~5, no.~3, 2020, doi: 10.23915/distill.00024.001.
 
 \bibitem{liu2022towards}
-Z.~Liu, O.~Kitouni, N.~Nolte, E.~J.~Michaud, M.~Tegmark, and
-M.~Williams, ``Towards Understanding Grokking: An Effective Theory
-of Representation Learning,'' in \textit{Advances in Neural
-Information Processing Systems}, vol.~35, 2022.
+Z.~Liu, O.~Kitouni, N.~S.~Nolte, E.~J.~Michaud, M.~Tegmark, and
+M.~Williams, ``Towards understanding grokking: An effective theory
+of representation learning,'' in \textit{Adv. Neural Inf. Process.
+Syst. (NeurIPS)}, vol.~35, 2022, pp.~34651--34663.
+
+\bibitem{park2024linear}
+K.~Park, Y.~J.~Choe, and V.~Veitch,
+``The linear representation hypothesis and the geometry of
+large language models,''
+in \textit{Proc. 41st Int. Conf. Mach. Learn. (ICML)},
+\textit{Proc. Mach. Learn. Res.}, vol.~235, 2024,
+pp.~39643--39666.
+
+\bibitem{papyan2020prevalence}
+V.~Papyan, X.~Y.~Han, and D.~L.~Donoho,
+``Prevalence of neural collapse during the terminal phase of
+deep learning training,''
+\textit{Proc. Natl. Acad. Sci. U.S.A.}, vol.~117, no.~40,
+pp.~24652--24663, 2020.
+
+\bibitem{krogh1991weightdecay}
+A.~Krogh and J.~A.~Hertz,
+``A simple weight decay can improve generalization,''
+in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)},
+vol.~4, 1991, pp.~950--957.
+
+\bibitem{thilak2022slingshot}
+V.~Thilak, E.~Littwin, S.~Zhai, O.~Saremi, R.~Paiss, and
+J.~Susskind,
+``The slingshot mechanism: An empirical study of adaptive
+optimizers and the grokking phenomenon,''
+\textit{arXiv preprint arXiv:2206.04817}, 2022.
+
+\bibitem{notsawo2023predicting}
+P.~J.~T.~Notsawo, H.~Zhou, M.~Pezeshki, I.~Rish, and G.~Dumas,
+``Predicting grokking long before it happens: A look into the
+loss landscape of models which grok,''
+\textit{arXiv preprint arXiv:2306.13253}, 2023.
+
+\bibitem{davies2023unifying}
+X.~Davies, L.~Langosco, and D.~Krueger,
+``Unifying grokking and double descent,''
+\textit{arXiv preprint arXiv:2303.06173}, 2023.
+
+\bibitem{merrill2023tale}
+W.~Merrill, N.~Tsilivis, and A.~Shukla,
+``A tale of two circuits: Grokking as competition of sparse and
+dense subnetworks,''
+\textit{arXiv preprint arXiv:2303.11873}, 2023.
+
+\bibitem{liu2023omnigrok}
+Z.~Liu, E.~J.~Michaud, and M.~Tegmark,
+``OmniGrok: Grokking beyond algorithmic data,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2023.
+
+\bibitem{lyu2024dichotomy}
+K.~Lyu, J.~Jin, Z.~Li, S.~S.~Du, J.~D.~Lee, and W.~Hu,
+``Dichotomy of early and late phase implicit biases can provably
+induce grokking,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2024.
+
+\bibitem{varma2023explaining}
+V.~Varma, R.~Shah, Z.~Kenton, J.~Kram\'{a}r, and R.~Kumar,
+``Explaining grokking through circuit efficiency,''
+\textit{arXiv preprint arXiv:2309.02390}, 2023.
+
+\bibitem{zhong2023clock}
+Z.~Zhong, Z.~Liu, M.~Tegmark, and J.~Andreas,
+``The clock and the pizza: Two stories in mechanistic explanation
+of neural networks,''
+in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)},
+vol.~36, 2023.
+
+\bibitem{gromov2023grokking}
+A.~Gromov,
+``Grokking modular arithmetic,''
+\textit{arXiv preprint arXiv:2301.02679}, 2023.
+
+\bibitem{saxe2014exact}
+A.~M.~Saxe, J.~L.~McClelland, and S.~Ganguli,
+``Exact solutions to the nonlinear dynamics of learning in deep
+linear neural networks,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2014.
+
+\bibitem{barak2022hidden}
+B.~Barak, B.~L.~Edelman, S.~Goel, S.~M.~Kakade, E.~Malach, and
+C.~Zhang, ``Hidden progress in deep learning: SGD learns parities
+near the computational limit,'' in \textit{Adv. Neural Inf. Process.
+Syst. (NeurIPS)}, vol.~35, 2022, pp.~21750--21764.
+
+\bibitem{elhage2021mathematical}
+N.~Elhage, N.~Nanda, C.~Olsson, T.~Henighan, N.~Joseph, B.~Mann,
+\textit{et~al.}, ``A mathematical framework for transformer
+circuits,''
+\textit{Transformer Circuits Thread}, Dec.~2021.
+[Online]. Available:
+\url{https://transformer-circuits.pub/2021/framework/index.html}.
+[Accessed: Apr.~2026].
 
 \bibitem{rubin2024grokking}
 N.~Rubin, I.~Seroussi, and Z.~Ringel,
-``Grokking as a First Order Phase Transition in Two Layer Networks,''
-in \textit{International Conference on Learning Representations}, 2024.
+``Grokking as a first-order phase transition in two-layer
+networks,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2024.
 
 \bibitem{vaswani2017attention}
 A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones,
 A.~N.~Gomez, {\L}.~Kaiser, and I.~Polosukhin,
-``Attention Is All You Need,''
-in \textit{Advances in Neural Information Processing Systems},
-vol.~30, 2017.
+``Attention is all you need,''
+in \textit{Adv. Neural Inf. Process. Syst. (NeurIPS)},
+vol.~30, 2017, pp.~5998--6008.
 
-\bibitem{barak2022hidden}
-B.~Barak, B.~L.~Edelman, S.~Goel, S.~Kakade, E.~Malach, and
-C.~Zhang, ``Hidden Progress in Deep Learning: SGD Learns Parities
-Near the Computational Limit,'' in \textit{Advances in Neural
-Information Processing Systems}, vol.~35, 2022.
+\bibitem{radford2018gpt}
+A.~Radford, K.~Narasimhan, T.~Salimans, and I.~Sutskever,
+``Improving language understanding by generative pre-training,''
+OpenAI, San Francisco, CA, USA, Tech. Rep., 2018.
+[Online]. Available:
+\url{https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf}.
+[Accessed: Apr.~2026].
 
-\bibitem{elhage2021mathematical}
-N.~Elhage, N.~Nanda, C.~Olsson, T.~Henighan, N.~Joseph, B.~Mann,
-et~al., ``A Mathematical Framework for Transformer Circuits,''
-\textit{Transformer Circuits Thread}, 2021.
-[Online]. Available: \url{https://transformer-circuits.pub/2021/framework/index.html}
-(Accessed: April 2026).
+\bibitem{he2016resnet}
+K.~He, X.~Zhang, S.~Ren, and J.~Sun,
+``Deep residual learning for image recognition,''
+in \textit{Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)},
+2016, pp.~770--778.
+
+\bibitem{ba2016layernorm}
+J.~L.~Ba, J.~R.~Kiros, and G.~E.~Hinton,
+``Layer normalization,''
+\textit{arXiv preprint arXiv:1607.06450}, 2016.
+
+\bibitem{loshchilov2019adamw}
+I.~Loshchilov and F.~Hutter,
+``Decoupled weight decay regularization,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2019.
+
+\bibitem{kingma2015adam}
+D.~P.~Kingma and J.~Ba,
+``Adam: A method for stochastic optimization,''
+in \textit{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2015.
+
+\bibitem{schwarz1978bic}
+G.~Schwarz,
+``Estimating the dimension of a model,''
+\textit{Ann. Statist.}, vol.~6, no.~2, pp.~461--464, 1978.
+
+\bibitem{muggeo2003segmented}
+V.~M.~R.~Muggeo,
+``Estimating regression models with unknown break-points,''
+\textit{Statist. Med.}, vol.~22, no.~19, pp.~3055--3071, 2003.
+
+\bibitem{efron1993bootstrap}
+B.~Efron and R.~J.~Tibshirani,
+\textit{An Introduction to the Bootstrap}.
+New York, NY, USA: Chapman and Hall, 1993.
 
 \end{thebibliography}
 

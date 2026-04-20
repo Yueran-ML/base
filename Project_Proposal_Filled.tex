@@ -73,9 +73,9 @@
         \includegraphics[width=60mm]{uq_logo_1.png}\\
         \vspace*{25mm}
 
-        Generalization Precedes Fourier Alignment\\
-        in Transformer Grokking:\\
-        Evidence from the Hyperparameter Phase Diagram\\
+        Does Generalisation Precede Fourier Alignment\\
+        in Transformer Grokking?\\
+        A Study of the Hyperparameter Phase Diagram\\
 
 \vspace{20mm}
 \large\sl
@@ -172,7 +172,7 @@ alignment) holds as a robust, systematic pattern within the Grokking
 phase, and to quantify the signed lag $\Dtau = \tauf - \taug$ across
 hyperparameter configurations.
 A sensitivity analysis over multiple detector configurations will be
-used to assess the robustness of the findings.
+used to assess the robustness of any observed ordering.
 
 \tableofcontents
 
@@ -390,8 +390,8 @@ This project aims to:
   \item Determine whether G$<$F (generalisation precedes Fourier
     embedding alignment) holds as a consistent, robust pattern within
     the Grokking phase.
-  \item Assess the robustness of the G$<$F finding to detector
-    hyperparameter choices via a sensitivity analysis.
+  \item Assess the robustness of any detected G$<$F ordering to
+    detector hyperparameter choices via a sensitivity analysis.
 \end{enumerate}
 
 \section{Methodology}
@@ -442,7 +442,7 @@ alignment with the full set of task-relevant harmonics).
 \paragraph{Null-corrected Fourier alignment $\fcorr(t)$.}
 With $p=53$ and $d=256$, any embedding matrix achieves non-trivial
 $F_{\mathrm{raw}}$ by chance due to high dimensionality.
-Every 5{,}000 steps we estimate the 95th percentile of
+Every 5{,}000 steps we will estimate the 95th percentile of
 $F_{\mathrm{raw}}$ under 100 random token-index permutations of the
 current embedding matrix:
 \begin{equation}
@@ -452,7 +452,7 @@ current embedding matrix:
   \right),
 \end{equation}
 and set $\fcorr(t) = \max(0,\, F_{\mathrm{raw}}(t) - F_{\mathrm{null,p95}}(t))$.
-Between update steps, $F_{\mathrm{null,p95}}$ is held constant at its
+Between update steps, $F_{\mathrm{null,p95}}$ will be held constant at its
 most recently estimated value.
 This removes chance-level baseline alignment and marks the step at
 which the embeddings show above-chance Fourier structure relative to
@@ -489,18 +489,18 @@ one seed Grokking and two seeds F\_only), the cell is reported as
 
 \subsection{Experimental Design}
 
-The project proceeds in four stages.
+The project will proceed in four stages.
 
 \textbf{Stage~0 (Metric Validation).}
 Six representative cells (two each from expected Grokking,
-Memorisation, and Confusion regions) are run with 3 seeds each
+Memorisation, and Confusion regions) will be run with 3 seeds each
 to validate that $\taug$ and $\tauf$ behave as expected and to
 confirm that the chosen metric thresholds are appropriate before
 committing to full-scale sweeps.
 
 \textbf{Stage~1 (Coarse Grid).}
 A 5$\times$5 grid spanning the ($\mathrm{lr}$, $\mathrm{wd}$)
-hyperparameter space is run with 1 seed per cell to map phase
+hyperparameter space will be run with 1 seed per cell to map phase
 boundaries and identify G$<$F signal.
 
 \textbf{Stage~2 (Weight Decay Sweep).}
@@ -569,28 +569,82 @@ neither for generalisation.
     in the same runs.
 \end{itemize}
 
+\section{Risk Assessment}
+
+\subsection{OHS Risk Assessment}
+
+This project is entirely computational: all work involves writing and
+running Python code on a personal workstation, with no laboratory,
+field, or wet-lab work of any kind.
+No hazardous materials, chemicals, biological agents, high-voltage
+equipment, or physical prototypes are involved.
+The project therefore falls under the \textbf{Low Risk} category
+and is covered by the general OHS laboratory rules of the School
+of EECS.
+The primary ergonomic considerations (prolonged computer use) will be
+managed by taking regular breaks in accordance with standard university
+guidance.
+
+\subsection{Ethics Assessment}
+
+This project does not involve human participants, animal subjects,
+or the collection of personal data.
+All experiments are conducted on synthetically generated arithmetic
+datasets ($\{(a,b,c) \mid a+b \equiv c \pmod{53}\}$) with no
+identifiable individuals.
+No UQ ethical clearance is required.
+
+\subsection{Project Schedule Risks}
+
+\begin{itemize}
+  \item \textbf{Computational runtime}: each full sweep (30 runs
+    $\times$ 50{,}000--80{,}000 steps) may exceed initial time
+    estimates if convergence is slow.
+    \textit{Mitigation}: runs are parallelised on a local GPU (RTX 4080);
+    if time is insufficient, sweep resolution can be reduced without
+    compromising the primary research question.
+  \item \textbf{Hardware failure}: GPU malfunction could interrupt
+    experiments.
+    \textit{Mitigation}: checkpoints are saved every 500 steps; runs
+    can be resumed or migrated to a cloud GPU instance.
+  \item \textbf{Detector non-detection}: $\tauf$ may not be detected
+    in a substantial fraction of runs, reducing sample size for the
+    ordering analysis.
+    \textit{Mitigation}: the F\_only label already accounts for this
+    case; $\taug$ alone constitutes a valid secondary contribution.
+  \item \textbf{Scope creep}: the sensitivity analysis (36 configurations)
+    is the most time-intensive optional component.
+    \textit{Mitigation}: it is scheduled last (Weeks 9--10) and can
+    be scoped down to fewer configurations if needed.
+\end{itemize}
+
 \section{Project Milestones and Timeline}
 
 \begin{table}[htbp]
   \centering
-  \caption{Planned project milestones and timeline.}
+  \caption{Project milestones, planned timeline, and current status.}
   \label{tab:milestones}
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{lll}
+  \begin{tabular}{llll}
     \toprule
-    Milestone & Description & Planned Weeks \\
+    Milestone & Description & Planned Weeks & Status \\
     \midrule
-    Stage~0 & Metric validation (6 cells $\times$ 3 seeds) & Weeks 1--2 \\
-    Stage~1 & Coarse 5$\times$5 grid sweep & Weeks 3--4 \\
-    Stage~2 & Weight-decay axis sweep (30 runs) & Weeks 5--6 \\
-    Stage~3 & Learning-rate axis sweep (30 runs) & Weeks 7--8 \\
-    Sensitivity & 36-configuration detector robustness analysis & Weeks 9--10 \\
-    Write-up  & Final thesis report & Weeks 11--13 \\
+    Stage~0 & Metric validation (6 cells $\times$ 3 seeds) & Weeks 1--2 & Complete \\
+    Stage~1 & Coarse 5$\times$5 grid sweep & Weeks 3--4 & Complete \\
+    Stage~2 & Weight-decay axis sweep (30 runs) & Weeks 5--6 & Complete \\
+    Stage~3 & Learning-rate axis sweep (30 runs) & Weeks 7--8 & Complete \\
+    Sensitivity & 36-configuration detector robustness analysis & Weeks 9--10 & Complete \\
+    Write-up  & Final thesis report & Weeks 11--13 & In progress \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-All experiments will be run on a local GPU workstation
+As of the time of submission, Stages~0 through~3 and the sensitivity
+analysis have been completed on schedule.
+Experiment data are archived under \texttt{runs/}.
+The remaining deliverable is the final thesis write-up (Weeks~11--13),
+which is currently in progress.
+All experiments were run on a local GPU workstation
 (NVIDIA RTX 4080 Laptop, 12~GB VRAM) using
 Python~3.14, PyTorch~2.5, and CUDA~12.4.
 
