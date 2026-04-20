@@ -1303,17 +1303,240 @@ Null-correction prevents false positives from high-dimensional chance alignment 
 
 ---
 
-### Current Status (as of 2026-04-01)
+### Step 23: Stage 5A — Modular Multiplication $(a \times b) \bmod 53$ (completed 2026-04-01)
 
-| Task | Status | File/Location |
-|------|--------|--------------|
-| Stage 0 v1/v2/v3 | Done ✓ | runs/stage0_v{1,2,3}/ |
-| Step A: 6×6 baseline phase diagram | Done ✓ | runs/phase_diagram_stepA/ |
-| Stage 1: 5×5 coarse grid | Done ✓ | runs/stage1_coarse/ |
-| grok_metrics.py: unified classifier | Done ✓ | grok_metrics.py |
-| Stage 2: lr=1.6e-3, wd sweep [1.2, 3.5] | Done ✓ | runs/stage2_wd/ |
-| Stage 3: wd=2.5, lr sweep [5e-4, 8e-3] | Done ✓ | runs/stage3_lr/ |
-| Paper draft v1 (ICLR LaTeX) | Done ✓ | paper/main.tex |
-| Overleaf upload package | Done ✓ | paper/overleaf_upload.zip |
-| Detector sensitivity analysis (8 cells × 36 configs) | Done ✓ | runs/sensitivity/ |
-| **Paper v2 (quality fixes + contradiction fixes)** | **Done ✓** | paper/main.tex (revised) |
+**Purpose:** Verify G<F generalizes across task. Multiplication has a Fourier circuit too, but with a different algebraic structure — the embedding must be reordered by discrete log before the Fourier geometry emerges.
+
+**Design:**
+- Operation: $(a \cdot b) \bmod 53$
+- Discrete-log reorder: compute $\log_g(i) \bmod (p-1)$ with generator $g=2$, permute embedding rows before computing $F_\text{raw}$
+- lr = 1.6e-3 (fixed), wd ∈ [1.2, 3.5] (10 points), seeds = [42, 7, 2025]
+- max_steps = 50,000
+- Script: `stage5a_mul_sweep.py`
+
+**Result: 30/30 G<F (100%), median Δτ = 8,750 steps (range 3,500–24,000)**
+
+| Metric | Value |
+|--------|-------|
+| Grokking runs | 30/30 (100%) |
+| G<F ordering | **30/30 = 100%** |
+| median Δτ | 8,750 steps |
+| Range | 3,500–24,000 steps |
+
+**Implication:** G<F is not an addition-task artifact. The discrete-log reorder also validates that the Fourier geometry account applies to multiplication.
+
+---
+
+### Step 24: Stage 5B — Different Prime $(a+b) \bmod 97$ (completed 2026-04-02, A800)
+
+**Purpose:** Verify G<F generalizes across prime. $p=97$ is harder to learn (sample size $\approx 97^2 \times 0.3 = 2820$ with a larger solution space), so grokking is expected to be slower.
+
+**Design:**
+- Operation: $(a+b) \bmod 97$
+- lr = 1.6e-3 (fixed), wd ∈ [1.2, 3.5] (10 points), seeds = [42, 7, 2025]
+- max_steps = 80,000 (wider budget since p=97 groks more slowly)
+- Script: `stage5_p97_sweep.py` (supports `--parallel N`)
+
+**Result (30 runs): 21/21 Grokking runs are G<F (100%), median Δτ = 28,000 steps**
+
+| Metric | Value |
+|--------|-------|
+| Total runs | 30 |
+| Grokking phase | 21/30 (9 Comprehension at high wd) |
+| G<F ordering | **21/21 = 100%** |
+| median Δτ | **28,000 steps** (~4× that of p=53) |
+
+**Implication:**
+- G<F ordering and direction are invariant.
+- Median Δτ scales sharply with prime size (28k vs 7k), consistent with "harder task needs a longer consolidation window."
+- Comprehension appears at high wd (strong regularization forces fast generalization), filling a gap missing at p=53.
+
+> A800 GPU contention note: Stage 5B and Stage 6 (8 parallel workers) competed on the same GPU, inflating per-cell time to 60–100 min. Mitigation: `pkill -f stage5`, wait for Stage 6 to complete, relaunch Stage 5B with `--parallel 4`.
+
+---
+
+### Step 25: Stage 6 — Full 2D Hyperparameter Grid (completed 2026-04-02, A800, --parallel 4)
+
+**Purpose:** Verify G<F on the full $(lr, wd)$ 2-D phase diagram — does G<F hold across the entire Grokking region?
+
+**Design:**
+- Operation: $(a+b) \bmod 53$
+- lr: 7 log-spaced points $\in [5\times10^{-4}, 4.3\times10^{-3}]$
+- wd: 7 log-spaced points $\in [1.2, 3.5]$
+- seeds = [42, 7, 2025], $7 \times 7 \times 3 = 147$ runs total
+- max_steps = 50,000 (auto-extends to 80k if $\tau_\text{gen}$ not detected)
+- Script: `stage6_2d_sweep.py` (--parallel 4)
+
+**Result (147 runs): 111/130 Grokking runs are G<F (85.4%)**
+
+| Phase | Count |
+|-------|-------|
+| Grokking | 130 (88.4%) |
+| Memorization | 16 (high-lr low-wd corner) |
+| Comprehension | 1 |
+
+| G<F metric | Value |
+|------------|-------|
+| G<F ordering | 111/130 = **85.4%** |
+| F<G ordering | 14/130 (low-lr and high-lr boundaries) |
+| median Δτ | 6,000 steps |
+
+**2-D spatial pattern:**
+- G<F rate is highest in the *interior* (lr ∈ [1e-3, 2e-3], wd ≥ 2.5), approaching 100%.
+- F<G cases concentrate at *phase boundaries* (low-lr or high-lr edges), consistent with the speed-dependent ordering hypothesis.
+- Figure: `paper/figures/stage6_2d_heatmap.pdf` (G<F rate heatmap + phase diagram, side by side).
+
+---
+
+### Step 26: Step 2 — Direct Measurement of $\tau_\text{circuit}$ (Three-Stage Ordering) (completed 2026-04-03, RTX 4080, --parallel 4, ~6 h)
+
+**Purpose:** Replace the borrowed first stage (Nanda's circuit-formation result) with our own direct measurement, completing the picture $\tau_\text{circuit} < \tau_\text{gen} < \tau_F$.
+
+**New metric: logit Fourier alignment score $F_L(t)$**
+
+$$F_L(t) = \max_{k=1}^{\lfloor p/2 \rfloor} \left(1 - \frac{\|\mathbf{L}_t^c - Q_k^{(s)}{Q_k^{(s)}}^\top \mathbf{L}_t^c\|_F^2}{\|\mathbf{L}_t^c\|_F^2}\right)$$
+
+where $\mathbf{L}_t \in \mathbb{R}^{p^2 \times p}$ is the full logit matrix and $s_{ab} = (a+b) \bmod p$ is the target class. Conceptually similar to Nanda's restricted logit loss, but aggregated across all $(a,b)$ pairs — suited for BIC changepoint detection.
+
+**Implementation:** Added `compute_fourier_logit_alignment` and `compute_fourier_logit_null_p95` to `grok_metrics.py`; built `step2_circuit_sweep.py` retraining the full 60 Stage 2+3 cells, computing $F_L$ every 500 steps.
+
+**Result (60 runs, 54 Grokking): C<G<F holds in 48/54 Grokking runs (88.9%)**
+
+| Comparison | Result |
+|------------|--------|
+| $\tau_\text{circuit} < \tau_\text{gen}$ (C<G) | **50/54 = 92.6%** |
+| $\tau_\text{gen} < \tau_F$ (G<F) | **52/54 = 96.3%** |
+| Full C<G<F | **48/54 = 88.9%** |
+| C<F<G | 2/54 (low-lr boundary) |
+| G<C<F | 4/54 (high-lr boundary, fast generalization) |
+
+**Interval medians:**
+| Interval | Median |
+|----------|--------|
+| $\tau_\text{gen} - \tau_\text{circuit}$ (circuit → generalization) | **6,250 steps** |
+| $\tau_F - \tau_\text{gen}$ (generalization → embedding geometry) | **6,000 steps** |
+| $\tau_F - \tau_\text{circuit}$ (total span) | **13,000 steps** |
+
+> The three intervals are nearly equal (~6,000 steps each), uniformly distributed across a ~13,000-step window.
+
+**New code files:**
+- `step2_circuit_sweep.py` — Stage 2+3 retrain with flogit, `--parallel N`
+- `grok_metrics.py` (updated) — `compute_fourier_logit_alignment`, `compute_fourier_logit_null_p95`
+
+**New figures (`paper/figures/`):**
+- `step2_three_stage_scatter.pdf` — $\tau_\text{circuit}$ vs $\tau_\text{gen}$ (left) + $\tau_\text{gen}$ vs $\tau_F$ (right)
+- `step2_interval_boxplot.pdf` — boxplots of the three intervals
+- `cross_experiment_summary.pdf` — G<F rate and median Δτ across four experiment stages
+
+---
+
+### Step 27: Paper Upgrade — Three-Stage Picture + Literature Expansion (2026-04-14–15)
+
+**Purpose:** Integrate all new results from Steps 23–26 into the paper, upgrading it from a "G<F descriptive study" to the "first direct empirical confirmation of the three-stage Grokking picture."
+
+**27.1 Title and abstract rewrite**
+
+| Change | Content |
+|--------|---------|
+| Title | "A Three-Stage Picture of Grokking: Circuit Formation, Generalization, and Embedding Geometry Consolidation" |
+| Abstract core | First report of the full three-stage ordering C<G<F (48/54 = 88.9%); 89.8% G<F across 236 Grokking runs |
+| Contributions | Expanded from 3 to 5 (added: direct three-stage measurement + null-correction robustness) |
+
+**27.2 New result sections**
+
+| Section | Content |
+|---------|---------|
+| §Step 2 | $\tau_\text{circuit}$ measurement, C<G<F three-stage |
+| §Stage 5A | Modular multiplication, 30/30 G<F |
+| §Stage 5B | p=97, 21/21 G<F, Δτ = 28k |
+| §Stage 6 | 7×7 2D grid, 111/130 = 85.4% |
+| Table 3 | All experiment stages combined (n=236 Grokking runs, 89.8% G<F) |
+
+**27.3 Reference expansion (7 → 20 entries)**
+
+13 new verified references added: `varma2023explaining`, `chughtai2023toy`, `zhong2023clock`, `lyu2024dichotomy`, `thilak2022slingshot`, `conmy2023towards`, `loshchilov2019decoupled`, `saxe2014exact`, `liu2023omnigrok`, `papyan2020prevalence`, `gromov2023grokking`, `elhage2022toy`, `schwarz1978estimating`.
+
+**27.4 LaTeX engineering fixes**
+
+- Fixed 6 hyperref PDF-bookmark warnings by wrapping math in `\subsection` titles with `\texorpdfstring`.
+- New macros: `\taucirc` ($\tau_\text{circuit}$), `\flogit` ($F_L$).
+- Rebuilt `overleaf_upload.zip` (27 files, 1415 KB).
+
+---
+
+### Step 28: E3 Code Complete — Nanda 2023 Progress Measures Comparison (2026-04-20)
+
+**Purpose:** Convert Appendix E.3 "Direct comparison with [Nanda et al. 2023] progress measures" from prose into executable code. The goal is to measure our $\flogit$ changepoint and Nanda's restricted / excluded logit loss changepoints on the *same 54 Stage 4 cells*, for **run-by-run comparison** of the two $\tau_\text{circuit}$ definitions.
+
+> **Why a re-run rather than pure post-hoc.** Stage 4 (`results/step2_circuit/`) stored only aggregate metrics, not per-checkpoint logits / embeddings. Computing Nanda restricted/excluded loss requires inline instrumentation. E3 is therefore designed as a *re-sweep that saves full trajectories*.
+
+**28.1 Shared utilities (`src/grok_metrics.py`)**
+
+| Function | Role |
+|----------|------|
+| `identify_key_frequencies(emb, p, top_k, op)` | FFT on token embedding, take top-K by power; `op="mul"` applies $\log_g$ reordering first |
+| `compute_nanda_losses(logits, p, key_freqs, op)` | Class-dim Fourier decomposition → {DC}∪key gives **restricted_loss**; {DC}∪rest gives **excluded_loss**; full CE returned as sanity |
+
+> Smoke test: at $p=7$ with $k \in \{2,3\}$, restricted CE = 0.10, excluded CE = 1.95, full CE = 0.10 — the key frequencies carry almost all signal.
+
+**28.2 Sweep script (`src/sweeps/e3_nanda_sweep.py`)**
+
+Forked from `step2_circuit_sweep.py`, preserving *identical grid, seeds, auto-extend, resume*. Adds inline Nanda computation at each logit checkpoint:
+
+```python
+key_freqs_now = identify_key_frequencies(emb, p, top_k=5)  # dynamic
+nanda = compute_nanda_losses(all_logits, p, key_freqs_now)
+```
+
+Per-cell outputs:
+- CSV row with three $\tau_\text{circuit}$ columns: `tau_circuit_ours` / `tau_circuit_nanda_restricted` / `tau_circuit_nanda_excluded`
+- `traj_lr*_wd*_seed*.npz` — full trajectories + final embedding + final logits + static key freqs → allows post-hoc re-computation with the original Nanda-2023 static definition
+
+> Nanda restricted_loss *decreases* during circuit formation, whereas `estimate_changepoint` is sign-agnostic about slope change. To share a single threshold with excluded (which *increases*), the script negates the restricted trajectory before feeding the estimator.
+
+**28.3 Analysis script (`src/analysis/e3_nanda_analysis.py`)**
+
+Reads the CSV + .npz and produces:
+
+| Output | Content |
+|--------|---------|
+| `e3_scatter_restricted.png` | $\tau_\text{ours}$ vs $\tau_\text{Nanda,restricted}$ scatter + $y=x$, colored by phase |
+| `e3_scatter_excluded.png`   | $\tau_\text{ours}$ vs $\tau_\text{Nanda,excluded}$ scatter |
+| `e3_agreement_stats.csv`    | paired n, median/mean/std Δ, $\lvert\Delta\rvert \le 500/1000/2000$ fractions, Spearman $\rho$ |
+| `e3_trajectories_overlay.png` | auto-picks 3 representative cells by Δ(restricted − ours), overlays $\flogit$ / restricted / excluded curves with $\tau_C$ (three variants) / $\tau_G$ / $\tau_F$ as dotted lines |
+
+**28.4 Invocation**
+
+```bash
+# Re-run all Grokking cells (recommended)
+python src/sweeps/e3_nanda_sweep.py --parallel 6 --grokking-only
+
+# Post-hoc analysis
+python src/analysis/e3_nanda_analysis.py
+```
+
+> Status: code complete, but the actual sweep has not yet been launched on the 4080 laptop. Expected runtime: 54 cells × ~4k s ≈ 60 GPU-hours single-stream; `--parallel 6` ≈ 10 wall-clock hours.
+
+---
+
+### Current Status (as of 2026-04-20)
+
+| Task | Status | Location |
+|------|--------|---------|
+| Stage 0 v1/v2/v3 | Done ✓ | results/stage0_v3/ |
+| Stage 1: 5×5 coarse grid | Done ✓ | results/stage1_coarse/ |
+| Stage 2: wd sweep at lr=1.6e-3 | Done ✓ | results/stage2_wd/ |
+| Stage 3: lr sweep at wd=2.5 | Done ✓ | results/stage3_lr/ |
+| Sensitivity: 36 configs | Done ✓ | results/sensitivity/ |
+| **Stage 5A: multiplication mod 53** | **Done ✓** | results/stage5_mul_dlog/ |
+| **Stage 5B: addition mod 97** | **Done ✓** | results/stage5_p97/ |
+| **Stage 6: 7×7 2D grid** | **Done ✓** | results/stage6_2d/ |
+| **Step 2: τ_circuit three-stage** | **Done ✓** | results/step2_circuit/ |
+| **Paper upgrade (three-stage picture, 20 refs)** | **Done ✓** | paper/main.tex |
+| **E3: Nanda comparison code** | **Done ✓ (not yet run)** | src/sweeps/e3_nanda_sweep.py + src/analysis/e3_nanda_analysis.py |
+| Statistical analysis (Δτ predictors) | Pending | — |
+| F_only systematic study | Pending | — |
+| τ_circuit metric equivalence check | Pending (new) | — |
+| Speed-dependent section demotion | Pending (new) | — |
+| Systematic non-detected / boundary report | Pending (new) | — |
+| Architecture / train_frac robustness | Optional | — |

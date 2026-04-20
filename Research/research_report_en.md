@@ -1,6 +1,6 @@
 ---
-title: "Representation Structure Timing in Grokking: Does the Ring Follow the Algorithm?"
-date: 2026-03-30
+title: "A Three-Stage Picture of Grokking: Circuit Formation, Generalization, and Embedding Geometry Consolidation"
+date: 2026-04-20
 tags:
   - grokking
   - transformer
@@ -9,143 +9,105 @@ tags:
   - report
 aliases:
   - research report
-  - Stage 1 findings
+  - three-stage report
 ---
 
-# Representation Structure Timing in Grokking: Does the Ring Follow the Algorithm?
+# A Three-Stage Picture of Grokking
 
-> **Status**: Stage 1 complete. Stage 2 (boundary refinement) pending.
-> **Model**: Decoder-only Transformer, p=53 modular addition, d=256, 2 layers, 4 heads.
-
----
-
-## What We Did
-
-We trained a small Transformer to compute $(a + b) \bmod 53$ across a 5×5 grid of decoder learning rates and weight decay values, measuring three quantities at each checkpoint:
-
-- **G(t)** — test accuracy; $\tau_\text{gen}$ = first step $\geq 0.9$ sustained
-- **F(t)** — Fourier alignment $R^2$ (permutation-corrected); $\tau_F$ = BIC changepoint
-- **CS(t)** — Circle Score (parallelogram test); $\tau_\text{ring}$ = first step $\geq 0.8$ sustained
-
-The central question: does Fourier structure in the token embeddings appear *before* or *after* the model generalizes?
+> **Status**: full thesis complete. Stages 0–6 + Step 2 (τ_circuit) done; E3 Nanda-comparison code complete but not yet run.
+> **Model**: decoder-only transformer, $p=53$ modular addition, $d_\text{model}=256$, 2 layers, 4 heads.
 
 ---
 
-## Results
+## Question
 
-### Phase Map
+Do the three temporal landmarks of grokking — (i) the internal *Fourier circuit* forming in the logits, (ii) *generalization* crossing the test-accuracy threshold, and (iii) the token embedding's *Fourier geometry* consolidating — happen simultaneously, or in a specific order?
 
-Running 75 cells (25 grid points × 3 seeds, 50,000 steps each) produces the following observed-phase map:
+We claim:
 
-```
-          wd=0.04  wd=0.16  wd=0.63  wd=2.5   wd=10
-lr=1.0e-3   Memo     Memo     Memo    Grok     Conf
-lr=1.6e-3   Memo     Memo     Memo    Comp     Memo
-lr=2.5e-3   Memo     Memo     Memo    Comp     Memo
-lr=4.0e-3   Memo     Grok     Memo    Grok     Conf
-lr=6.3e-3   Memo     Memo     Memo    Memo     Conf
-```
+$$\tau_\text{circuit} \;<\; \tau_\text{gen} \;<\; \tau_F$$
 
-*Memo = Memorization, Grok = Grokking, Comp = Comprehension, Conf = Confusion.*
-
-Generalizing cells (Grokking or Comprehension) are confined to a narrow strip: **wd = 2.5**, for lr between 1×10⁻³ and 4×10⁻³. Below wd ≈ 0.63 the model memorizes regardless of lr; above wd ≈ 10 it collapses into Confusion.
-
-> [!note] On Comprehension vs Grokking labels
-> Stage 1 classifies lr=1.6e-3 and lr=2.5e-3 at wd=2.5 as Comprehension (τ_gen within the first 33% of the training budget). Stage 0 labeled the same hyperparameters (grok_B) as Grokking. Both observe identical τ_gen values (~10k–13.5k steps); the discrepancy is a classification artifact from slightly different threshold implementations. The timing-gap analysis is unaffected.
+and directly measure all three on the same runs, for the first time.
 
 ---
 
-### Main Finding: G < F, Localized at wd = 2.5
+## Metrics
 
-Across the 5×5 grid, **G<F ordering appears exclusively at wd = 2.5**:
+| Symbol | Name | Definition |
+|--------|------|-----------|
+| $\tau_\text{circuit}$ | Circuit formation | BIC changepoint on $F_L(t)$ — Fourier alignment of the full logit matrix onto 2-freq subspaces |
+| $\tau_\text{gen}$ | Generalization | First step with test acc $\ge 0.9$ sustained over 3 checkpoints |
+| $\tau_F$ | Embedding geometry | BIC changepoint on $F_\text{corr}(t)$ — permutation-null-corrected Fourier alignment of the token embedding |
 
-| lr | Phase | G<F fraction | Median Δ = τ_F − τ_gen |
-|----|-------|-------------|------------------------|
-| 1.0×10⁻³ | Grokking | **3/3** | +9,500 steps |
-| 1.6×10⁻³ | Comprehension | **3/3** | +5,000 steps |
-| 2.5×10⁻³ | Comprehension | **3/3** | +5,000 steps |
-| 4.0×10⁻³ | Grokking/Comp | **3/3** | +4,500 steps |
-| 6.3×10⁻³ | Memo/Grokking | 0/3 | ~0 |
-
-All 12 generalizing runs at wd=2.5 (four lr values) show the model generalizing *before* its token embeddings form a Fourier-aligned representation. The remaining 63 runs — spanning four other wd values across all five lr settings — show zero G<F instances.
-
-> [!important] Core result
-> **Generalization precedes Fourier alignment structure.** The model learns to correctly compute modular addition before its internal token representations organise into the clean Fourier geometry that characterises the "grokked" solution. The Fourier structure is a lagging indicator of the computational breakthrough, not its cause.
+Changepoint detector: 1-breakpoint segmented regression selected by BIC (see `src/grok_metrics.py::estimate_changepoint`). All detectors robust to 36 config variations (sensitivity analysis).
 
 ---
 
-### Secondary Finding: Δ Decreases with Learning Rate
+## Main results
 
-Along the wd=2.5 column, the timing gap shrinks monotonically as lr increases:
+Five experiment stages, totalling 236 Grokking-phase runs:
 
-$$
-\Delta(\text{lr}) \approx 9.5\text{k} \xrightarrow{\text{lr} \uparrow} 5\text{k} \xrightarrow{} 5\text{k} \xrightarrow{} 4.5\text{k} \xrightarrow{} 0\text{k}
-$$
+| Experiment | n (Grokking) | G<F rate | Median Δτ = τ_F − τ_gen |
+|------------|--------------|----------|-------------------------|
+| Stage 2 (wd sweep, lr=1.6e-3) | 29/30 | 96.7% | ~8,500 steps |
+| Stage 3 (lr sweep, wd=2.5) | 23/30 | 91.3% | ~5,500 steps |
+| Stage 5A (mult mod 53) | 30/30 | **100%** | 8,750 |
+| Stage 5B (add mod 97) | 21/30 | **100%** | 28,000 |
+| Stage 6 (7×7 2-D grid) | 130/147 | 85.4% | 6,000 |
+| **Total** | **236** | **89.8%** | — |
 
-At lr=6.3×10⁻³ the gap collapses to zero: the model either fails to generalize or the two onsets become simultaneous. This suggests that faster optimization (higher lr) causes structure formation and generalization to co-occur more tightly, potentially converging to the Comprehension regime.
+### Three-stage ordering (Step 2, 60 runs)
 
----
+Direct measurement of $\tau_\text{circuit}$ via $F_L(t)$:
 
-### Third Finding: Fourier Alignment Without Generalization (F_only)
+| Comparison | Fraction |
+|------------|----------|
+| C<G ($\tau_\text{circuit} < \tau_\text{gen}$) | 50/54 = 92.6% |
+| G<F ($\tau_\text{gen} < \tau_F$) | 52/54 = 96.3% |
+| **Full C<G<F** | **48/54 = 88.9%** |
 
-**39 of 75 runs** exhibit tau_F (Fourier changepoint detected) but no tau_gen (test accuracy never reaches 90%). These "F_only" cells are concentrated at:
+Interval medians: $\tau_\text{gen} - \tau_\text{circuit} = 6{,}250$ steps; $\tau_F - \tau_\text{gen} = 6{,}000$ steps; total $\tau_F - \tau_\text{circuit} = 13{,}000$ steps. The three intervals are nearly equal.
 
-- **wd=10** (all 15 runs): extremely strong regularization; Fourier structure fires early (~8k steps) but weights collapse before the model can generalise
-- Low-wd Memorization cells: Fourier structure can appear as a transient during memorisation without completing the generalisation transition
+### Boundary behavior
 
-This demonstrates that Fourier alignment in the token embeddings is **necessary but not sufficient** for generalisation. A model can develop the "right-looking" internal geometry and still fail to generalise.
-
----
-
-### Fourth Finding: Single F < G Point
-
-One cell stands out: **lr=4×10⁻³, wd=0.16** — mixed Grokking/Memorization, Δ=−18,500 steps (structure precedes generalisation by ~18k steps). This is the only cell in the grid where F<G holds. Its location near the Memorization/Grokking phase boundary suggests that F<G ordering may be specific to slow, boundary-regime grokking where the model spends a long time in a structured-but-not-yet-generalised state.
-
----
-
-### Circle Score (tau_ring)
-
-Circle Score never reached the 0.8 sustained threshold in any of the 93 runs across Stage 0 and Stage 1 (50,000 steps). CS shows an upward trend in Grokking cells but does not saturate within the training budget. **tau_ring is dropped as a primary metric** for this study; Fourier alignment (tau_F) serves as the sole structural onset marker.
+The few F<G runs (14/130 in Stage 6) concentrate at phase boundaries — low-lr and high-lr edges of the Grokking region — supporting a *speed-dependent ordering* hypothesis: very fast or very slow generalization disturbs the canonical ordering.
 
 ---
 
-## What We Did Not Find
+## Implications
 
-**No Comprehension phase in the original search grid.** The initial 6×6 sweep (Step A) and two rounds of spot tests (14 candidates, lr ∈ [10⁻⁴, 2×10⁻¹], wd ∈ [10⁻², 30]) found no Comprehension cells. This is consistent with the reduced training-set size for p=53 (~840 samples vs ~2,800 for MIT's p=97): smaller datasets make memorization easier and narrow the Comprehension window. Comprehension does appear in Stage 1's broader wd=2.5 sweep under the Stage 1 classifier, but the labelling ambiguity noted above means this should be verified with an explicit joint-onset check.
-
----
-
-## Next Steps
-
-### Stage 2 (Immediate)
-
-Focus on the **wd=2.5 column** where G<F is confirmed:
-
-1. **Finer lr resolution** — 10 lr values between 1×10⁻³ and 6×10⁻³ at wd=2.5, to precisely characterise the lr boundary where Δ→0
-2. **More seeds** — 5 seeds per cell (vs 3 now) near the boundaries (lr≈5×10⁻³ at wd=2.5)
-3. **Verify the single F<G point** — re-run lr=4×10⁻³, wd=0.16 with 5 seeds and 80k steps to confirm the F<G ordering and rule out censoring
-
-### Stage 3 (Planned)
-
-- **wd sweep at fixed lr=1.6×10⁻³** — map the exact wd boundary separating Memorization from Grokking/Comprehension, and check whether Δ varies smoothly across the transition
-- **Longer runs (100k steps)** — check whether Circle Score eventually saturates in the confirmed G<F cells
-- **p=97 comparison** — replicate the wd=2.5 G<F experiment with p=97 (matching MIT setup) to test whether the G<F ordering persists at larger prime
-
-### Open Questions
-
-1. **Why wd=2.5 specifically?** The G<F ordering is sharply localised at this single wd value. What is special about this regularisation strength? Does it correspond to a particular loss landscape geometry?
-2. **What does F_only mean mechanistically?** 39 runs develop Fourier token geometry but fail to generalise. Is the embedding geometry sufficient but the circuit that reads it out underdeveloped? Does the Fourier structure in F_only cells look the same as in generalising cells?
-3. **Is G<F universal or model-specific?** All positive G<F evidence comes from a 2-layer, 4-head decoder at p=53. MIT's longer runs with p=97 might show the opposite ordering (or no ordering), since the model there has more capacity relative to the task.
+1. **Generalization is not the last step of grokking.** Embedding geometry continues to consolidate for ~6,000 more steps after test accuracy saturates.
+2. **Fourier circuit forms first.** Independent of the embedding's visible ring structure, the logits acquire their algorithmic structure before generalization — consistent with Nanda 2023's mechanistic account.
+3. **The ordering is robust across task and prime.** Addition mod 53, multiplication mod 53, addition mod 97 — all give ≥85% G<F; mult and p=97 give 100%.
+4. **The weight-decay plateau is wide, not a knife-edge.** The G<F plateau spans wd ∈ [1.2, 3.5] at lr=1.6e-3; it is not localized to a narrow boundary.
 
 ---
 
-## Summary Table
+## What we did not find
 
-| Finding | Evidence | Confidence |
-|---------|----------|-----------|
-| G<F ordering at wd=2.5 | 12/12 runs, 4 lr values, 3 seeds each | High |
-| Δ decreases with lr | Monotone: 9.5k→5k→5k→4.5k→0k | High |
-| F_only widespread | 39/75 runs; stable at wd=10 | High |
-| tau_ring undetected at 50k steps | 0/93 runs reach CS≥0.8 | High |
-| Single F<G point at phase boundary | 1 cell, 3 seeds, needs confirmation | Low–Medium |
-| Comprehension absent in p=53 grid | 14 spot-test candidates, 0 Comprehension | Medium (grid may miss narrow window) |
+- A Circle Score threshold that fires reliably — in 0/93 pilot runs did CS cross 0.8 within 50k steps. We therefore adopted the BIC changepoint on $F_\text{corr}$ as the canonical $\tau_F$ detector.
+- Monotonic Δτ dependence on lr or wd within the Grokking plateau — the relationship is flat, with deviations only at phase boundaries.
+
+---
+
+## Code and artifacts
+
+| Artifact | Location |
+|----------|----------|
+| Full progress log (28 steps, English) | [research_notes_en.md](research_notes_en.md) |
+| Full progress log (28 steps, Chinese) | [研究说明文档.md](研究说明文档.md) |
+| Thesis LaTeX source | `paper/` |
+| Sweep scripts | `src/sweeps/` |
+| Analysis scripts | `src/analysis/` |
+| Summary CSVs per experiment | `results/` |
+
+Reproduction instructions: see [../README.md](../README.md#reproduce).
+
+---
+
+## Next steps
+
+1. Launch E3 Nanda-comparison sweep (~10 wall-clock hours on RTX 4080 with `--parallel 6`); produces run-by-run agreement between our $F_L$ changepoint and Nanda's restricted / excluded logit loss changepoints.
+2. Statistical regression of Δτ on (lr, wd, seed) predictors.
+3. Systematic F_only study: when does Fourier alignment occur *without* generalization?
+4. Architecture and train_frac robustness (optional).

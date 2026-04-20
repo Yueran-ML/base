@@ -73,8 +73,12 @@ After any sweep, generate figures with the matching script in
 | Δτ = τ_F − τ_gen range | 1,000 – 25,500 steps | `paper/figures/delta_histogram.png` |
 | C<G<F fraction | 53/55 = 96.4% | `results/step2_circuit/` |
 
-See [Research/研究说明文档.md](Research/研究说明文档.md) for the full
-chronological log (Steps 1–28).
+Chronological progress logs (Steps 1–28):
+
+- 🇬🇧 English: [Research/research_notes_en.md](Research/research_notes_en.md)
+- 🇨🇳 中文: [Research/研究说明文档.md](Research/研究说明文档.md)
+
+Short English summary: [Research/research_report_en.md](Research/research_report_en.md).
 
 ## Citation
 
