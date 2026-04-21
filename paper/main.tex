@@ -1410,15 +1410,21 @@ F$<$G outlier trajectory against the strong G$<$F reference cell.
 \section{Reproducibility}
 \label{app:reproducibility}
 
-All experiments reported in this paper were run on a single NVIDIA
-RTX~4080 Laptop (12~GB VRAM) under Python~3.14, PyTorch~2.x,
-and NumPy~1.26.
+The majority of experiments reported in this paper were run on a
+local NVIDIA RTX~4080 Laptop (12~GB VRAM); a smaller subset of
+longer-running sweeps was executed on rented cloud GPU instances
+(NVIDIA RTX PRO 6000 and NVIDIA A800) accessed remotely via SSH.
+All runs used the same PyTorch training loop (Python~3.14,
+PyTorch~2.x, NumPy~1.26) with identical model and optimiser code, so
+the choice of hardware affects only wall-clock time and not model
+outputs at fixed seed.
 Each modular-arithmetic training run terminates in
 \mbox{20--45~minutes} at 50{,}000 steps and \mbox{30--75~minutes} at
-80{,}000 steps.
+80{,}000 steps on the local 4080; cloud runs are correspondingly
+faster on the larger data-centre GPUs.
 The full set of experiments reported here (Stages~2--6 plus the
 subtraction pilots) totals approximately 280 runs and
-\mbox{$\sim$170~GPU-hours}.
+\mbox{$\sim$170~GPU-hours} (aggregated across hardware).
 
 \paragraph{Random seeds.}
 Each cell is run with seeds $\{42, 7, 2025\}$.

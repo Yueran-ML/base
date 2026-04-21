@@ -19,7 +19,12 @@ All code and outputs live in this directory:
 - GPU: NVIDIA GeForce RTX 4080 Laptop GPU (12 GB VRAM)
 - OS: Windows 10, Python 3.14
 - Run experiments locally using `python` directly
-- No SSH or rsync needed — all experiments run on this machine
+- Majority of experiments run here
+
+### Cloud GPU (supplement, for longer sweeps)
+- Rented instances: NVIDIA RTX PRO 6000 and NVIDIA A800
+- Accessed via SSH; same PyTorch training code runs unchanged
+- Only used for a minority of long-running sweeps
 
 ### Running Experiments
 ```bash

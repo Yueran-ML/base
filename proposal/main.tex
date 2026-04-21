@@ -1,4 +1,4 @@
-\documentclass[12pt,openany,a4paper]{book}
+\documentclass[12pt,openany,oneside,a4paper]{book}
 \usepackage{graphics}
 \usepackage{array,makecell,graphicx,pifont,tabularx,amssymb}
 \usepackage{rotating}
@@ -10,7 +10,7 @@
 \usepackage{enumitem}
 \usepackage{booktabs}
 \usepackage{amsmath}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 \usepackage{titlesec}
 \titleformat{\chapter}[hang]
@@ -25,8 +25,8 @@
 \raggedbottom
 
 \setlength{\topmargin}     {-5mm}
-\setlength{\oddsidemargin} {10mm}
-\setlength{\evensidemargin}{0mm}
+\setlength{\oddsidemargin} {5mm}
+\setlength{\evensidemargin}{5mm}
 \setlength{\textwidth}     {150mm}
 \setlength{\textheight}    {240mm}
 
@@ -130,7 +130,7 @@ academic integrity standards.}
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
 \hline
 \multirow{2}{*}{\parbox{2.5cm}{\vspace*{\fill}\centering AI Model and date\vspace*{0pt}}}
- & \multicolumn{9}{c|}{\parbox{11cm}{\centering Table 1. AI tool usage (tick all that apply)}} \\ \cline{2-10}
+ & \multicolumn{9}{c|}{\parbox{11cm}{\centering AI tool usage (tick all that apply)}} \\ \cline{2-10}
  & \adjustbox{rotate=90}{Language Translation}
  & \adjustbox{rotate=90}{Grammar / style / spelling}
  & \adjustbox{rotate=90}{Topic exploration}
@@ -339,7 +339,7 @@ at all.
 Their end-of-training, static characterisation is precisely what
 this project augments with \emph{within-run} event timing.
 
-\section{The Fourier Circuit and Embedding Geometry}
+\section[The Fourier Circuit and Embedding Geometry]{The Fourier Circuit and\\ Embedding Geometry}
 
 Nanda et al.\ \cite{nanda2023progress} reverse-engineered the
 algorithm implemented by grokked transformers on $(a+b)\bmod p$:
@@ -351,10 +351,11 @@ Concretely, the logit for output $c$ is a sum of products of cosines:
   \mathrm{logit}(c) \;\propto\; \sum_{k\in K}
     \cos\!\left(\tfrac{2\pi k}{p}(a+b-c)\right).
 \]
+{\sloppy
 As a geometric consequence, the embedding of token $i$ lies near
 the point $(\cos(2\pi ki/p),\sin(2\pi ki/p))$ in the space spanned
 by the $k$-th harmonic components, giving rise to the characteristic
-near-circular ring arrangement observable in PCA projections.
+near-circular ring arrangement observable in PCA projections.\par}
 
 Importantly, Nanda et al.\ also measured \emph{progress measures}---
 logit-level and weight-level Fourier statistics---and found that these
@@ -770,14 +771,17 @@ neither for generalisation.
 
 \subsection{OHS Risk Assessment}
 
-This project is entirely computational: all work involves writing and
-running Python code on a personal workstation, with no laboratory,
-field, or wet-lab work of any kind.
-No hazardous materials, chemicals, biological agents, high-voltage
-equipment, or physical prototypes are involved.
-The project therefore falls under the \textbf{Low Risk} category
-and is covered by the general OHS laboratory rules of the School
-of EECS.
+This project is entirely computational: all work involves writing
+and running Python code on a personal workstation, with long-running
+sweeps occasionally off-loaded to rented cloud GPU instances (RTX PRO
+6000, A800) accessed remotely via SSH.
+No laboratory, field, or wet-lab work of any kind is involved; no
+hazardous materials, chemicals, biological agents, high-voltage
+equipment, or physical prototypes are handled; and the cloud GPU
+hardware is owned and physically maintained by the data-centre
+provider with no physical access required of the researcher.
+The project therefore falls under the \textbf{Low Risk} category and
+is covered by the general OHS laboratory rules of the School of EECS.
 The primary ergonomic considerations (prolonged computer use) will be
 managed by taking regular breaks in accordance with standard university
 guidance.
@@ -797,7 +801,9 @@ No UQ ethical clearance is required.
   \item \textbf{Computational runtime}: each full sweep (30 runs
     $\times$ 50{,}000--80{,}000 steps) may exceed initial time
     estimates if convergence is slow.
-    \textit{Mitigation}: runs are parallelised on a local GPU (RTX 4080);
+    \textit{Mitigation}: runs are primarily parallelised on a local
+    GPU (RTX 4080) with longer-running sweeps off-loaded to rented
+    cloud GPUs (RTX PRO 6000, A800) as needed;
     if time is insufficient, sweep resolution can be reduced without
     compromising the primary research question.
   \item \textbf{Hardware failure}: GPU malfunction could interrupt
@@ -823,6 +829,7 @@ No UQ ethical clearance is required.
   \caption{Project milestones, resources, planned timeline, and current status.}
   \label{tab:milestones}
   \renewcommand{\arraystretch}{1.2}
+  \setlength{\tabcolsep}{4pt}
   \small
   \begin{tabular}{p{2.1cm}p{4.6cm}p{3.2cm}p{1.7cm}p{1.5cm}}
     \toprule
@@ -847,9 +854,11 @@ Experiment data and analysis scripts are archived under
 repository.
 The remaining deliverable is the final thesis write-up
 (Weeks~11--13), which is currently in progress.
-All experiments were run on a local GPU workstation
-(NVIDIA RTX 4080 Laptop, 12~GB VRAM) using
-Python~3.14, PyTorch~2.5, and CUDA~12.4.
+The majority of experiments were run on a local GPU workstation
+(NVIDIA RTX 4080 Laptop, 12~GB VRAM); a smaller subset of
+longer-running sweeps was executed on rented cloud GPU instances
+(NVIDIA RTX PRO 6000 and NVIDIA A800).
+The software stack is Python~3.14, PyTorch~2.5, and CUDA~12.4.
 
 {\renewcommand{\bibname}{References}%
 \begin{thebibliography}{99}
