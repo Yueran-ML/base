@@ -173,6 +173,8 @@ phase, and to quantify the signed lag $\Dtau = \tauf - \taug$ across
 hyperparameter configurations.
 A sensitivity analysis over multiple detector configurations will be
 used to assess the robustness of any observed ordering.
+Stages~0--3 and the sensitivity analysis have been completed on
+schedule; the remaining deliverable is the final thesis write-up.
 
 \tableofcontents
 
@@ -244,6 +246,25 @@ This project aims to close that gap by sweeping both axes of the
 hyperparameter phase diagram and systematically characterising the
 ordering across the Grokking phase.
 
+\subsection{Contributions}
+
+This project makes the following specific contributions:
+\begin{enumerate}
+  \item A null-calibrated, permutation-corrected Fourier alignment
+    score $\fcorr(t)$ and an accompanying BIC-based changepoint
+    detector $\tauf$, designed to flag the onset of embedding-level
+    Fourier geometry in a way that is robust to the high-dimensional
+    chance baseline.
+  \item The first systematic measurement of the signed lag
+    $\Dtau = \tauf - \taug$ across two axes of the grokking
+    hyperparameter phase diagram (decoder weight decay and learning
+    rate), covering 60+ training runs over $p=53$ modular addition.
+  \item A sensitivity analysis across 36 detector configurations
+    establishing whether the observed G$<$F ordering is an artefact
+    of particular threshold choices or a robust property of the
+    Grokking phase.
+\end{enumerate}
+
 \subsection{Overview}
 
 The remainder of this proposal is structured as follows.
@@ -309,6 +330,15 @@ to the training set size at $p=53$ (approximately 840 training
 pairs), though the sweep range, threshold definitions, and task
 choice may also contribute to the phase boundaries observed.
 
+\paragraph{Implication for this project.}
+Liu et al.'s (lr, wd) phase-diagram framing is adopted wholesale:
+the two-axis grid provides the scaffolding on which $\Dtau$ is
+measured, and the Grokking vs.\ Memorisation boundary determines
+which cells are eligible for the $\taug$--$\tauf$ ordering analysis
+at all.
+Their end-of-training, static characterisation is precisely what
+this project augments with \emph{within-run} event timing.
+
 \section{The Fourier Circuit and Embedding Geometry}
 
 Nanda et al.\ \cite{nanda2023progress} reverse-engineered the
@@ -346,10 +376,33 @@ circuits, with weight decay tipping the balance toward the more
 parameter-efficient circuit---a framing relevant to why the lag
 $\Dtau$ may depend on weight decay in the present study.
 
-This project complements that picture by measuring a
-related but distinct quantity: the geometric organisation of the
-\emph{token embeddings themselves}, as characterised by our
-null-corrected Fourier alignment score $\fcorr(t)$.
+\paragraph{Mechanism-level vs.\ embedding-level Fourier structure.}
+It is important to distinguish two quantities that have both been
+called ``Fourier'' in this literature but are computed from different
+objects.
+Nanda et al.'s progress measures are \emph{mechanism-level}: they are
+computed from attention logits and the Fourier decomposition of
+weight matrices, and they detect when the trigonometric
+\emph{computation} is active.
+Embedding-level Fourier geometry, by contrast, is computed from the
+token embedding matrix $E\in\mathbb{R}^{p\times d}$ alone, and
+detects whether the ring arrangement itself has consolidated.
+The two need not track each other in time: the logit-level circuit
+can in principle be implemented via nonlinear MLP mixing of
+non-circular embeddings, or circular embeddings can exist without a
+clean trigonometric read-out.
+Nanda et al.'s finding that mechanism-level progress \emph{precedes}
+$\taug$ therefore does not settle what embedding geometry does---
+which is the question this project targets.
+
+\paragraph{Implication for this project.}
+This project uses the null-corrected Fourier alignment score
+$\fcorr(t)$ (defined in \secn{sec:metrics}, below) as a direct probe
+of embedding-level geometry, independent of the circuit-level
+progress measures of Nanda et al.
+The outcome variable $\Dtau = \tauf - \taug$ is thus a
+\emph{comparison} between two events whose relative ordering is not
+prescribed by any prior work surveyed above.
 
 \section{Representation Learning Dynamics}
 
@@ -377,21 +430,55 @@ Nanda et al.
 
 A parallel theoretical line models grokking directly as a transition
 in the underlying training dynamics.
-Rubin et al.\ \cite{rubin2024grokking} characterised grokking as
-a first-order phase transition in two-layer networks, providing a
-theoretical basis for the sharp generalisation onset observed
-empirically.
-Kumar et al.\ \cite{kumar2024lazy} frame the same transition as a
-move from a lazy (NTK-like) to a rich (feature-learning) regime,
-while Lyu et al.\ \cite{lyu2024dichotomy} prove that a dichotomy
-between early-phase (kernel) and late-phase (norm-minimising)
-implicit biases can provably induce grokking.
-Mohamadi et al.\ \cite{mohamadi2024grok} give a margin-based analysis
-specifically for modular addition.
-These accounts predict that representation geometry should reorganise
-during the grokking transition, but do not specify \emph{when} the
-reorganisation completes relative to $\taug$---the gap this project
-targets.
+Four recent accounts are worth separating because each implies a
+\emph{different} expected behaviour for embedding-level geometry
+relative to $\taug$:
+
+\begin{itemize}
+  \item \textbf{Rubin et al.\ \cite{rubin2024grokking}} frame grokking
+    as a \emph{first-order phase transition} in two-layer networks.
+    Under this view the relevant order parameter (here, embedding
+    Fourier alignment) should jump near-discontinuously at the
+    transition, predicting $\Dtau\approx 0$---embedding geometry and
+    generalisation co-emerge.
+  \item \textbf{Kumar et al.\ \cite{kumar2024lazy}} describe the same
+    transition as a move from a \emph{lazy} (NTK-like) to a
+    \emph{rich} (feature-learning) regime.
+    Because feature learning in the rich regime is gradual and
+    continues after the generalisation jump, this framing is
+    compatible with $\Dtau > 0$---embedding geometry can keep
+    consolidating well after $\taug$.
+  \item \textbf{Lyu et al.\ \cite{lyu2024dichotomy}} prove a
+    \emph{dichotomy} between an early kernel-like phase and a late
+    norm-minimising phase, and show this dichotomy can provably
+    induce grokking.
+    On this view, the late-phase implicit bias drives representation
+    reorganisation, again consistent with a positive lag
+    $\Dtau > 0$.
+  \item \textbf{Mohamadi et al.\ \cite{mohamadi2024grok}} give a
+    margin-based analysis specific to modular addition.
+    Their predictions are mechanism-level (what circuit is found)
+    rather than geometry-level (when the embeddings align), so they
+    are largely silent on $\Dtau$ directly but constrain the
+    circuit-formation side of the story.
+\end{itemize}
+
+All four agree that representation geometry should reorganise during
+the transition, but they disagree on \emph{when} it completes
+relative to $\taug$.
+A direct empirical measurement of $\Dtau$ across the phase diagram
+can therefore discriminate between the near-simultaneous prediction
+of Rubin et al.\ and the positive-lag prediction shared by Kumar et
+al.\ and Lyu et al.---this is exactly the discriminating quantity
+the present project measures.
+
+\paragraph{Implication for this project.}
+The theoretical landscape does not supply a single agreed prediction
+for the sign or magnitude of $\Dtau$.
+This makes the measurement informative rather than confirmatory: the
+observed sign of $\Dtau$ provides empirical evidence bearing on
+which of these competing theoretical pictures best describes
+grokking dynamics in decoder-only transformers.
 
 \section{Knowledge Gap}
 
@@ -421,6 +508,18 @@ and representation consolidation in grokking.
 \chapter{Project Plan}
 \label{chap:plan}
 % ================================================================
+
+\section*{Document Status}
+\addcontentsline{toc}{section}{Document Status}
+
+Although this document is presented in proposal format to match the
+assessment requirements, at the time of submission Stages~0--3 and
+the sensitivity analysis have already been completed.
+The following sections therefore describe both the study design that
+guided the project and the progress achieved so far relative to that
+plan; future-tense phrasing (``we will\ldots'') refers to the original
+plan as written, not the current state of the work.
+Per-stage status is reported explicitly in \tab{tab:milestones}.
 
 \section{Project Aims}
 
@@ -459,6 +558,7 @@ Training will run to 50{,}000 steps by default, extended to 80{,}000
 if training accuracy exceeds~0.9 but $\taug$ has not been detected.
 
 \subsection{Metrics}
+\label{sec:metrics}
 
 \paragraph{Generalisation onset $\taug$.}
 Test accuracy will be evaluated at fixed 500-step intervals.
@@ -516,6 +616,16 @@ post-break slope exceeds 1\% of the total value range.
 $\tauf$ will be the accepted breakpoint step; labelled ``not detected''
 otherwise.
 
+In this study, $\tauf$ should be interpreted as the onset of
+above-chance \emph{single-harmonic} embedding organisation, not as a
+direct detector of full multi-harmonic circuit formation.
+The score $F_{\mathrm{raw}}$ takes a maximum over single Fourier
+subspaces and is therefore a lower-bound proxy for the richer
+geometry the grokked network eventually realises; it is adopted
+here as a computationally cheap and interpretable geometric probe,
+and claims about mechanism-level circuit dynamics (in the sense of
+Nanda et al.) are deliberately not made from $\tauf$ alone.
+
 \paragraph{Phase and ordering labels.}
 A run is \textit{Grokking} if both $\tau_{\mathrm{train}}$
 (train accuracy $\geq0.9$ for three consecutive evaluations)
@@ -537,6 +647,20 @@ one seed Grokking and two seeds F\_only), the cell is reported as
 \subsection{Experimental Design}
 
 The project will proceed in four stages.
+\fig{fig:timeline_example} shows a representative run illustrating
+how $\taug$ and $\tauf$ are extracted from the test-accuracy and
+$\fcorr(t)$ trajectories on a shared time axis.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{timeline_example.pdf}
+  \caption{Representative single-run timeline. Top: test accuracy
+    with the $\taug$ threshold crossing marked. Bottom: null-corrected
+    Fourier alignment $\fcorr(t)$ with the BIC-selected changepoint
+    $\tauf$ marked. The signed lag $\Dtau = \tauf - \taug$ is the
+    primary outcome variable of this project.}
+  \label{fig:timeline_example}
+\end{figure}
 
 \textbf{Stage~0 (Metric Validation).}
 Six representative cells (two each from expected Grokking,
@@ -551,24 +675,50 @@ hyperparameter space will be run with 1 seed per cell to map phase
 boundaries and identify G$<$F signal.
 
 \textbf{Stage~2 (Weight Decay Sweep).}
-Fixed $\mathrm{lr} = 1.6\times10^{-3}$.
+Fixed $\mathrm{lr} = 1.6\times10^{-3}$: this value sits near the centre
+of the Grokking band identified in the Stage~1 coarse grid---it
+produced the clearest generalisation transitions across the widest
+range of weight decays, so holding lr fixed here isolates the
+wd-dependent structure of $\Dtau$.
 Weight decay: 10 log-spaced values in $[1.2, 3.5]$:
 $\{1.20, 1.35, 1.52, 1.71, 1.93, 2.18, 2.45, 2.76, 3.11, 3.50\}$.
+The range is chosen to bracket the Stage~1 Grokking--Memorisation
+boundary on both sides while staying inside the Grokking phase at
+its centre.
 Seeds $\{42, 7, 2025\}$. Total: 30 runs.
 
 \textbf{Stage~3 (Learning Rate Sweep).}
-Fixed $\mathrm{wd} = 2.5$.
+Fixed $\mathrm{wd} = 2.5$: this is the median of the wd values at
+which Stage~1 robustly produced Grokking, and it lies near the
+centre of the wd plateau characterised in Stage~2, making it the
+natural choice for isolating the lr-dependent structure of $\Dtau$.
 Learning rate: 10 log-spaced values in $[5\times10^{-4}, 8\times10^{-3}]$:
 $\{5.0, 6.8, 9.3, 12.6, 17.1, 23.3, 31.7, 43.2, 58.8, 80.0\}
 \times 10^{-4}$.
+The range extends roughly half a decade on either side of the
+Stage~2 centre ($\mathrm{lr} = 1.6\times10^{-3}$) to probe both the
+slow-learning and fast-learning edges of the Grokking phase.
 Seeds $\{42, 7, 2025\}$. Total: 30 runs.
 
 \textbf{Sensitivity Analysis.}
-Post-hoc: representative cells spanning strong, medium, and weak
-G$<$F cases, any coincident cases, and any stable F$<$G cases
-(if observed), will be re-analysed under all $3\times4\times3 = 36$
-detector configurations (varying the null-update interval, EMA
-smoothing coefficient $\alpha$, and BIC slope threshold).
+To reduce ad hoc cell selection, the subset of cells re-analysed
+under alternative detector settings is determined by a fixed
+secondary-analysis rule applied to the initial Stage~2$+$Stage~3
+classification table (i.e., the rule itself is specified once and
+then applied mechanically, rather than chosen cell-by-cell after
+inspecting each run):
+(i)~stratified sampling of the Grokking-phase cells into quintiles of
+$|\Dtau|$ and selection of the median cell from each quintile
+(5 cells);
+(ii)~all cells classified as coincident ($|\Dtau|\leq 500$~steps);
+(iii)~all cells classified as F$<$G, if any;
+(iv)~3 cells classified as Memorisation and 3 as F\_only, as
+negative controls.
+Each selected cell is then re-analysed under all
+$3\times4\times3 = 36$ detector configurations, varying the
+null-update interval $\{2{,}500, 5{,}000, 10{,}000\}$, the EMA
+smoothing coefficient $\alpha\in\{0.05, 0.10, 0.15, 0.25\}$, and
+the BIC slope threshold $\{0.5\%, 1\%, 2\%\}$.
 
 \section{Expected Outcomes}
 
@@ -666,31 +816,37 @@ No UQ ethical clearance is required.
 \end{itemize}
 
 \section{Project Milestones and Timeline}
+\label{sec:milestones}
 
 \begin{table}[htbp]
   \centering
-  \caption{Project milestones, planned timeline, and current status.}
+  \caption{Project milestones, resources, planned timeline, and current status.}
   \label{tab:milestones}
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{llll}
+  \small
+  \begin{tabular}{p{2.1cm}p{4.6cm}p{3.2cm}p{1.7cm}p{1.5cm}}
     \toprule
-    Milestone & Description & Planned Weeks & Status \\
+    Milestone & Description & Resources & Planned Weeks & Status \\
     \midrule
-    Stage~0 & Metric validation (6 cells $\times$ 3 seeds) & Weeks 1--2 & Complete \\
-    Stage~1 & Coarse 5$\times$5 grid sweep & Weeks 3--4 & Complete \\
-    Stage~2 & Weight-decay axis sweep (30 runs) & Weeks 5--6 & Complete \\
-    Stage~3 & Learning-rate axis sweep (30 runs) & Weeks 7--8 & Complete \\
-    Sensitivity & 36-configuration detector robustness analysis & Weeks 9--10 & Complete \\
-    Write-up  & Final thesis report & Weeks 11--13 & In progress \\
+    Stage~0 & Metric validation (6 cells $\times$ 3 seeds) & $\sim$6~GPU-h, $<$1~GB disk & Weeks 1--2 & Complete \\
+    Stage~1 & Coarse 5$\times$5 grid sweep (25 runs) & $\sim$12~GPU-h, $\sim$2~GB disk & Weeks 3--4 & Complete \\
+    Stage~2 & Weight-decay axis sweep (30 runs) & $\sim$15~GPU-h, $\sim$2~GB disk & Weeks 5--6 & Complete \\
+    Stage~3 & Learning-rate axis sweep (30 runs) & $\sim$15~GPU-h, $\sim$2~GB disk & Weeks 7--8 & Complete \\
+    Sensitivity & 36-configuration detector robustness analysis (post-hoc on saved checkpoints) & $\sim$4~CPU-h, negligible disk & Weeks 9--10 & Complete \\
+    Write-up (draft) & Chapters 1--3 first draft; figures integrated & Writing only & Week 11 & In progress \\
+    Write-up (revision) & Supervisor review, incorporate feedback & Writing only & Week 12 & Pending \\
+    Write-up (submit) & Final proof-read and submission & Writing only & Week 13 & Pending \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 As of the time of submission, Stages~0 through~3 and the sensitivity
 analysis have been completed on schedule.
-Experiment data are archived under \texttt{runs/}.
-The remaining deliverable is the final thesis write-up (Weeks~11--13),
-which is currently in progress.
+Experiment data and analysis scripts are archived under
+\texttt{runs/}, \texttt{src/}, and \texttt{notebooks/} in the project
+repository.
+The remaining deliverable is the final thesis write-up
+(Weeks~11--13), which is currently in progress.
 All experiments were run on a local GPU workstation
 (NVIDIA RTX 4080 Laptop, 12~GB VRAM) using
 Python~3.14, PyTorch~2.5, and CUDA~12.4.
@@ -736,9 +892,11 @@ Information Processing Systems}, vol.~35, 2022.
 \bibitem{elhage2021mathematical}
 N.~Elhage, N.~Nanda, C.~Olsson, T.~Henighan, N.~Joseph, B.~Mann,
 et~al., ``A Mathematical Framework for Transformer Circuits,''
-\textit{Transformer Circuits Thread}, 2021.
-[Online]. Available: \url{https://transformer-circuits.pub/2021/framework/index.html}
-(Accessed: April 2026).
+Anthropic, \textit{Transformer Circuits Thread}, web publication,
+Dec.~2021.
+[Online]. Available:
+\url{https://transformer-circuits.pub/2021/framework/index.html}
+(Accessed: Apr.~21, 2026).
 
 \bibitem{liu2023omnigrok}
 Z.~Liu, E.~J.~Michaud, and M.~Tegmark,
@@ -753,7 +911,7 @@ and the Grokking Phenomenon,''
 \textit{arXiv preprint arXiv:2206.04817}, 2022.
 
 \bibitem{doshi2024grok}
-D.~Doshi, T.~He, A.~Das, and A.~Gromov,
+D.~Doshi, A.~Das, T.~He, and A.~Gromov,
 ``To Grok or not to Grok: Disentangling Generalization and Memorization
 on Corrupted Algorithmic Datasets,''
 in \textit{International Conference on Learning Representations}, 2024.

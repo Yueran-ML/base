@@ -83,22 +83,22 @@ post-generalization structural consequence---not the first.
 Grokking---the abrupt onset of generalization long after training
 accuracy saturates---has become a canonical testbed for studying
 delayed representation learning in neural networks
-\citep{power2022grokking}.
+\cite{power2022grokking}.
 Subsequent work has both extended grokking far beyond toy modular
 arithmetic, documenting it on broader architectures and datasets
-\citep{liu2023omnigrok,humayun2024deep,notsawo2024beyond}, and
+\cite{liu2023omnigrok,humayun2024deep,notsawo2024beyond}, and
 developed mechanistic and theoretical accounts of \emph{when} and
 \emph{why} the transition occurs
-\citep{nanda2023progress,varma2023explaining,lyu2024dichotomy,
+\cite{nanda2023progress,varma2023explaining,lyu2024dichotomy,
        rubin2024grokking,kumar2024lazy,mohamadi2024grok}.
-On modular arithmetic tasks, \citet{nanda2023progress} showed that
+On modular arithmetic tasks, Nanda et al.~\cite{nanda2023progress} showed that
 grokked transformers implement a Fourier circuit: the network uses
 trigonometric identities over a small set of task-relevant harmonics
 to compute modular addition.
 As a consequence, the $p$ token embeddings form a near-circular ring
 in PCA space, with embedding~$i$ at angle $2\pi i/p$.
 
-\citet{nanda2023progress} also introduced mechanism-level
+Nanda et al.~\cite{nanda2023progress} also introduced mechanism-level
 \emph{progress measures}---quantities such as the Fourier-squared
 loss---and found that these measures improve during a circuit-formation
 phase that \emph{precedes} the generalization jump.
@@ -119,9 +119,9 @@ Answering this requires measuring the relative timing of two events:
 \end{itemize}
 
 Prior work has not directly measured $\Dtau = \tauf - \taug$.
-\citet{nanda2023progress} studied mechanism-level dynamics but did not
+Nanda et al.~\cite{nanda2023progress} studied mechanism-level dynamics but did not
 separately track embedding geometry.
-\citet{liu2022towards} built a static phase diagram but did not
+Liu et al.~\cite{liu2022towards} built a static phase diagram but did not
 measure within-run event timing.
 Our work closes this gap.
 
@@ -180,9 +180,9 @@ than stage~(1), which drives the generalization jump.
 
 \subsection{Grokking and the Phase Diagram}
 
-\citet{power2022grokking} documented grokking in small transformers on
+Power et al.~\cite{power2022grokking} documented grokking in small transformers on
 binary operations including $(a+b)\bmod p$.
-\citet{liu2022towards} mapped training behavior across a
+Liu et al.~\cite{liu2022towards} mapped training behavior across a
 (decoder learning rate, weight decay) grid, identifying four phases:
 \textit{Grokking} (delayed generalization), \textit{Memorization} (no
 generalization), \textit{Comprehension} (immediate generalization),
@@ -191,7 +191,7 @@ Our experiments follow their architecture and phase conventions.
 
 \subsection{Fourier Circuits and Embedding Geometry}
 
-\citet{nanda2023progress} reverse-engineered the algorithm underlying
+Nanda et al.~\cite{nanda2023progress} reverse-engineered the algorithm underlying
 grokked transformers: the network computes modular sums via
 trigonometric identities over task-relevant Fourier harmonics.
 They introduced mechanism-level progress measures and found that
@@ -216,32 +216,32 @@ token \emph{embedding table} has converged to its final geometry.
 \label{sec:related}
 
 \paragraph{Grokking and delayed generalization.}
-\citet{power2022grokking} introduced grokking on modular arithmetic.
-\citet{liu2022towards} constructed the (lr, wd) phase diagram we
+Power et al.~\cite{power2022grokking} introduced grokking on modular arithmetic.
+Liu et al.~\cite{liu2022towards} constructed the (lr, wd) phase diagram we
 use as our experimental scaffold, identifying the four training
 phases we adopt.
-\citet{liu2023omnigrok} showed that grokking extends well beyond
+Liu et al.~\cite{liu2023omnigrok} showed that grokking extends well beyond
 algorithmic tasks and is governed by the ratio of initial weight
 norm to the norm of the generalising solution;
-\citet{humayun2024deep} subsequently argued that grokking-like
+Humayun et al.~\cite{humayun2024deep} subsequently argued that grokking-like
 delayed-generalization dynamics are pervasive even in standard
-classification networks, and \citet{notsawo2024beyond} document
+classification networks, and Notsawo et al.~\cite{notsawo2024beyond} document
 the same phenomenon outside neural networks entirely, suggesting
 the dynamics studied here are an instance of a broader class.
-\citet{thilak2022slingshot} linked grokking to cyclic instabilities
+Thilak et al.~\cite{thilak2022slingshot} linked grokking to cyclic instabilities
 of adaptive optimisers, terming this the ``slingshot mechanism.''
-On the theoretical side, \citet{rubin2024grokking} model grokking
-as a first-order phase transition, \citet{lyu2024dichotomy}
+On the theoretical side, Rubin et al.~\cite{rubin2024grokking} model grokking
+as a first-order phase transition, Lyu et al.~\cite{lyu2024dichotomy}
 prove that a dichotomy of early- and late-phase implicit biases
 can provably induce grokking in homogeneous networks, and
-\citet{mohamadi2024grok} give a margin-based theoretical analysis
+Mohamadi et al.~\cite{mohamadi2024grok} give a margin-based theoretical analysis
 specific to modular addition---directly motivating our use of
 modular addition as the primary testbed.
-\citet{kumar2024lazy} reframe grokking as the transition from
+Kumar et al.~\cite{kumar2024lazy} reframe grokking as the transition from
 ``lazy'' to ``rich'' (feature-learning) training dynamics, which
 provides a candidate mechanism for the long delay between
 $\taug$ and $\tauf$ that we measure.
-\citet{doshi2024grok} disentangle generalization from memorization
+Doshi et al.~\cite{doshi2024grok} disentangle generalization from memorization
 on corrupted modular-arithmetic data, finding that the two events
 follow distinct trajectories controlled by different hyperparameters;
 this complements our finding that circuit formation, generalization,
@@ -253,45 +253,45 @@ geometry and circuit formation in the same runs.
 
 \paragraph{Mechanistic interpretability of grokked models.}
 The circuit-level view of neural networks
-\citep{olah2020zoom,elhage2021mathematical} treats trained models
+\cite{olah2020zoom,elhage2021mathematical} treats trained models
 as collections of identifiable computational subgraphs;
 modular arithmetic has become a flagship setting because the circuit
 can be fully reverse-engineered.
-\citet{nanda2023progress} reverse-engineered the Fourier circuit
+Nanda et al.~\cite{nanda2023progress} reverse-engineered the Fourier circuit
 and showed via progress measures that circuit formation precedes
 the generalization jump.
 Our $\flogit$ metric is analogous to their restricted logit loss
 but computed for all $(a,b)$ pairs simultaneously, providing a
 single continuous signal for BIC changepoint estimation of
 $\taucirc$.
-\citet{varma2023explaining} argue that grokking reflects the
+Varma et al.~\cite{varma2023explaining} argue that grokking reflects the
 delayed ascent of an efficient generalising circuit over a
 more immediately learnable memorising solution;
-\citet{merrill2023tale} make this competition concrete by
+Merrill et al.~\cite{merrill2023tale} make this competition concrete by
 characterising it as a contest between sparse and dense subnetworks,
 in which the sparse generalising circuit eventually wins out.
 This sparse-vs-dense framing predicts a temporal gap between
 \emph{circuit assembly} and \emph{circuit dominance}, consistent
 with the C$<$G separation we measure.
-\citet{chughtai2023toy} study how networks learn group operations
+Chughtai et al.~\cite{chughtai2023toy} study how networks learn group operations
 more broadly, finding that the learned circuits depend on the
 group structure in a predictable way.
-\citet{zhong2023clock} show that modular addition admits two
+Zhong et al.~\cite{zhong2023clock} show that modular addition admits two
 distinct algorithms (the ``Clock'' and ``Pizza'' variants),
 depending on initialisation and architecture, revealing that
 the Fourier circuit is not the unique generalising solution.
-\citet{gromov2023grokking} provides analytic weight solutions for
+Gromov~\cite{gromov2023grokking} provides analytic weight solutions for
 two-layer networks on modular arithmetic tasks, establishing
 complete interpretability of the learned representations.
-\citet{conmy2023towards} automate circuit discovery via activation
+Conmy et al.~\cite{conmy2023towards} automate circuit discovery via activation
 patching, complementing our temporal approach to identifying when
 circuits form.
 Beyond modular arithmetic, the circuit framework has matured to
 larger models: induction heads in language models
-\citep{olsson2022context}, the indirect-object-identification
-circuit in GPT-2 \citep{wang2023interpretability}, and
+\cite{olsson2022context}, the indirect-object-identification
+circuit in GPT-2 \cite{wang2023interpretability}, and
 sparse-autoencoder feature dictionaries
-\citep{bricken2023monosemanticity,cunningham2024sparse} are recent
+\cite{bricken2023monosemanticity,cunningham2024sparse} are recent
 examples of mechanistic explanation at scale.
 Our $\fcorr$ metric is complementary to all of the above: it
 tracks when the token \emph{embedding table} reaches its final
@@ -302,13 +302,13 @@ steps in most configurations.
 Our use of weight decay as the principal axis of variation echoes a
 long line of work on the implicit biases that accompany gradient
 descent.
-\citet{soudry2018implicit} proved that gradient descent on
+Soudry et al.~\cite{soudry2018implicit} proved that gradient descent on
 exponentially-tailed losses converges to the max-margin solution,
 identifying a direction-selection bias that operates on a much slower
 timescale than the loss decrease itself.
-\citet{andriushchenko2023need} examine why explicit weight decay
+Andriushchenko et al.~\cite{andriushchenko2023need} examine why explicit weight decay
 remains necessary in modern transformer training despite the use of
-adaptive optimisers, and \citet{galanti2024sgd} prove that SGD with
+adaptive optimisers, and Galanti et al.~\cite{galanti2024sgd} prove that SGD with
 weight decay biases learned representations toward low effective rank.
 The G$<$F lag we observe---thousands of steps between generalization
 and the BIC-detected onset of Fourier-aligned embedding
@@ -318,17 +318,17 @@ table along the directions favoured by the Fourier circuit, producing
 a measurable geometric reorganisation that postdates $\taug$.
 
 \paragraph{Embedding geometry and representation dynamics.}
-\citet{saxe2014exact} showed that learning in deep linear networks
+Saxe et al.~\cite{saxe2014exact} showed that learning in deep linear networks
 proceeds in discrete stages corresponding to singular value
 decomposition, an early theoretical account of structured
 representation formation.
-\citet{papyan2020prevalence} identified ``Neural Collapse,'' the
+Papyan et al.~\cite{papyan2020prevalence} identified ``Neural Collapse,'' the
 terminal convergence of within-class activations to a simplex
 equiangular tight frame, as a generic post-convergence geometric
 phenomenon in classification networks.
-\citet{zhu2021geometric} prove that Neural Collapse is the unique
+Zhu et al.~\cite{zhu2021geometric} prove that Neural Collapse is the unique
 global optimum of an unconstrained-features model with weight decay,
-and \citet{kothapalli2023neural} survey the broader empirical and
+and Kothapalli~\cite{kothapalli2023neural} survey the broader empirical and
 theoretical scope of the phenomenon.
 Our $\tauf$ result is analogous to Neural Collapse in spirit but
 distinct in content: the Fourier ring geometry of token embeddings
@@ -336,11 +336,11 @@ is also a \emph{post-generalization} geometric consolidation rather
 than a prerequisite for generalization, but the converged target is
 the cyclic-group representation rather than a simplex equiangular
 tight frame.
-\citet{elhage2022toy} show that polysemanticity and superposition
+Elhage et al.~\cite{elhage2022toy} show that polysemanticity and superposition
 are widespread in transformer features; our focus on the token
 embedding's one-dimensional ring structure provides a concrete,
 measurable geometric ground truth against which timing can be assessed.
-\citet{barak2022hidden} demonstrate that abrupt generalization can
+Barak et al.~\cite{barak2022hidden} demonstrate that abrupt generalization can
 hide gradual progress in loss-scale metrics, motivating our
 BIC changepoint approach to detect latent structural transitions.
 
@@ -348,10 +348,10 @@ BIC changepoint approach to detect latent structural transitions.
 Modular addition is one of several algorithmic tasks where
 small transformers have been studied as testbeds for
 mechanistic interpretation.
-\citet{lee2024teaching} examine how data formatting and curriculum
+Lee et al.~\cite{lee2024teaching} examine how data formatting and curriculum
 choices govern whether small transformers learn integer arithmetic
-at all; \citet{quirke2024understanding} give a circuit-level account
-of two-digit addition; and \citet{charton2023learning} interprets
+at all; Quirke and Barez~\cite{quirke2024understanding} give a circuit-level account
+of two-digit addition; and Charton~\cite{charton2023learning} interprets
 the representations a transformer uses to compute the greatest common
 divisor.
 These works confirm that algorithmic tasks share recurring
@@ -360,13 +360,13 @@ framework---measured here on $(a+b)\bmod p$ and $(a\cdot b)\bmod p$---is
 a plausible candidate for application to those settings.
 
 \paragraph{Methods.}
-We use AdamW \citep{loshchilov2019decoupled} and adopt the
-transformer architecture of \citet{vaswani2017attention} as
-extended to the circuit framework of \citet{elhage2021mathematical}.
+We use AdamW \cite{loshchilov2019decoupled} and adopt the
+transformer architecture of Vaswani et al.~\cite{vaswani2017attention} as
+extended to the circuit framework of Elhage et al.~\cite{elhage2021mathematical}.
 Our changepoint estimator is based on the Bayesian Information
-Criterion \citep{schwarz1978estimating};
-\citet{truong2020selective} survey alternative offline changepoint
-detectors, and the PELT algorithm of \citet{killick2012optimal}
+Criterion \cite{schwarz1978estimating};
+Truong et al.~\cite{truong2020selective} survey alternative offline changepoint
+detectors, and the PELT algorithm of Killick et al.~\cite{killick2012optimal}
 provides a more general optimisation procedure than the single-break
 search we adopt here.
 We chose the simpler 1-breakpoint formulation because it matches
@@ -398,14 +398,14 @@ of all three stages, which is what makes statements about their
     Work & $\taucirc$ (circuit) & $\taug$ (generalization)
          & $\tauf$ (embedding geometry) \\
     \midrule
-    \citet{power2022grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
-    \citet{liu2022towards}            & $\cdot$      & \checkmark   & $\cdot$ \\
-    \citet{nanda2023progress}         & \checkmark   & \checkmark   & $\sim$  \\
-    \citet{varma2023explaining}       & $\sim$       & \checkmark   & $\cdot$ \\
-    \citet{liu2023omnigrok}           & $\cdot$      & \checkmark   & $\sim$  \\
-    \citet{rubin2024grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
-    \citet{lyu2024dichotomy}          & $\cdot$      & \checkmark   & $\cdot$ \\
-    \citet{doshi2024grok}             & $\cdot$      & \checkmark   & $\cdot$ \\
+    Power et al.~\cite{power2022grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
+    Liu et al.~\cite{liu2022towards}            & $\cdot$      & \checkmark   & $\cdot$ \\
+    Nanda et al.~\cite{nanda2023progress}         & \checkmark   & \checkmark   & $\sim$  \\
+    Varma et al.~\cite{varma2023explaining}       & $\sim$       & \checkmark   & $\cdot$ \\
+    Liu et al.~\cite{liu2023omnigrok}           & $\cdot$      & \checkmark   & $\sim$  \\
+    Rubin et al.~\cite{rubin2024grokking}         & $\cdot$      & \checkmark   & $\cdot$ \\
+    Lyu et al.~\cite{lyu2024dichotomy}          & $\cdot$      & \checkmark   & $\cdot$ \\
+    Doshi et al.~\cite{doshi2024grok}             & $\cdot$      & \checkmark   & $\cdot$ \\
     \midrule
     \textbf{This work}                & \checkmark   & \checkmark   & \checkmark \\
     \bottomrule
@@ -418,7 +418,7 @@ of all three stages, which is what makes statements about their
 
 \subsection{Task and Model}
 
-We train a decoder-only transformer \citep{vaswani2017attention} on
+We train a decoder-only transformer \cite{vaswani2017attention} on
 $(\mathtt{a}+\mathtt{b})\bmod 53$.
 All $p^2=2{,}809$ input pairs are generated; 30\% (843 pairs) form
 the training set.
@@ -426,7 +426,7 @@ The model uses $d_{\mathrm{model}}=256$, 4 attention heads, 2 layers,
 feed-forward dimension 1024, no dropout.
 The embedding layer has fixed learning rate $\eta_{\mathrm{emb}}
 =10^{-3}$ and weight decay~0; only decoder parameters are swept.
-We use AdamW \citep{loshchilov2019decoupled} with a 10-step linear
+We use AdamW \cite{loshchilov2019decoupled} with a 10-step linear
 warmup followed by constant learning rate, and gradient clipping at norm~1.0.
 
 \subsection{Metrics}
@@ -466,7 +466,7 @@ $F_{\mathrm{raw}}$ under 100 random token-index permutations of the
 and set $\fcorr(t)=\max(0,\,F_{\mathrm{raw}}(t)-F_{\mathrm{null,p95}}(t))$.
 
 \paragraph{Fourier geometry onset $\tauf$.}
-We apply a BIC-selected \citep{schwarz1978estimating} 1-breakpoint
+We apply a BIC-selected \cite{schwarz1978estimating} 1-breakpoint
 segmented regression to $\fcorr(t)$ on a log-time scale after
 exponential-moving-average smoothing ($\alpha{=}0.15$).
 A changepoint is accepted only if the 4-parameter model strictly
@@ -492,11 +492,28 @@ $[\cos(2\pi k s_{ab}/p),\sin(2\pi k s_{ab}/p)]$ indexed over all
 $p^2$ input pairs.
 This measures the fraction of total logit variance explained by the
 best single Fourier harmonic of the answer class, analogous to
-\citeauthor{nanda2023progress}'s restricted logit loss.
+Nanda et al.'s restricted logit loss.
 A permutation-null-corrected version $\flogit^{\mathrm{corr}}$ is
 computed identically to $\fcorr$ (permuting the $s_{ab}$ labels).
 $\taucirc$ is the BIC changepoint of $\flogit^{\mathrm{corr}}$,
 estimated with the same procedure as $\tauf$.
+
+\paragraph{Interpretation of $\tauf$ and $\taucirc$ as single-harmonic
+onsets.}
+Both $\fcorr$ and $\flogit$ take a maximum over \emph{single} Fourier
+subspaces ($k=1,\dots,\lfloor p/2\rfloor$) rather than fitting the
+full multi-harmonic basis that the grokked circuit ultimately uses.
+Accordingly, $\tauf$ should be read as the onset of above-chance
+single-harmonic \emph{embedding} organisation, and $\taucirc$ as the
+onset of above-chance single-harmonic \emph{logit} organisation; each
+is a lower-bound proxy for the richer geometry and computation the
+trained network eventually realises.
+We adopt the single-harmonic form because it admits a clean
+permutation null and a single scalar trajectory suitable for BIC
+changepoint detection; claims about the three-stage ordering
+$\taucirc<\taug<\tauf$ should be interpreted at this level of
+granularity, not as statements about completion of the full
+multi-harmonic circuit.
 
 \paragraph{Ordering labels.}
 Given $(\taug,\tauf)$, each run is labeled:
@@ -913,7 +930,7 @@ Figure~\ref{fig:stage6_heatmap} shows the full spatial structure.
 
 Our results are compatible with a picture of grokking that distinguishes
 \emph{mechanism formation} from \emph{embedding consolidation}.
-\citet{nanda2023progress} showed that the Fourier computation circuit
+Nanda et al.~\cite{nanda2023progress} showed that the Fourier computation circuit
 forms---and progress measures improve---before the generalization jump
 $\taug$.
 Our complementary finding is that the token \emph{embedding geometry}
@@ -925,7 +942,7 @@ Our results \emph{directly support} a three-stage picture:
 logit Fourier alignment); (2)~generalization onset $\taug$;
 (3)~embedding-geometry consolidation $\tauf$ (\textbf{this work}).
 All three timescales are measured in the same runs, without relying
-on \citeauthor{nanda2023progress}'s separate dataset.
+on Nanda et al.'s separate dataset.
 The three intervals are approximately equal: median
 $\taug-\taucirc\approx\tauf-\taug\approx6{,}000$--$6{,}250$~steps,
 so the total span $\tauf-\taucirc\approx13{,}000$~steps is split
@@ -950,8 +967,8 @@ further investigation with circuit-level probes.
 
 The three-stage decomposition we observe is also consistent with
 broader views of learning as a sequence of discrete events:
-\citet{saxe2014exact} showed that deep linear networks learn
-singular modes one at a time, and \citet{michaud2023quantization}
+Saxe et al.~\cite{saxe2014exact} showed that deep linear networks learn
+singular modes one at a time, and Michaud et al.~\cite{michaud2023quantization}
 argue that neural scaling reflects the sequential acquisition of
 discrete ``quanta'' of skill.
 C$<$G$<$F is one concrete instantiation of such stage-wise dynamics
@@ -1025,10 +1042,16 @@ lr=6.8e-4, s7  & F$<$G         & F$<$G      & F$<$G      & No \\
 A natural concern is whether the G$<$F finding depends on the specific
 choice of detector hyperparameters: the null-update interval, the EMA
 smoothing coefficient, and the BIC slope threshold.
-To address this, we trained 8 representative cells spanning strong,
-medium, and weak G$<$F cases, one coincident case, and the sole
-stable F$<$G case, and applied all $3\times4\times3=36$ detector
-configurations post-hoc to the same saved trajectories.
+To address this, 8 cells are selected from the Stage~2$+$3
+classification table by a fixed stratification rule---cells
+stratified across the measured $|\Dtau|$ distribution (large,
+medium, small), plus the coincident cell and the sole stable F$<$G
+cell---and all $3\times4\times3=36$ detector configurations are
+applied post-hoc to the same saved trajectories.
+Selecting the subset by a stratification rule applied to the
+already-classified table, rather than picking individual cells after
+inspecting their detector behaviour, reduces the risk of cherry-picked
+robustness.
 
 We define the \textbf{Robustness Score} $\mathrm{RS} = N_{G<F} /
 N_{\mathrm{total}}$ for each cell, where $N_{\mathrm{total}}=36$.
@@ -1119,7 +1142,7 @@ above the resolution floor but warranting caution.
 \paragraph{Logit metric alignment.}
 Our $\flogit$ captures the aggregate Fourier structure of logits
 across all $(a,b)$ pairs, which is related but not identical to
-\citeauthor{nanda2023progress}'s restricted logit loss.
+Nanda et al.'s restricted logit loss.
 Whether the two metrics detect exactly the same circuit-formation
 event or slightly different aspects of it remains to be verified
 by direct comparison on the same runs.
@@ -1158,12 +1181,12 @@ ordering becomes a function of generalization speed:
     enough time to complete embedding consolidation first, yielding
     F$<$G.
 \end{itemize}
-This picture is compatible with \citet{doshi2024grok}, who show that
+This picture is compatible with Doshi et al.~\cite{doshi2024grok}, who show that
 on corrupted modular-arithmetic data the relative onsets of
 memorization and generalization depend separately on data corruption,
 weight decay, and learning rate; and with the implicit-bias view in
 which weight decay continues to restructure representations long
-after the training loss has saturated \citep{soudry2018implicit,
+after the training loss has saturated \cite{soudry2018implicit,
 galanti2024sgd,andriushchenko2023need}.
 
 \paragraph{Evidence from existing data.}
@@ -1449,9 +1472,9 @@ Expected cost: $\sim$36 runs, $\sim$30~GPU-hours.
 Purpose: check whether the C$<$G$<$F ordering is specific to the
 2-layer setting used throughout this paper.
 
-\paragraph{E3. Direct comparison with \citet{nanda2023progress} progress measures.}
+\paragraph{E3. Direct comparison with Nanda et al.~\cite{nanda2023progress} progress measures.}
 Recompute the restricted logit loss and excluded loss of
-\citeauthor{nanda2023progress} on the same 54 Stage~4 runs used to
+Nanda et al. on the same 54 Stage~4 runs used to
 measure $\taucirc$, and compare the two changepoints run-by-run.
 Expected cost: negligible compute (post-hoc on existing
 trajectories); implementation cost only.
