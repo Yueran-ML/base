@@ -1,0 +1,51 @@
+{
+  "label": "canonical_GF_s2025",
+  "cell": {
+    "lr": 0.0016,
+    "wd": 1.7145,
+    "seed": 2025,
+    "task": "add",
+    "prime": 53,
+    "tau_circuit": 8000.0,
+    "tau_gen": 16000.0,
+    "tau_F": 36000.0,
+    "ordering": "C<G<F",
+    "max_steps": 80000
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_all": 4000,
+    "between_circ_gen": 12000,
+    "between_gen_F": 26000,
+    "post_all": 43000
+  },
+  "saved_checkpoints": {
+    "pre_all": {
+      "step": 4000,
+      "path": "canonical_GF_s2025\\checkpoints\\step_004000_pre_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.018810370936989784
+    },
+    "between_circ_gen": {
+      "step": 12000,
+      "path": "canonical_GF_s2025\\checkpoints\\step_012000_between_circ_gen.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.6441280841827393
+    },
+    "between_gen_F": {
+      "step": 26000,
+      "path": "canonical_GF_s2025\\checkpoints\\step_026000_between_gen_F.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9893238544464111
+    },
+    "post_all": {
+      "step": 43000,
+      "path": "canonical_GF_s2025\\checkpoints\\step_043000_post_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "used_fallback_taus": false,
+  "checkpoint_schedule": "full",
+  "runtime_sec": 1921.607738018036
+}

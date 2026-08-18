@@ -1,0 +1,801 @@
+\documentclass[12pt,openany,a4paper]{book}
+
+% Font and page layout
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{microtype}
+
+% Colour and table formatting
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{booktabs}
+
+\setstretch{1.15}
+\setlength{\emergencystretch}{3em}
+
+\definecolor{instruc}{RGB}{112,48,160}
+
+% For Maths
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Hyperref
+\usepackage[colorlinks=true,linkcolor=blue!70!black,
+            citecolor=blue!70!black,urlcolor=blue!70!black]{hyperref}
+
+% Natbib for citations
+\usepackage[numbers,sort&compress]{natbib}
+
+% Instructional formatting
+\newcommand{\instructionstyle}{%
+  \color{instruc}%
+  \itshape%
+  \fontsize{11pt}{12pt}\selectfont%
+}
+
+\newcommand{\instructiontext}[1]{%
+  {\instructionstyle #1}%
+}
+
+\newenvironment{instructions}
+  {\par\begingroup\instructionstyle}
+  {\par\endgroup}
+
+% Rotated table headings
+\newcommand{\rotatedheading}[1]{%
+  \rotatebox[origin=c]{90}{%
+    \makebox[4.7cm][l]{#1}%
+  }%
+}
+
+% Custom macros for metrics
+\newcommand{\taug}{\tau_{\mathrm{gen}}}
+\newcommand{\tauf}{\tau_{F}}
+\newcommand{\taucirc}{\tau_{\mathrm{circuit}}}
+\newcommand{\Dtau}{\Delta\tau}
+\newcommand{\fcorr}{F_{\mathrm{corr}}}
+\newcommand{\flogit}{F_{L}}
+
+% TODO marker for content the user needs to fill
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Start Document %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\section*{Thesis Plan}
+\pagestyle{empty}
+
+\subsection*{Student Details}
+
+Student name: Yueran Ma\\
+Student number: 49317789\\
+Program enrolment: Master of Information Technology\\
+Course enrolment: REIT7841\\
+Number of units: 4\\
+Expected workload for your enrolment (hours per week): 10
+
+\subsection*{Supervisor Details}
+
+Primary Supervisor: A/Prof Marcus Gallagher\\
+Other Supervisors (optional): \\
+Have you met your supervisor this semester (yes/no, online/in person): Yes, 11/08/2026, in person\\
+Do you have a regular meeting scheduled for this semester (weekly/biweekly/other): No
+
+
+\subsection*{Use of Generative AI Statement}
+
+\subsubsection*{Have you used AI in your project}
+\begin{itemize}
+  \item \textbf{To explore your topic?} Yes. Claude Code and ChatGPT were used to explore prior literature on grokking, Fourier circuits, and representation learning dynamics, providing summaries of key papers and suggesting relevant related work.
+
+  \item \textbf{To define your research question?} No. The research question was defined independently; AI tools were not used for this purpose.
+
+  \item \textbf{To assist with your literature review?} Yes. AI tools were used to summarise and compare key papers (Power et al.\ 2022; Nanda et al.\ 2023; Liu et al.\ 2022), though all claims were independently verified against original sources.
+
+  \item \textbf{To assist with formatting the thesis outline presented here?} Yes. Grammar checking and LaTeX formatting assistance were provided by AI tools.
+
+  \item \textbf{To generate figures?} No. All figures were generated programmatically using Python (matplotlib) from experimental data.
+
+  \item \textbf{To analyse data?} No. All data analysis was performed using custom Python scripts.
+
+  \item \textbf{To generate data?} No. All data comes from training transformer models on modular arithmetic tasks. No synthetic or AI-generated data was used.
+
+  \item \textbf{To generate text for your thesis?} No. All thesis text was drafted and revised by the author. AI tools assisted only with grammar and formatting.
+
+  \item \textbf{For other aspects of your work?} Yes. Claude Code assisted with Python code generation for experiment scripts, metric implementations, and result visualisation. All generated code was reviewed and tested before use.
+\end{itemize}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Start Thesis Document %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\origcleardoublepage\cleardoublepage
+\let\cleardoublepage\clearpage
+\frontmatter
+\let\cleardoublepage\origcleardoublepage
+
+\begin{titlepage}
+\renewcommand{\baselinestretch}{1.0}
+\begin{center}
+\vspace*{35mm}
+\Huge\bf
+
+        \begin{figure}[htpb]
+            \centering
+            \includegraphics[width=0.6\linewidth]{UQ_Logo.png}
+        \end{figure}
+
+        \vspace*{25mm}
+
+        The visible Fourier ring is not the algorithm:\\
+        dissociating logit structure from embedding\\
+        consolidation in grokking\\
+\vspace{20mm}
+\large\sl
+		by\\
+		Yueran Ma
+		\medskip\\
+\rm
+		School of Electrical Engineering and Computer Science,\\
+		The University of Queensland.\\
+\vspace{30mm}
+		Submitted for the degree of Master of Information Technology as part\\
+        of the course REIT7841.
+		\bigskip\\
+\large
+		August, 2026.
+\end{center}
+\end{titlepage}
+
+\newpage
+
+\begin{flushright}
+	Yueran Ma\\
+	s4931778@uq.edu.au\\
+	\medskip
+\end{flushright}
+\begin{flushleft}
+  \medskip
+  18 August 2026 \\
+  \bigskip\bigskip
+  Prof Michael Bruenig\\
+  Head of School\\
+  School of Electrical Engineering and Computer Science\\
+  The University of Queensland\\
+  St Lucia, Q 4072\\
+  \bigskip\bigskip
+  Dear Professor Bruenig,
+\end{flushleft}
+
+In accordance with the requirements of the Degree of Master of Information Technology in the School of Electrical Engineering and Computer Science, I submit the following thesis entitled
+\begin{center}
+``The visible Fourier ring is not the algorithm: dissociating logit structure from embedding consolidation in grokking''
+\end{center}
+The thesis was performed under the supervision of A/Prof Marcus Gallagher. I declare that the work submitted in the thesis is my own, except as acknowledged in the text and footnotes, and that it has not previously been submitted for a degree at the University of Queensland or any other institution.
+
+\begin{flushright}
+	Yours sincerely,\\
+	\medskip
+	\emph{[Signature]}\\
+	\medskip
+	YUERAN MA.
+\end{flushright}
+
+\chapter{Declaration by Author}
+
+This thesis is composed of my original work, and contains no material previously published, written by another person, or generated by artificial intelligence (AI), except where clearly referenced and acknowledged either in the main text or the preliminary pages of this thesis. I have clearly stated the contribution of others to jointly authored works that I have included in my thesis.
+
+I have clearly stated the contribution of others to my thesis as a whole, including statistical assistance, survey design, data analysis, significant technical procedures, professional editorial advice, use of AI tools, financial support, and any other original research work used or reported in my thesis. The content of my thesis is the result of work I have carried out since the commencement of my enrollment in the course code indicated on the title page, and does not include a substantial part of work that has been submitted to qualify for the award of any other degree or diploma in any university or other tertiary institution. I have clearly stated which parts of my thesis, if any, have been submitted to qualify for another award.
+
+I acknowledge that copyright of all material contained in my thesis resides with the copyright holder(s) of that material. Where appropriate I have obtained copyright permission from the copyright holder to reproduce material in this thesis and have sought permission from co-authors for any jointly authored works included in the thesis.
+
+\chapter{Use of AI Statement}
+
+\emph{I acknowledge the use of generative AI tools in completing this
+assessment. Details of which tools were used and how they were used are
+provided in the table below, along with appropriate in-text and full
+references. I take responsibility for critically evaluating and
+integrating the AI generated content, and ensuring it adheres to
+academic integrity standards.}
+
+\bigskip
+
+Generative AI was used in the following capacities during this thesis project:
+
+\textbf{Claude Code (Anthropic, 2025--2026)} was used as a coding assistant for writing Python experiment scripts (training loops, hyperparameter sweeps, metric implementations) and result visualisation code. All generated code was reviewed and tested before use. All experimental designs, metric definitions, and research decisions were made by the author.
+
+\textbf{ChatGPT (OpenAI, GPT-5.4, early weeks)} was used alongside Claude Code for initial topic exploration and literature summaries.
+
+Both tools were used to explore prior literature on grokking, Fourier circuits, and representation learning dynamics, providing summaries of key papers and suggesting relevant related work. All claims were independently verified against original sources. Grammar checking and LaTeX formatting assistance were also provided by AI tools.
+
+No AI tools were used to define the research question, generate experimental data, produce figures, analyse data, or generate thesis text. The research question was defined independently through supervisor meetings.
+
+\bigskip
+
+\begin{tabular}{
+|c|c|c|c|c|c|c|c|c|c|c|
+>{\centering\arraybackslash}p{4.45cm}|
+}
+\hline
+
+\multirow{2}{*}{%
+  \parbox{2.5cm}{%
+    \centering
+     \textbf{AI model and date}
+  }%
+}
+& \multicolumn{11}{c|}{%
+    \textbf{Artificial Intelligence (AI) tool usage}
+    (tick all that apply)
+  }
+\\ \cline{2-12}
+
+& \rotatedheading{Topic exploration}
+& \rotatedheading{Research question}
+& \rotatedheading{Literature review}
+& \rotatedheading{Methodological support}
+& \rotatedheading{Data analysis}
+& \rotatedheading{Visual content creation}
+& \rotatedheading{Written content creation}
+& \rotatedheading{Language translation}
+& \rotatedheading{Grammar/style/spelling}
+& \rotatedheading{Feedback on content}
+& \makecell[c]{Other use\\(provide details)}
+\\ \hline
+
+% ChatGPT row
+\makecell{
+  ChatGPT\\(GPT-5.4)\\
+  Weeks 1--4
+}
+& $\checkmark$ % Topic exploration
+&              % Research question
+&              % Literature review
+& $\checkmark$ % Methodological support
+&              % Data analysis
+&              % Visual content creation
+& $\checkmark$ % Written content creation (code)
+&              % Language translation
+& $\checkmark$ % Grammar/style/spelling
+&              % Feedback on content
+&              % Other
+\\ \hline
+
+% Claude Code row
+\makecell{
+  Claude Code\\
+  Weeks 1--12
+}
+& $\checkmark$ % Topic exploration
+&              % Research question
+&              % Literature review
+& $\checkmark$ % Methodological support
+&              % Data analysis
+&              % Visual content creation
+& $\checkmark$ % Written content creation (code)
+&              % Language translation
+& $\checkmark$ % Grammar/style/spelling
+&              % Feedback on content
+&              % Other
+\\ \hline
+
+% Blank rows
+& & & & & & & & & & & \\[1.5em] \hline
+& & & & & & & & & & & \\[1.5em] \hline
+
+\end{tabular}
+
+\bigskip
+
+
+\chapter{Acknowledgments}
+
+I owe my deepest gratitude to my supervisor, A/Prof Marcus Gallagher, who has been the best teacher I have encountered during my time at UQ. Marcus taught me far more than the mechanics of research: he showed me how to ask the right questions, how to sit with uncertainty until the data speaks, and how to write with precision rather than volume. His door was always open, and the conversations that took place there ranged well beyond grokking curves and experimental design. We talked about career directions, about navigating setbacks, and about what it means to do honest work in a field that moves fast. There were stretches of this project where the uncertainty of what lay ahead weighed on me more than the research itself, and in those periods I found myself in his office more often than usual, not always with a technical question to ask but simply needing a conversation with someone who understood. Marcus never trivialized the anxiety; instead, he had a way of putting things in proportion, reminding me that the ability to think carefully about hard problems is not wasted even when the road ahead is unclear, and that not every question needs to be answered today. I left those conversations, every time, a little steadier.
+
+This project is still ongoing, and I look forward to the remaining work under his guidance. But even at this stage I can say that Marcus has shaped the way I approach research in ways I expect to carry well beyond this thesis. He pushed me to be rigorous where I was tempted to be approximate, patient where I wanted to be fast, and honest about what the data did and did not show. The discipline of thinking clearly under his supervision is, I suspect, the most durable thing I will take from my years at UQ.
+
+Finally, I thank my family and my friend Xiaohan (Cecilia) Hu. My parents have supported every step of this journey with unwavering patience and trust, even when the path I chose was not easy to explain from the other side of the world. Xiaohan has been a constant source of strength throughout my years of study: the person I could always turn to when the weight of the work and the uncertainty around it made everything feel precarious. Her steadiness, warmth, and quiet confidence in me carried me through more than she probably knows. None of this would have been possible without them.
+
+I also thank the School of Electrical Engineering and Computer Science at the University of Queensland for providing access to computing resources that made the large-scale sweeps in this thesis possible.
+
+
+\chapter{Abstract}
+
+The circular Fourier ring that appears in PCA of a grokked transformer's token embeddings is an iconic visualization in the grokking literature, and is often taken as evidence of the algorithm the network has acquired. This thesis shows that its timing runs the other way: the ring is a lagging indicator. By measuring three event times within the same runs of a 2-layer modular-arithmetic transformer under decoder-only weight decay, namely answer-aligned logit Fourier alignment $\taucirc$, behavioral generalization $\taug$, and embedding-Fourier consolidation $\tauf$ (each a BIC changepoint), we find $\taucirc < \taug < \tauf$, with the visible ring consolidating a median of approximately 6,000 steps after the network already generalises.
+
+Three results establish that the embedding-ring lag is functional rather than cosmetic. First, time-resolved causal interventions locate the functional dependence: at checkpoints between $\taucirc$ and $\tauf$, removing the dominant answer-aligned Fourier subspace from the logits drops test accuracy by up to 0.72 while matched-energy random removals are negligible. Second, the three-event ordering holds in 48/54 runs and in 44/55 when re-trained on different GPU/CUDA hardware. Third, the lag holds in 89.8\% of 236 Grokking runs spanning two tasks, two primes, and a dense (lr, wd) grid, and a targeted slow-grokking sweep closes off the leading alternative explanation that the lag merely tracks generalization speed.
+
+This sharpens prior observations that grokking coincides with the emergence of structure in the embeddings into a measured within-run lag, and complements circuit-formation accounts by isolating the visible ring as a distinct, later event.
+
+\tableofcontents
+
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\cleardoublepage
+
+\mainmatter
+
+%% ====================================================================
+\chapter{Introduction}
+\label{ch:intro}
+
+Grokking, the abrupt onset of generalization long after training accuracy saturates, has become a canonical testbed for studying delayed representation learning in neural networks \citep{power2022grokking}. Subsequent work has extended grokking far beyond toy modular arithmetic \citep{liu2023omnigrok,miller2024grokking} and developed mechanistic and theoretical accounts of when and why the transition occurs \citep{nanda2023progress,varma2023explaining,lyu2024dichotomy,rubin2024grokking}.
+
+On modular arithmetic tasks, \citet{nanda2023progress} showed that grokked transformers implement a Fourier circuit: the network uses trigonometric identities over a small set of task-relevant harmonics to compute modular addition. As a consequence, the $p$ token embeddings form a near-circular ring in PCA space. That visualization is compelling, but it conflates two questions: whether Fourier structure is causally used for the computation, and whether the embedding table itself has already settled into a Fourier geometry.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox{0.8\textwidth}{\centering\vspace{3cm}\textit{PCA visualization of token embeddings before and after grokking, showing the emergence of the Fourier ring.}\vspace{3cm}}}
+  \caption{PCA of token embeddings at three training stages: pre-grokking (random), post-generalization (partial ring), and post-consolidation (complete Fourier ring).}
+  \label{fig:pca_ring}
+\end{figure}
+
+\section{Research question}
+
+This thesis investigates the relative timing of three events during grokking:
+\begin{itemize}
+  \item $\taucirc$: circuit onset, the BIC changepoint at which answer-aligned logit Fourier alignment rises above a permutation-null baseline;
+  \item $\taug$: generalization onset, the first checkpoint where test accuracy $\geq 0.9$ sustained for three consecutive evaluations;
+  \item $\tauf$: embedding-Fourier consolidation changepoint, the BIC changepoint at which token-embedding Fourier alignment rises above a permutation-null baseline.
+\end{itemize}
+
+The central question is: \emph{does embedding-level Fourier alignment consolidate before or after generalization?}
+
+\section{Contributions}
+
+This thesis makes three contributions:
+\begin{enumerate}
+  \item \textbf{We localise where the Fourier computation is functionally load-bearing at the moment of generalization, and it is not the visible ring.} Time-resolved causal Fourier-subspace interventions show that removing the dominant logit-Fourier harmonics between $\taucirc$ and $\tauf$ drops test accuracy by 0.40--0.72, while matched-energy random removals are negligible (specificity ratios $12$--$214\times$).
+
+  \item \textbf{A three-event timing framework makes the dissociation measurable within a single run.} Computing logit-level Fourier alignment alongside the embedding-level score at every checkpoint recovers $(\taucirc, \taug, \tauf)$ from one trajectory via BIC changepoint detection. The ordering $\taucirc < \taug < \tauf$ holds in 48/54 runs (88.9\%).
+
+  \item \textbf{The embedding-ring lag holds across every regime we can reach.} Embedding-geometry consolidation lags generalization in 212/236 Grokking runs (89.8\%), spanning 1D weight-decay and learning-rate sweeps, a dense 2D grid, a different prime ($p{=}97$), and modular multiplication. A targeted slow-grokking sweep (24/24 G$<$F) closes off the leading alternative account that the lag merely tracks generalization speed.
+\end{enumerate}
+
+\section{Thesis outline}
+
+The remainder of this thesis is structured as follows. Chapter~\ref{ch:litreview} reviews prior work on grokking, mechanistic interpretability, and embedding geometry dynamics. Chapter~\ref{ch:background} presents the theoretical background on Fourier circuits and the metrics used throughout. Chapter~\ref{ch:methods} describes the experimental methodology, including the model architecture, metric definitions, changepoint detection, and experimental design across six stages. Chapter~\ref{ch:timing} presents the timing results across hyperparameter sweeps, tasks, and primes. Chapter~\ref{ch:causal} presents causal intervention evidence and robustness analyses. Chapter~\ref{ch:discussion} discusses the implications and connections to the broader literature. Chapter~\ref{ch:conclusion} concludes with a summary and directions for future work.
+
+
+%% ====================================================================
+\chapter{Literature review}
+\label{ch:litreview}
+
+\section{Grokking and delayed generalization}
+
+\citet{power2022grokking} introduced grokking on modular arithmetic. \citet{liu2022towards} constructed the (lr, wd) phase diagram identifying four training phases: Grokking, Memorization, Comprehension, and Confusion. \citet{liu2023omnigrok} showed that grokking extends beyond algorithmic tasks and is governed by the ratio of initial weight norm to the norm of the generalising solution. \citet{miller2024grokking} documented grokking outside neural networks entirely, suggesting the dynamics are an instance of a broader class.
+
+On the theoretical side, \citet{rubin2024grokking} model grokking as a first-order phase transition, \citet{lyu2024dichotomy} prove that a dichotomy of early- and late-phase implicit biases can provably induce grokking in homogeneous networks, and \citet{mohamadi2024grok} give a margin-based theoretical analysis specific to modular addition. \citet{kumar2024lazy} reframe grokking as the transition from ``lazy'' to ``rich'' training dynamics. \citet{doshi2024grok} disentangle generalization from memorization on corrupted modular-arithmetic data.
+
+\section{Mechanistic interpretability of grokked models}
+
+The circuit-level view of neural networks \citep{olah2020zoom,elhage2021mathematical} treats trained models as collections of identifiable computational subgraphs. \citet{nanda2023progress} reverse-engineered the Fourier circuit and showed via progress measures that circuit formation precedes the generalization jump. \citet{varma2023explaining} argue that grokking reflects the delayed ascent of an efficient generalising circuit over a more immediately learnable memorising solution. \citet{merrill2023tale} characterise this competition as a contest between sparse and dense subnetworks.
+
+\citet{chughtai2023toy} study how networks learn group operations, finding that learned circuits depend on group structure. \citet{zhong2023clock} show that modular addition admits two distinct algorithms (``Clock'' and ``Pizza''), depending on initialisation and architecture. \citet{gromov2023grokking} provides analytic weight solutions for two-layer networks on modular arithmetic tasks.
+
+\section{Embedding geometry and representation dynamics}
+
+\citet{papyan2020prevalence} identified Neural Collapse, the terminal convergence of within-class activations to a simplex equiangular tight frame. Our $\tauf$ result is analogous in spirit: the Fourier ring geometry is a post-generalization consolidation rather than a prerequisite. \citet{barak2022hidden} demonstrated that abrupt generalization can hide gradual progress in loss-scale metrics, motivating our BIC changepoint approach.
+
+\section{Implicit bias and weight decay}
+
+\citet{soudry2018implicit} proved that gradient descent on exponentially-tailed losses converges to the max-margin solution on a much slower timescale than the loss decrease. \citet{galanti2024sgd} prove that SGD with weight decay biases learned representations toward low effective rank. The G$<$F lag we observe fits naturally with this picture: once the generalising circuit is in place, decoder-side weight decay continues to reshape the embedding rows through back-propagated gradients.
+
+\section{Concurrent work}
+
+Several recent papers study representation-level dynamics in modular-arithmetic grokking. \citet{khaliq2026scaffold} characterises a post-grokking ``scaffold'' phase. \citet{truong2026spectral} report that representation-covariance spectral entropy collapses before generalization. These works address complementary questions to ours.
+
+
+%% ====================================================================
+\chapter{Background and theory}
+\label{ch:background}
+
+\section{Modular arithmetic and Fourier representations}
+
+We study transformers on binary modular arithmetic: $(a+b) \bmod p$ for prime $p$. Following \citet{nanda2023progress}, the grokked network computes modular sums via trigonometric identities. Each token embedding $E_i$ for token $i$ ideally aligns with the angle $2\pi i / p$ on a circle in embedding space, producing the characteristic ``Fourier ring'' in PCA.
+
+\section{Fourier alignment metrics}
+
+Let $E_t \in \mathbb{R}^{p \times d}$ be the mean-row-centered token embedding matrix at step $t$. We compute the fraction of variance explained by the best single Fourier harmonic:
+\begin{equation}
+  F_{\mathrm{raw}}(t) = \max_{k=1}^{\lfloor p/2\rfloor}
+  \left(1 - \frac{\|E_t - Q_k Q_k^\top E_t\|_F^2}
+  {\|E_t\|_F^2}\right),
+  \label{eq:f_raw}
+\end{equation}
+where $Q_k$ is an orthonormal basis for $[\cos(2\pi ki/p), \sin(2\pi ki/p)]_{i=0}^{p-1}$.
+
+\section{Null correction}
+
+With $p=53$ and $d=256$, any embedding matrix achieves non-trivial $F_{\mathrm{raw}}$ by chance. We estimate the 95th percentile under 100 random token-index permutations and define the null-corrected score:
+\begin{equation}
+  \fcorr(t) = \max(0,\, F_{\mathrm{raw}}(t) - F_{\mathrm{null,p95}}(t)).
+\end{equation}
+
+\section{BIC changepoint detection}
+
+We apply a BIC-selected 1-break segmented regression \citep{schwarz1978estimating} to $\fcorr(t)$ on a log-time scale after exponential-moving-average smoothing ($\alpha=0.15$). A changepoint is accepted only if the 4-parameter model strictly improves BIC over the 2-parameter no-break baseline and the post-break slope exceeds 1\% of the total value range.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox{0.8\textwidth}{\centering\vspace{3cm}\textit{Illustration of BIC changepoint detection on a representative $\fcorr(t)$ trajectory.}\vspace{3cm}}}
+  \caption{BIC changepoint detection on $\fcorr(t)$: the 1-break segmented regression (blue) vs.\ the no-break baseline (grey dashed). The vertical line marks the detected $\tauf$.}
+  \label{fig:bic_example}
+\end{figure}
+
+\section{Logit Fourier alignment}
+
+Analogously, $\flogit(t)$ measures the fraction of total logit variance explained by the best single Fourier harmonic of the answer class. Its BIC changepoint yields $\taucirc$, the circuit onset time.
+
+
+%% ====================================================================
+\chapter{Experimental methodology}
+\label{ch:methods}
+
+\section{Task and model architecture}
+
+We train a decoder-only transformer on $(a+b) \bmod 53$. The model uses $d_{\mathrm{model}}=256$, 4 attention heads, 2 layers, feed-forward dimension 1024, no dropout. All $p^2 = 2{,}809$ input pairs are generated; 30\% (843 pairs) form the training set. The embedding layer has fixed learning rate $\eta_{\mathrm{emb}} = 10^{-3}$ and weight decay 0; only decoder parameters are swept. We use AdamW with a 10-step linear warmup followed by constant learning rate, and gradient clipping at norm 1.0.
+
+\section{Phase classification}
+
+A run is classified as:
+\begin{itemize}
+  \item \textbf{Grokking}: both $\tau_{\mathrm{train}}$ and $\taug$ are detected, and $\taug - \tau_{\mathrm{train}} \geq 2{,}000$ steps.
+  \item \textbf{Memorization}: $\tau_{\mathrm{train}}$ detected, $\taug$ not.
+  \item \textbf{Comprehension}: both detected, gap $< 2{,}000$ steps.
+  \item \textbf{Confusion}: neither threshold is reached.
+\end{itemize}
+
+\section{Experimental stages}
+
+The experiments are organized into six stages:
+
+\begin{enumerate}
+  \item \textbf{Stage 2: Weight decay sweep.} Fixed lr$=1.6 \times 10^{-3}$. Ten log-spaced wd values in $[1.2, 3.5]$. Three seeds. Total: 30 runs.
+  \item \textbf{Stage 3: Learning rate sweep.} Fixed wd$=2.5$. Ten log-spaced lr values in $[5 \times 10^{-4}, 8 \times 10^{-3}]$. Three seeds. Total: 30 runs.
+  \item \textbf{Stage 4: Circuit timing.} Retrain all Stage 2 and 3 cells with $\flogit$ logged every 500 steps. Total: 60 runs.
+  \item \textbf{Stage 5A: Modular multiplication.} $(a \cdot b) \bmod 53$ with discrete-log reindexing. Same wd sweep as Stage 2. Total: 30 runs.
+  \item \textbf{Stage 5B: Different prime.} $(a+b) \bmod 97$. Same wd sweep. Max 80,000 steps. Total: 30 runs.
+  \item \textbf{Stage 6: Dense 2D grid.} $7 \times 7$ (lr $\times$ wd) grid, three seeds. Total: 147 runs.
+\end{enumerate}
+
+Training runs up to 50,000 steps, extended to 80,000 if train accuracy $> 0.9$ but $\taug$ not yet detected. All experiments use seed $\in \{42, 7, 2025\}$.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Summary of experimental stages.}
+  \label{tab:stages}
+  \small
+  \begin{tabular}{llllr}
+    \toprule
+    Stage & Task & Swept axis & Fixed axis & Runs \\
+    \midrule
+    2 & $(a{+}b)\bmod 53$ & wd $\in [1.2, 3.5]$ & lr $= 1.6\!\times\!10^{-3}$ & 30 \\
+    3 & $(a{+}b)\bmod 53$ & lr $\in [5\!\times\!10^{-4}, 8\!\times\!10^{-3}]$ & wd $= 2.5$ & 30 \\
+    4 & $(a{+}b)\bmod 53$ & (retrain Stages 2+3) & $+\flogit$ logging & 60 \\
+    5A & $(a{\cdot}b)\bmod 53$ & wd $\in [1.2, 3.5]$ & lr $= 1.6\!\times\!10^{-3}$ & 30 \\
+    5B & $(a{+}b)\bmod 97$ & wd $\in [1.2, 3.5]$ & lr $= 1.6\!\times\!10^{-3}$ & 30 \\
+    6 & $(a{+}b)\bmod 53$ & $7\!\times\!7$ (lr $\times$ wd) & --- & 147 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Compute environment}
+
+The majority of experiments were run on a local NVIDIA RTX 4080 Laptop GPU (12 GB VRAM). A smaller subset of longer sweeps was executed on rented cloud GPU instances (NVIDIA RTX PRO 6000 and NVIDIA A800). All runs used identical PyTorch training code (Python 3.11.9, PyTorch 2.5.1, CUDA 12.1).
+
+
+%% ====================================================================
+\chapter{Timing results across hyperparameters}
+\label{ch:timing}
+
+\section{G$<$F across weight decay (Stage 2)}
+
+All 30 Stage 2 runs land in the Grokking phase. 29/30 runs (96.7\%, 95\% CI 83.3\%--99.4\%) show G$<$F ordering; the sole exception has $\Dtau=0$ (coincident). No Stage 2 run exhibits F$<$G ordering. The per-wd median $\Dtau$ fluctuates between 5,500 and 11,000 steps with no monotonic trend, confirming that G$<$F is a wide plateau rather than a localized peak.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox{0.8\textwidth}{\centering\vspace{3cm}\textit{Example training trajectories for representative runs showing test accuracy and $\fcorr$ with $\taug$ and $\tauf$ marked.}\vspace{3cm}}}
+  \caption{Training trajectories for three representative runs. Red: test accuracy. Blue: null-corrected Fourier alignment $\fcorr$. Dashed verticals mark $\taug$ (red) and $\tauf$ (blue). The green-shaded region shows the lag $\Dtau = \tauf - \taug$.}
+  \label{fig:timeline}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Stage 2: weight-decay sweep at lr $= 1.6\!\times\!10^{-3}$ (3 seeds per wd value). All 30 runs are Grokking phase. $\Dtau$ in thousands of steps (positive = G$<$F).}
+  \label{tab:stage2}
+  \small
+  \begin{tabular}{rcccc}
+    \toprule
+    wd & P(G$<$F) & med.\ $\taug$ (k) & med.\ $\tauf$ (k) & med.\ $\Dtau$ (k) \\
+    \midrule
+    1.20 & 3/3 & 26.0 & 34.0 & $+7.0$ \\
+    1.52 & 3/3 & 14.5 & 21.5 & $+5.5$ \\
+    2.18 & 3/3 & 11.0 & 23.5 & $+8.5$ \\
+    2.76 & 3/3 & 10.5 & 18.5 & $+8.5$ \\
+    3.50 & 3/3 & 12.0 & 21.5 & $+9.0$ \\
+    \midrule
+    \textbf{All} & \textbf{29/30} & --- & --- & $+7.8$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{G$<$F across learning rate (Stage 3)}
+
+Of the 30 Stage 3 runs, 25 land in the Grokking phase. Among these, 23/25 (92.0\%, CI 75.0\%--97.8\%) show G$<$F ordering. The two F$<$G exceptions are one run at lr$=6.8 \times 10^{-4}$ (seed 7, $\Dtau = -1{,}500$ steps, spanning only three checkpoints) and one run at lr$=4.32 \times 10^{-3}$ (seed 42, at the edge of the Grokking phase with an atypical training trajectory).
+
+\section{Three-stage ordering (Stage 4)}
+
+Augmenting the training loop with $\flogit$ yields the three-way ordering $\taucirc < \taug < \tauf$ in 48/54 Grokking runs (88.9\%, 95\% CI 77.8\%--94.8\%). Cross-hardware replication on different GPU/CUDA hardware yields 44/55 (80.0\%, inside the original CI).
+
+\section{Cross-task generalization (Stages 5A, 5B)}
+
+On modular multiplication (Stage 5A, $p=53$), 30/30 Grokking runs show G$<$F ordering. On addition with a larger prime (Stage 5B, $p=97$), 21/21 Grokking runs show G$<$F, with the median lag scaling from approximately 6,000 steps at $p=53$ to 28,000 at $p=97$.
+
+\section{Dense 2D grid (Stage 6)}
+
+The dense $7 \times 7$ (lr $\times$ wd) grid (147 runs, 130 Grokking) yields 109/130 G$<$F (83.8\%, CI 76.6\%--89.2\%), confirming the result across the full 2D phase diagram.
+
+\section{Aggregate}
+
+Combining all stages: 212/236 Grokking runs (89.8\%, CI 85.3\%--93.1\%) show G$<$F ordering.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Aggregate G$<$F rates across all experimental stages.}
+  \label{tab:aggregate}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Stage & Grokking runs & G$<$F & Rate \\
+    \midrule
+    Stage 2 (wd sweep, $p{=}53$ add) & 30 & 29 & 96.7\% \\
+    Stage 3 (lr sweep, $p{=}53$ add) & 25 & 23 & 92.0\% \\
+    Stage 5A (mul $p{=}53$) & 30 & 30 & 100\% \\
+    Stage 5B (add $p{=}97$) & 21 & 21 & 100\% \\
+    Stage 6 (2D grid) & 130 & 109 & 83.8\% \\
+    \midrule
+    \textbf{Total} & \textbf{236} & \textbf{212} & \textbf{89.8\%} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+%% ====================================================================
+\chapter{Causal interventions and robustness}
+\label{ch:causal}
+
+\section{Causal Fourier-subspace intervention (E7)}
+
+At intermediate checkpoints between $\taucirc$ and $\tauf$, we remove the top-3 Fourier harmonics from the logit representation and measure the effect on test accuracy. The removal drops test accuracy by 0.40--0.72 across the eight addition-mod-53 cells that fully grok, while matched-energy random subspace removals drop accuracy by 0.000--0.013 (specificity ratios $12$--$214\times$).
+
+A top-$K$ ($K \in \{1,3,5,10\}$) ablation spectrum and a frequency-selectivity control place the effect on high-power low-order harmonics specifically. An embedding-side intervention (I4) shows that Fourier content in the embedding is functionally necessary well before $\tauf$: at checkpoints between $\taug$ and $\tauf$, removing the top-3 Fourier directions from the token embedding reduces test accuracy from a baseline of 0.90--1.00 to 0.02--0.37. What consolidates late is therefore the visible global geometry, not the functional Fourier content.
+
+Under discrete-log reindexing of multiplication, the same subspace carries no measurable load, which locates the boundary of the localization claim.
+
+\section{Internal activation patching (pilot)}
+
+A label-free, component-level activation-patching probe at six internal hook sites (embedding output, per-layer attention and MLP outputs, final residual stream) reproduces the Fourier specificity inside the network. At each site, we view each activation channel as a function on the $(a,b)$ input grid, ablate the top-$K=3$ grid-Fourier harmonics selected by activation power (no ground-truth label enters the construction), and compare against a dimension-matched random-subspace control (5 draws per site).
+
+On the ten between-event ($\taug < t < \tauf$) addition-mod-53 checkpoints with base accuracy above 0.5, ablation at the final residual stream drops test accuracy by a median of 0.49 while the random control drops it by 0.02. The second-layer MLP output (\texttt{mlp\_L1}) shows drops of 0.66 vs.\ 0.10, and second-layer attention (\texttt{attn\_L1}) 0.77 vs.\ 0.21. On the $p=97$ cell the separation is sharper still (residual stream 0.44 vs.\ 0.00), and the multiplication cell replicates the E7 negative (ablation $\approx$ control at every site). The grid-space control is the informative comparison at the four sites whose activations mix both input tokens; at the embedding output and the first-layer MLP output, activations are (partially) separable functions of a single token, so the embedding side is read from the I4 intervention instead.
+
+The probe localizes Fourier-specific functional necessity to the second-layer components and the final residual stream during the $\taug$--$\tauf$ window, adding an internal, label-free confirmation to the output-space interventions.
+
+\section{Detector-specification sensitivity}
+
+A 36-configuration sweep of the changepoint detector's hyperparameters (null interval $\in \{500, 2500, 5000\}$, EMA $\alpha \in \{0.1, 0.15, 0.3, 1.0\}$, slope threshold $\in \{0.005, 0.01, 0.02\}$) yields mean robustness score 0.94. No G$<$F cell is reclassified as F$<$G under any configuration when $|\Dtau| \geq 3{,}000$ steps.
+
+\section{Decoupled weight-decay ablation}
+
+A $2 \times 2$ ablation (emb wd on/off $\times$ decoder wd on/off) shows that decoder weight decay is sufficient to produce both grokking and the G$<$F lag. A decoder-wd shutoff schedule confirms that continued weight decay after $\taug$ drives the remaining geometric consolidation.
+
+\section{Ruling out speed dependence}
+
+A targeted slow-grokking sweep (24 cells at low learning rates, $\taug$ up to 54,500 steps) yields 24/24 G$<$F, closing off the leading alternative explanation that the lag merely tracks generalization speed.
+
+\begin{figure}[htbp]
+  \centering
+  \fbox{\parbox{0.8\textwidth}{\centering\vspace{3cm}\textit{Scatter plot of $\taug$ vs.\ $\Dtau$ for slow-grokking sweep and main-stage runs, showing all targeted cells fall in the G$<$F half-plane.}\vspace{3cm}}}
+  \caption{Slow-grokking scatter: $\taug$ vs.\ $\Dtau$ for targeted low-lr cells (red) and main-stage runs (blue/orange). All 24 targeted cells have $\Dtau > 0$ (G$<$F), including 12 in the slow-grokking margin ($\taug \geq 35{,}000$).}
+  \label{fig:slow_grokking}
+\end{figure}
+
+
+%% ====================================================================
+\chapter{Discussion}
+\label{ch:discussion}
+
+\section{Embedding geometry as a lagging indicator}
+
+The core finding is that the Fourier ring in a grokked transformer's embedding PCA is a post-generalization consolidation signal. The functional Fourier computation is already load-bearing in logit space well before the visible ring geometry has consolidated. This dissociation is measured within single training runs via three BIC changepoints, and confirmed by time-resolved causal interventions.
+
+\section{Connection to Neural Collapse and representation dynamics}
+
+The $\tauf$ result is analogous to Neural Collapse \citep{papyan2020prevalence} in spirit: both are post-generalization geometric consolidation phenomena. The difference is that the converged target is the cyclic-group representation rather than a simplex equiangular tight frame.
+
+\section{Connection to implicit bias theory}
+
+The G$<$F lag fits naturally with implicit-bias accounts of weight decay \citep{soudry2018implicit,galanti2024sgd}: once the generalising circuit is in place, decoder-side weight decay continues to reshape the embedding rows through back-propagated gradients, producing geometric reorganisation that postdates generalization.
+
+\section{Practical implications}
+
+Practitioners reading embedding geometry as a progress measure should expect it to understate how far the computation has already advanced. A clean ring means the algorithm arrived some thousands of steps ago, not that it is arriving now.
+
+\section{Limitations}
+
+\begin{itemize}
+  \item \textbf{Task scope.} Results are established for modular addition and multiplication on $p \in \{53, 97\}$. Generalization to non-cyclic-group tasks, larger vocabularies, or non-algorithmic domains remains open.
+  \item \textbf{Architecture scope.} All experiments use a 2-layer decoder-only transformer. A pilot at other depths found reversed ordering at 1 and 3 layers.
+  \item \textbf{Measurement resolution.} All events are measured at 500-step granularity. Finer resolution could refine timing estimates.
+  \item \textbf{Intervention controls.} Logit interventions (I1--I3) use a matched-energy random control (I3). The embedding intervention (I4) uses a different control design adapted to the embedding space.
+\end{itemize}
+
+
+%% ====================================================================
+\chapter{Conclusion and future work}
+\label{ch:conclusion}
+
+\section{Summary}
+
+The Fourier ring in a grokked transformer's embedding PCA is a lagging indicator of the algorithm it is taken to depict. By measuring three event times within the same runs, we recover the ordering $\taucirc < \taug < \tauf$ in 48/54 runs, with roughly equal spacing between consecutive events. The ordering holds in 89.8\% of 236 Grokking runs across two tasks, two primes, and a dense (lr, wd) grid. Time-resolved causal interventions confirm that the functional Fourier computation lives in logit space and is load-bearing well before the embedding ring has consolidated.
+
+\section{Future work}
+
+\begin{enumerate}
+  \item \textbf{Subtraction sweep.} Test whether the same timing pattern holds on $(a-b) \bmod p$, which uses the same Fourier basis but a different computational path.
+  \item \textbf{Architecture-depth scan.} Systematically characterise how the ordering varies with transformer depth ($n_{\mathrm{layers}} \in \{1,2,3,4\}$), where preliminary results suggest the ordering reverses.
+  \item \textbf{Online embedding intervention.} Intervene on the embedding during training (not just at evaluation) to test whether the late consolidation is functionally necessary for maintaining generalization.
+  \item \textbf{Component-level activation patching.} Extend the pilot to a full $K$-spectrum and on-manifold control, providing component-level evidence for where Fourier structure is load-bearing inside the network.
+\end{enumerate}
+
+\section{Conclusions}
+
+The practical consequence is a caution about a widely used diagnostic: embedding geometry read as a progress measure systematically understates how far the computation has advanced. A clean ring means the algorithm arrived some thousands of steps ago, not that it is arriving now.
+
+
+\cleardoublepage
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\appendix
+
+\newpage
+\addcontentsline{toc}{part}{Appendices}
+\mbox{}
+\newpage
+
+\chapter{Experimental details}
+
+\section{BIC changepoint estimator}
+
+We apply an exponential moving average ($\alpha=0.15$) to the $\fcorr$ trajectory, then operate on $\log(1+t)$. We search all candidate breakpoints in the interior two-thirds of the sequence, fitting OLS regressions before and after each candidate. The 4-parameter breakpoint model is accepted if $\mathrm{BIC}_{\mathrm{break}} < \mathrm{BIC}_{\mathrm{no\text{-}break}}$, where $\mathrm{BIC}_k = n \log(\mathrm{RSS}/n) + k \log(n)$.
+
+\section{Null permutation estimation}
+
+Each run maintains a fixed NumPy RNG seeded as $\mathrm{run\_seed} \oplus \texttt{0xDEAD}$, independent of the model RNG. We shuffle the $p$ token indices 100 times at every 500-step log point to estimate $F_{\mathrm{null,p95}}$.
+
+\section{Hyperparameter values}
+
+\textbf{Stage 2.} wd $\in \{1.20, 1.35, 1.52, 1.71, 1.93, 2.18, 2.45, 2.76, 3.11, 3.50\}$; lr $= 1.6 \times 10^{-3}$; seeds $= \{42, 7, 2025\}$.
+
+\textbf{Stage 3.} lr $\in \{5.00, 6.80, 9.26, 12.6, 17.1, 23.3, 31.7, 43.2, 58.8, 80.0\} \times 10^{-4}$; wd $= 2.5$; seeds $= \{42, 7, 2025\}$.
+
+\chapter{Complete timing results}
+
+Per-run timing data for the cross-hardware replication sweep (E3): the same 20-cell design as Stages 2 and 3 (addition mod 53, 10 wd values at fixed lr and 10 lr values at fixed wd, 3 seeds each), independently re-trained on a rented NVIDIA A800. This is the dataset behind the 44/55 replication estimate quoted in Chapter~\ref{ch:timing}. Tables~\ref{tab:e3_wd} and \ref{tab:e3_lr} show all 55 Grokking runs. The Stage 4 primary runs (48/54, local RTX 4080) and the remaining stages follow the same format and are available in the code repository.
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-hardware replication (E3), wd-sweep cells: addition mod 53, lr $= 1.6\!\times\!10^{-3}$. All times in training steps ($\times 10^3$). $\Dtau = \tauf - \taug$. Ordering shows the observed temporal sequence among $\taucirc$, $\taug$, and $\tauf$.}
+\label{tab:e3_wd}
+\small
+\begin{tabular}{lrrrrrl}
+\toprule
+wd & seed & $\taucirc$ & $\taug$ & $\tauf$ & $\Dtau$ & Ordering \\
+\midrule
+1.20 & 42   & 8.0  & 32.0 & 39.0 & 7.0   & C$<$G$<$F \\
+1.20 & 7    & 8.0  & 22.5 & 28.0 & 5.5   & C$<$G$<$F \\
+1.20 & 2025 & 11.5 & 26.0 & 34.0 & 8.0   & C$<$G$<$F \\
+1.35 & 42   & 8.0  & 27.5 & 38.0 & 10.5  & C$<$G$<$F \\
+1.35 & 7    & 10.5 & 19.5 & 28.5 & 9.0   & C$<$G$<$F \\
+1.35 & 2025 & 11.0 & 20.5 & 25.0 & 4.5   & C$<$G$<$F \\
+1.52 & 42   & 9.0  & 14.0 & 21.5 & 7.5   & C$<$G$<$F \\
+1.52 & 7    & 10.0 & 14.5 & 20.0 & 5.5   & C$<$G$<$F \\
+1.52 & 2025 & 8.0  & 16.0 & 21.5 & 5.5   & C$<$G$<$F \\
+1.71 & 42   & 9.5  & 13.5 & 26.5 & 13.0  & C$<$G$<$F \\
+1.71 & 7    & 16.0 & 17.0 & 23.5 & 6.5   & C$<$G$<$F \\
+1.71 & 2025 & 8.0  & 14.0 & 39.5 & 25.5  & C$<$G$<$F \\
+1.93 & 42   & 10.5 & 14.0 & 19.5 & 5.5   & C$<$G$<$F \\
+1.93 & 7    & 9.0  & 14.5 & 28.5 & 14.0  & C$<$G$<$F \\
+1.93 & 2025 & 8.0  & 12.5 & 23.5 & 11.0  & C$<$G$<$F \\
+2.18 & 42   & 9.0  & 15.0 & 23.5 & 8.5   & C$<$G$<$F \\
+2.18 & 7    & 8.0  & 11.0 & 14.0 & 3.0   & C$<$G$<$F \\
+2.18 & 2025 & 8.0  & 8.5  & 23.5 & 15.0  & C$<$G$<$F \\
+2.45 & 42   & 8.0  & 11.0 & 21.5 & 10.5  & C$<$G$<$F \\
+2.45 & 7    & 10.5 & 12.0 & 16.0 & 4.0   & C$<$G$<$F \\
+2.45 & 2025 & 8.0  & 10.0 & 15.5 & 5.5   & C$<$G$<$F \\
+2.76 & 42   & 8.0  & 11.5 & 29.0 & 17.5  & C$<$G$<$F \\
+2.76 & 7    & 9.0  & 10.5 & 18.0 & 7.5   & C$<$G$<$F \\
+2.76 & 2025 & 8.0  & 10.0 & 18.5 & 8.5   & C$<$G$<$F \\
+3.11 & 42   & 8.0  & 12.0 & 24.5 & 12.5  & C$<$G$<$F \\
+3.11 & 7    & 8.0  & 10.0 & 16.5 & 6.5   & C$<$G$<$F \\
+3.11 & 2025 & 8.0  & 11.0 & 11.0 & 0.0   & C$<$G$=$F \\
+3.50 & 42   & 9.5  & 12.0 & 26.5 & 14.5  & C$<$G$<$F \\
+3.50 & 7    & 8.0  & 19.0 & 21.5 & 2.5   & C$<$G$<$F \\
+3.50 & 2025 & 8.0  & 11.0 & 20.0 & 9.0   & C$<$G$<$F \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-hardware replication (E3), lr-sweep cells: addition mod 53, wd $= 2.5$. Same conventions as Table~\ref{tab:e3_wd}. The five Memorization runs (lr $\geq 5.9\!\times\!10^{-3}$, no $\taug$ detected) are omitted.}
+\label{tab:e3_lr}
+\small
+\begin{tabular}{lrrrrrl}
+\toprule
+lr & seed & $\taucirc$ & $\taug$ & $\tauf$ & $\Dtau$ & Ordering \\
+\midrule
+5.0e-4 & 42   & 32.5 & 52.0 & 54.0 & 2.0   & C$<$G$<$F \\
+5.0e-4 & 7    & 36.5 & 54.5 & 57.0 & 2.5   & C$<$G$<$F \\
+5.0e-4 & 2025 & 24.5 & 39.5 & 42.0 & 2.5   & C$<$G$<$F \\
+6.8e-4 & 42   & 14.5 & 31.0 & 39.0 & 8.0   & C$<$G$<$F \\
+6.8e-4 & 7    & 25.5 & 38.5 & 42.0 & 3.5   & C$<$G$<$F \\
+6.8e-4 & 2025 & 13.0 & 32.5 & 40.5 & 8.0   & C$<$G$<$F \\
+9.3e-4 & 42   & 13.5 & 18.5 & 26.5 & 8.0   & C$<$G$<$F \\
+9.3e-4 & 7    & 12.5 & 32.0 & 31.5 & $-$0.5 & C$<$F$<$G \\
+9.3e-4 & 2025 & 8.0  & 25.0 & 35.5 & 10.5  & C$<$G$<$F \\
+1.26e-3 & 42   & 8.0  & 19.5 & 33.0 & 13.5  & C$<$G$<$F \\
+1.26e-3 & 7    & 10.5 & 18.0 & 20.5 & 2.5   & C$<$G$<$F \\
+1.26e-3 & 2025 & 8.0  & 12.0 & 23.5 & 11.5  & C$<$G$<$F \\
+1.71e-3 & 42   & 8.0  & 11.0 & 17.5 & 6.5   & C$<$G$<$F \\
+1.71e-3 & 7    & 9.0  & 13.0 & 21.5 & 8.5   & C$<$G$<$F \\
+1.71e-3 & 2025 & 8.0  & 8.0  & 18.5 & 10.5  & C$=$G$<$F \\
+2.33e-3 & 42   & 9.5  & 22.5 & 28.0 & 5.5   & C$<$G$<$F \\
+2.33e-3 & 7    & 8.5  & 8.0  & 14.0 & 6.0   & G$<$C$<$F \\
+2.33e-3 & 2025 & 8.0  & 5.5  & 11.0 & 5.5   & G$<$C$<$F \\
+3.17e-3 & 42   & 8.0  & 11.5 & 17.5 & 6.0   & C$<$G$<$F \\
+3.17e-3 & 7    & 8.0  & 6.0  & 18.0 & 12.0  & G$<$C$<$F \\
+3.17e-3 & 2025 & 8.0  & 3.5  & 19.5 & 16.0  & G$<$C$<$F \\
+4.32e-3 & 42   & 8.0  & 45.0 & 9.5  & $-$35.5 & C$<$F$<$G \\
+4.32e-3 & 7    & 8.0  & 7.5  & 14.0 & 6.5   & G$<$C$<$F \\
+4.32e-3 & 2025 & 8.0  & 3.5  & 14.0 & 10.5  & G$<$C$<$F \\
+5.88e-3 & 2025 & 9.0  & 38.5 & 8.0  & $-$30.5 & F$<$C$<$G \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Code repository}
+
+The complete codebase, including training scripts, metric utilities, sweep harnesses, and analysis notebooks, is available at:
+
+GitHub repository URL to be released upon publication.
+
+\section{Core scripts}
+\begin{itemize}
+  \item \texttt{grokking\_baseline.py}: Transformer model, training loop, and embedding extraction.
+  \item \texttt{grok\_metrics.py}: Shared metric utilities (phase classification, $\taug$ detection, BIC changepoint estimation, Fourier alignment computation).
+  \item \texttt{stage2\_wd\_sweep.py}: Weight-decay sweep harness (Stage 2).
+  \item \texttt{stage1\_coarse\_sweep.py}: Coarse 5$\times$5 grid sweep.
+  \item \texttt{src/analysis/activation\_patching\_probe.py}: Label-free activation patching.
+  \item \texttt{src/sweeps/depth\_scan\_sweep.py}: Architecture-depth scan.
+\end{itemize}
+
+\end{document}

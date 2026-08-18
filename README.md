@@ -1,42 +1,46 @@
-# Grokking Phase Diagram — Representation Structure Timing
+# Three-Stage Grokking: Dissociating Logit Structure from Embedding Consolidation
 
-UQ EECS thesis project investigating the temporal ordering of three events
-during grokking on modular arithmetic:
+UQ Master of IT thesis project (REIT7841) investigating the temporal ordering
+of three events during grokking on modular arithmetic:
 
 $$\tau_\text{circuit} \;<\; \tau_\text{gen} \;<\; \tau_F$$
 
-where $\tau_\text{circuit}$ is when the Fourier logit structure forms,
-$\tau_\text{gen}$ is when test accuracy crosses 90%, and $\tau_F$ is when
-the embedding Fourier alignment $F_\text{corr}$ saturates.
+where $\tau_\text{circuit}$ is when the Fourier logit structure forms (BIC
+changepoint), $\tau_\text{gen}$ is when test accuracy crosses 90% (sustained),
+and $\tau_F$ is when the embedding Fourier alignment consolidates.
 
-Key finding: across 55 Grokking-phase runs sweeping learning rate and weight
-decay at $p=53$, **52/55 (94.5%)** show the G<F ordering — embedding
-structure visibly consolidates *after* generalization, not before.
-
-Research brief: [docs/research_brief.md](docs/research_brief.md).
+**Core finding:** the visible Fourier ring in token embeddings is a
+*post-generalization* structural consequence, not the load-bearing computation.
+Across 236 Grokking runs spanning two tasks (addition, multiplication), two
+primes (53, 97), and a dense (lr, wd) grid, **212/236 (89.8%)** show the G<F
+ordering: embedding structure consolidates *after* generalization.
 
 ## Repository layout
 
 ```
 src/
-├── grok_metrics.py         # shared metric utilities (canonical)
-├── grokking_baseline.py    # decoder-only transformer + training loop
-├── sweeps/                 # experiment drivers (stage0 → stage6, step2, e3)
-└── analysis/               # figure/table generation
-paper/                      # thesis LaTeX (IEEEtran, \graphicspath{{figures/}})
+  grok_metrics.py           # shared metric utilities (canonical)
+  grokking_baseline.py      # decoder-only transformer + training loop
+  sweeps/                   # experiment drivers (stage0 - stage6, e3 - e5)
+  analysis/                 # figure/table generation + post-hoc analyses
+paper_tmlr/                 # TMLR paper LaTeX source + figures
+paper/                      # earlier ICLR draft
+plan/                       # UQ thesis plan LaTeX
 proposal/                   # UQ proposal LaTeX
 docs/                       # research brief + baseline explainer
-Research/                   # Obsidian vault: progress log (中文 + EN) + canvases
+Research/                   # Obsidian vault: progress log + canvases
 results/                    # summary CSVs per canonical experiment
+runs/                       # per-run metadata + training logs (no checkpoints)
+tools/                      # bibliography/figure audit utilities
 notebooks/                  # exploratory notebooks
 ```
 
-Raw checkpoints (`.pt`) and per-seed trajectory `.npz` are **not** tracked
-— regenerate via the sweep scripts (see §Reproduce).
+Raw checkpoints (`.pt`) and per-seed trajectory `.npz` are **not** tracked.
+Regenerate via the sweep scripts (see Reproduce below).
 
 ## Setup
 
-Python 3.11, Windows 11 + NVIDIA RTX 4080 (12 GB) is the primary target.
+Python 3.11+, Windows 11 + NVIDIA RTX 4080 (12 GB) is the primary target.
 
 ```powershell
 py -3.11 -m venv .venv
@@ -49,39 +53,34 @@ pip install -r requirements.txt
 
 ## Reproduce
 
-Each sweep writes a `results*.csv` under `runs/<name>/` (recreated on first run).
+Each sweep writes a `results*.csv` under `results/<name>/`.
 
-| Stage | Entry point | Runtime (4080) |
-|-------|-------------|---------------|
+| Stage | Entry point | Runtime (RTX 4080) |
+|-------|-------------|-------------------|
 | Metric pilot | `python src/sweeps/stage0_metric_validation.py` | ~30 min |
-| Coarse 5×5 grid | `python src/sweeps/stage1_coarse_sweep.py` | ~2 h |
-| wd sweep at lr=1.6e-3 | `python src/sweeps/stage2_wd_sweep.py` | ~3 h |
-| lr sweep at wd=2.5 | `python src/sweeps/stage3_lr_sweep.py` | ~3 h |
-| Stage 4 Grokking measurement | `python src/sweeps/step2_circuit_sweep.py` | ~5 h |
-| Op generalization (×, p=97) | `python src/sweeps/stage5_p97_sweep.py` | ~2 h |
-| 2-D grid | `python src/sweeps/stage6_2d_sweep.py` | ~4 h |
-| Nanda (2023) comparison | `python src/sweeps/e3_nanda_sweep.py --parallel 6 --grokking-only` | ~10 h |
+| Coarse 5x5 grid | `python src/sweeps/stage1_coarse_sweep.py` | ~2 h |
+| wd sweep (lr=1.6e-3) | `python src/sweeps/stage2_wd_sweep.py` | ~3 h |
+| lr sweep (wd=2.5) | `python src/sweeps/stage3_lr_sweep.py` | ~3 h |
+| Three-stage timing | `python src/sweeps/step2_circuit_sweep.py` | ~5 h |
+| Multiplication (mod 53) | `python src/sweeps/stage4_mul_sweep.py` | ~2 h |
+| Addition (mod 97) | `python src/sweeps/stage5_p97_sweep.py` | ~2 h |
+| Dense 2D grid | `python src/sweeps/stage6_2d_sweep.py` | ~4 h |
+| Cross-hardware (A800) | `python src/sweeps/e3_nanda_sweep.py` | ~10 h |
 
-After any sweep, generate figures with the matching script in
-`src/analysis/` (e.g. `src/analysis/make_step2_figures.py`).
+After any sweep, generate figures with the matching script in `src/analysis/`.
 
-## Canonical findings
+## Key results
 
 | Metric | Value | Source |
 |--------|-------|--------|
-| G<F fraction (Grokking only) | 52/55 = 94.5% | `results/step2_circuit/` |
-| Δτ = τ_F − τ_gen range | 1,000 – 25,500 steps | `paper/figures/delta_histogram.png` |
-| C<G<F fraction | 53/55 = 96.4% | `results/step2_circuit/` |
+| G<F (embedding lags generalization) | 212/236 = 89.8% | aggregated across Stages 2-6 |
+| C<G<F (full three-stage ordering) | 48/54 (primary) + 44/55 (cross-hardware) | Stage 4 + E3 |
+| Causal specificity (logit Fourier removal) | 48x to 240x vs random control | E7 (8 cells) |
 
-Chronological progress logs (Steps 1–28):
+Research logs:
+- English: [Research/research_notes_en.md](Research/research_notes_en.md)
+- Chinese: [Research/研究说明文档.md](Research/研究说明文档.md)
 
-- 🇬🇧 English: [Research/research_notes_en.md](Research/research_notes_en.md)
-- 🇨🇳 中文: [Research/研究说明文档.md](Research/研究说明文档.md)
+## License
 
-Short English summary: [Research/research_report_en.md](Research/research_report_en.md).
-
-## Citation
-
-If you build on this code, cite the thesis (available in `paper/`).
-AI assistance: see [CLAUDE.md](CLAUDE.md) for the collaboration protocol
-used throughout the project.
+See [LICENSE](LICENSE).

@@ -1,0 +1,44 @@
+{
+  "label": "mul_GF",
+  "cell": {
+    "lr": 0.0016,
+    "wd": 2.4497,
+    "seed": 42,
+    "task": "mul",
+    "prime": 53,
+    "tau_circuit": null,
+    "tau_gen": 8500.0,
+    "tau_F": 14000.0,
+    "ordering": "G<F",
+    "max_steps": 50000
+  },
+  "max_steps": 50000,
+  "target_checkpoints": {
+    "pre_known_events": 4000,
+    "between_gen_F_partial": 11000,
+    "post_known_events": 15500
+  },
+  "saved_checkpoints": {
+    "pre_known_events": {
+      "step": 4000,
+      "path": "mul_GF\\checkpoints\\step_004000_pre_known_events.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.06354855000972748
+    },
+    "between_gen_F_partial": {
+      "step": 11000,
+      "path": "mul_GF\\checkpoints\\step_011000_between_gen_F_partial.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9755973815917969
+    },
+    "post_known_events": {
+      "step": 15500,
+      "path": "mul_GF\\checkpoints\\step_015500_post_known_events.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9944077134132385
+    }
+  },
+  "used_fallback_taus": false,
+  "checkpoint_schedule": "partial",
+  "runtime_sec": 1068.1126656532288
+}

@@ -1,0 +1,20 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Summary of experimental stages.}}{9}{table.4.1}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Stage 2: weight-decay sweep at lr $= 1.6\!\times \!10^{-3}$ (3 seeds per wd value). All 30 runs are Grokking phase. $\Delta \tau $ in thousands of steps (positive = G$<$F).}}{11}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Aggregate G$<$F rates across all experimental stages.}}{12}{table.5.2}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {B.1}{\ignorespaces Cross-hardware replication (E3), wd-sweep cells: addition mod 53, lr $= 1.6\!\times \!10^{-3}$. All times in training steps ($\times 10^3$). $\Delta \tau = \tau _{F}- \tau _{\mathrm {gen}}$. Ordering shows the observed temporal sequence among $\tau _{\mathrm {circuit}}$, $\tau _{\mathrm {gen}}$, and $\tau _{F}$.}}{27}{table.B.1}%
+\contentsline {table}{\numberline {B.2}{\ignorespaces Cross-hardware replication (E3), lr-sweep cells: addition mod 53, wd $= 2.5$. Same conventions as Table~\ref {tab:e3_wd}. The five Memorization runs (lr $\geq 5.9\!\times \!10^{-3}$, no $\tau _{\mathrm {gen}}$ detected) are omitted.}}{28}{table.B.2}%
+\addvspace {10\p@ }

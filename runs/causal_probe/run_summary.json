@@ -1,0 +1,11 @@
+{
+  "n_cells_run": 5,
+  "cell_labels": [
+    "strong_CGF",
+    "G_CF_boundary",
+    "FG_slow",
+    "canonical_GF",
+    "coincident"
+  ],
+  "total_runtime_sec": 4176.545574903488
+}

@@ -1,0 +1,46 @@
+{
+  "label": "G_CF_boundary",
+  "cell": {
+    "lr": 0.002333,
+    "wd": 2.5,
+    "seed": 7,
+    "tau_circuit": 8000.0,
+    "tau_gen": 6500.0,
+    "tau_F": 12000.0,
+    "ordering": "G<C<F"
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_all": 3000,
+    "between_gen_circ": 7000,
+    "between_circ_F": 10000,
+    "post_all": 13500
+  },
+  "saved_checkpoints": {
+    "pre_all": {
+      "step": 3000,
+      "path": "G_CF_boundary\\checkpoints\\step_003000_pre_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.04067107290029526
+    },
+    "between_gen_circ": {
+      "step": 7000,
+      "path": "G_CF_boundary\\checkpoints\\step_007000_between_gen_circ.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.7976614236831665
+    },
+    "between_circ_F": {
+      "step": 10000,
+      "path": "G_CF_boundary\\checkpoints\\step_010000_between_circ_F.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9984748363494873
+    },
+    "post_all": {
+      "step": 13500,
+      "path": "G_CF_boundary\\checkpoints\\step_013500_post_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "runtime_sec": 776.1771438121796
+}

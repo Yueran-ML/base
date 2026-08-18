@@ -1,0 +1,46 @@
+{
+  "label": "coincident",
+  "cell": {
+    "lr": 0.0016,
+    "wd": 3.1075,
+    "seed": 2025,
+    "tau_circuit": 8000.0,
+    "tau_gen": 9500.0,
+    "tau_F": 19500.0,
+    "ordering": "C<G<F"
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_all": 4000,
+    "between_circ_gen": 9000,
+    "between_gen_F": 14500,
+    "post_all": 22500
+  },
+  "saved_checkpoints": {
+    "pre_all": {
+      "step": 4000,
+      "path": "coincident\\checkpoints\\step_004000_pre_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.0289781391620636
+    },
+    "between_circ_gen": {
+      "step": 9000,
+      "path": "coincident\\checkpoints\\step_009000_between_circ_gen.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.6232841610908508
+    },
+    "between_gen_F": {
+      "step": 14500,
+      "path": "coincident\\checkpoints\\step_014500_between_gen_F.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9938993453979492
+    },
+    "post_all": {
+      "step": 22500,
+      "path": "coincident\\checkpoints\\step_022500_post_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "runtime_sec": 914.5669107437134
+}

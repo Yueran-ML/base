@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "研究说明文档.md",
+                "file": "讲解文档.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "研究说明文档"
+              "title": "讲解文档"
             }
           }
         ],
@@ -200,6 +200,11 @@
   },
   "active": "f4fc8e312cbeb0bf",
   "lastOpenFiles": [
+    "论文通俗笔记.md",
+    "实验进度.md",
+    "研究说明文档.md",
+    "研究说明文档-思维导图.canvas",
+    "研究总览.md",
     "HumanOmniV2研究/LoRA论文介绍.md",
     "HumanOmniV2研究/DAPO论文介绍.md",
     "HumanOmniV2研究/DeepSeek-R1论文介绍.md",
@@ -229,13 +234,7 @@
     "brief.md",
     "REF_PAPER_SUMMARY.md",
     "refine-logs/EXPERIMENT_TRACKER.md",
-    "研究说明文档.md",
-    "实验进度.md",
     "讲解文档.md",
-    "研究图谱/步骤_21_敏感性分析.md",
-    "研究图谱/步骤_20_论文写作.md",
-    "研究图谱/步骤_19_Stage3lr扫描.md",
-    "研究图谱/发现_Comprehension缺失.md",
-    "研究说明文档-思维导图.canvas"
+    "研究图谱/步骤_21_敏感性分析.md"
   ]
 }

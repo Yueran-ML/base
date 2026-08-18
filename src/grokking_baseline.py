@@ -175,16 +175,34 @@ def build_optimizer(
     decoder_lr: float,
     embed_lr: float,
     decoder_weight_decay: float,
+    embed_weight_decay: float = 0.0,
 ) -> torch.optim.AdamW:
-    """Match the paper's split between embeddings and the rest of the decoder."""
+    """Match the paper's split between embeddings and the rest of the decoder.
+
+    embed_weight_decay defaults to 0 (paper-canonical); set non-zero for the
+    embedding-wd ablation (Q1 / E4).
+    """
     embed_params = list(model.token_embed.parameters()) + [model.pos_embed]
     decoder_params = list(model.encoder.parameters()) + list(model.norm.parameters()) \
         + list(model.head.parameters())
     # Power et al. uses β1=0.9, β2=0.98 (not PyTorch default 0.999)
     return torch.optim.AdamW([
-        {"params": embed_params, "lr": embed_lr, "weight_decay": 0.0},
+        {"params": embed_params, "lr": embed_lr, "weight_decay": embed_weight_decay},
         {"params": decoder_params, "lr": decoder_lr, "weight_decay": decoder_weight_decay},
     ], betas=(0.9, 0.98))
+
+
+def set_decoder_weight_decay(
+    optimizer: torch.optim.Optimizer, new_wd: float
+) -> None:
+    """In-place update of the decoder parameter group's weight_decay.
+
+    Assumes group 0 = embeddings (unchanged), group 1 = decoder (updated).
+    Used by E4 to turn decoder wd off at a specified step.
+    """
+    if len(optimizer.param_groups) < 2:
+        raise ValueError("expected 2 param groups (embed, decoder)")
+    optimizer.param_groups[1]["weight_decay"] = float(new_wd)
 
 
 def build_scheduler(

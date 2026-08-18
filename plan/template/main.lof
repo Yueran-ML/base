@@ -1,0 +1,19 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces PCA of token embeddings at three training stages: pre-grokking (random), post-generalization (partial ring), and post-consolidation (complete Fourier ring).}}{1}{figure.1.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces BIC changepoint detection on $F_{\mathrm {corr}}(t)$: the 1-break segmented regression (blue) vs.\ the no-break baseline (grey dashed). The vertical line marks the detected $\tau _{F}$.}}{7}{figure.3.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Training trajectories for three representative runs. Red: test accuracy. Blue: null-corrected Fourier alignment $F_{\mathrm {corr}}$. Dashed verticals mark $\tau _{\mathrm {gen}}$ (red) and $\tau _{F}$ (blue). The green-shaded region shows the lag $\Delta \tau = \tau _{F}- \tau _{\mathrm {gen}}$.}}{10}{figure.5.1}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Slow-grokking scatter: $\tau _{\mathrm {gen}}$ vs.\ $\Delta \tau $ for targeted low-lr cells (red) and main-stage runs (blue/orange). All 24 targeted cells have $\Delta \tau > 0$ (G$<$F), including 12 in the slow-grokking margin ($\tau _{\mathrm {gen}}\geq 35{,}000$).}}{15}{figure.6.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

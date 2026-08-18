@@ -1,0 +1,9 @@
+label,category,tau_F_max_harmonic,tau_F_top3_irrep,delta_steps,agree_within_500
+wd1.71_s7,strong_GF,23500,25500,2000,N
+wd2.76_s42,strong_GF,29000,29500,500,Y
+wd1.52_s42,medium_GF,21500,27500,6000,N
+wd2.18_s42,medium_GF,24000,26000,2000,N
+wd2.45_s7,weak_GF,15500,17500,2000,N
+wd3.50_s7,weak_GF,21500,22500,1000,N
+wd3.11_s2025,coincident,11000,13500,2500,N
+lr6.8e4_s7,FG,42000,42000,0,Y

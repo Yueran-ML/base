@@ -57,6 +57,10 @@
 \newcommand{\Dtau}{\Delta\tau}
 \newcommand{\fcorr}{F_{\mathrm{corr}}}
 
+% Allow a little extra inter-word stretch on lines that contain long
+% unbreakable inline math, to avoid overfull hboxes.
+\setlength{\emergencystretch}{3em}
+
 \begin{document}
 
 \frontmatter
@@ -68,26 +72,26 @@
 \renewcommand{\baselinestretch}{1.0}
 \begin{center}
 \vspace*{35mm}
-\Huge\bf
+\Huge\bfseries
 
         \includegraphics[width=60mm]{uq_logo.png}\\
         \vspace*{25mm}
 
         Does Generalisation Precede Fourier Alignment\\
         in Transformer Grokking?\\
-        A Study of the Hyperparameter Phase Diagram\\
+        A Study of the Hyperparameter Phase Diagram
 
 \vspace{20mm}
-\large\sl
+\large\slshape
         by\\
         Yueran Ma
         \medskip\\
 
-\large\sl
+\large\slshape
         under the supervision of\\
         Marcus Gallagher
         \medskip\\
-\rm
+\normalfont
 
 \end{center}
 \end{titlepage}
@@ -107,7 +111,8 @@ academic integrity standards.}
 
 \section*{Have you used AI to}
 \begin{itemize}[leftmargin=1.5em]
-  \item \textbf{Explore your topic?} Yes. Claude Code and ChatGPT were used to
+  \item \textbf{Explore your topic?} Yes. Claude Code \cite{anthropic2024claudecode}
+    and ChatGPT \cite{openai2024chatgpt} were used to
     explore prior literature on grokking, Fourier circuits, and representation
     learning dynamics, providing summaries of key papers and suggesting
     relevant related work.
@@ -140,7 +145,7 @@ academic integrity standards.}
  & \adjustbox{rotate=90}{Content creation (e.g.\ code, text)}
  & \adjustbox{rotate=90}{Feedback}
  & \adjustbox{rotate=90}{Other (provide details)} \\ \hline
-\makecell{ChatGPT 4o\\Weeks 1--4}
+\makecell{ChatGPT (GPT-5.4)\\Weeks 1--4}
  & & \cmark & \cmark & & \cmark & & \cmark & & \\ \hline
 \makecell{Claude Code\\Weeks 1--12}
  & & \cmark & \cmark & & \cmark & & \cmark & & \\ \hline
@@ -158,8 +163,9 @@ milestones during transformer grokking on modular arithmetic:
 the onset of test generalisation~$\taug$ and the onset of
 Fourier-aligned token embedding geometry~$\tauf$.
 Disentangling these events matters because the Fourier circuit
-identified by Nanda et al.\ (2023) is the known mechanism underlying
-grokked solutions, yet it remains open whether the \emph{embedding-level}
+identified by Nanda et al.\ \cite{nanda2023progress} is the known
+mechanism underlying grokked solutions, yet it remains open whether
+the \emph{embedding-level}
 Fourier geometry consolidates before or after the network starts
 generalising.
 We will train a decoder-only transformer on $(a+b)\bmod 53$ across
@@ -258,7 +264,9 @@ This project makes the following specific contributions:
   \item The first systematic measurement of the signed lag
     $\Dtau = \tauf - \taug$ across two axes of the grokking
     hyperparameter phase diagram (decoder weight decay and learning
-    rate), covering 60+ training runs over $p=53$ modular addition.
+    rate), with the lag estimated from the 60 confirmatory runs
+    of Stages~2--3 (and supported by 18 pilot runs in Stage~0 and
+    25 coarse-grid runs in Stage~1) on $p=53$ modular addition.
   \item A sensitivity analysis across 36 detector configurations
     establishing whether the observed G$<$F ordering is an artefact
     of particular threshold choices or a robust property of the
@@ -364,13 +372,15 @@ they called the ``circuit formation'' phase.
 A subsequent ``cleanup'' phase follows, in which memorisation
 components are pruned.
 
-The Fourier solution is not the unique generalising circuit.
+The Fourier picture admits internal variation, and the broader
+circuit landscape extends beyond it.
 Zhong et al.\ \cite{zhong2023clock} showed that modular-addition
-transformers can discover two qualitatively distinct solution families
-(``clock'' and ``pizza''), and Chughtai et al.\ \cite{chughtai2023toy}
-extended the analysis to arbitrary finite groups, providing evidence
-for a form of universality in how neural networks learn group
-operations.
+transformers can discover two qualitatively distinct Fourier-based
+solution families (``clock'' and ``pizza''), and Chughtai et al.\
+\cite{chughtai2023toy} extended the analysis to arbitrary finite
+groups, providing evidence for a form of universality in how
+neural networks learn group operations that does not require the
+cyclic-group Fourier structure.
 Varma et al.\ \cite{varma2023explaining} further proposed that grokking
 reflects a transition between competing memorising and generalising
 circuits, with weight decay tipping the balance toward the more
@@ -511,6 +521,7 @@ and representation consolidation in grokking.
 % ================================================================
 
 \section*{Document Status}
+\phantomsection
 \addcontentsline{toc}{section}{Document Status}
 
 Although this document is presented in proposal format to match the
@@ -580,11 +591,14 @@ The raw Fourier alignment is:
   {\|E_t\|_F^2}\right),
   \label{eq:f_raw}
 \end{equation}
-where $Q_k$ is an orthonormal basis for the subspace spanned by
-$[\cos(2\pi k i/p),\sin(2\pi k i/p)]_{i=0}^{p-1}$.
+{\sloppy
+where $Q_k\in\mathbb{R}^{p\times 2}$ is an orthonormal basis for
+the two-dimensional subspace spanned by the cosine and sine
+vectors $\bigl(\cos(2\pi k i/p)\bigr)_{i=0}^{p-1}$ and
+$\bigl(\sin(2\pi k i/p)\bigr)_{i=0}^{p-1}$.
 This quantity measures the fraction of embedding variance explained
-by the best-fitting single Fourier harmonic (a lower bound on
-alignment with the full set of task-relevant harmonics).
+by the best-fitting single Fourier harmonic, and provides a lower
+bound on alignment with the full set of task-relevant harmonics.\par}
 
 \paragraph{Null-corrected Fourier alignment $\fcorr(t)$.}
 With $p=53$ and $d=256$, any embedding matrix achieves non-trivial
@@ -632,14 +646,20 @@ A run is \textit{Grokking} if both $\tau_{\mathrm{train}}$
 (train accuracy $\geq0.9$ for three consecutive evaluations)
 and $\taug$ are detected and $\taug - \tau_{\mathrm{train}}
 \geq 2{,}000$ steps.
+A run is \textit{Comprehension} if both are detected but
+$\taug - \tau_{\mathrm{train}} < 2{,}000$ steps (near-simultaneous
+training-and-test generalisation).
 \textit{Memorisation}: $\tau_{\mathrm{train}}$ detected, $\taug$ not,
 and $\tauf$ not detected.
+\textit{Confusion}: $\tau_{\mathrm{train}}$ not detected (training
+accuracy never crosses threshold).
 Runs where $\tau_{\mathrm{train}}$ is detected, $\taug$ is not, but
 $\tauf$ \emph{is} detected are labelled \textbf{F\_only} (Fourier
 geometry without generalisation).
-Each Grokking run is then labelled:
-\textbf{G$<$F} ($\taug < \tauf$);
-\textbf{F$<$G} ($\taug > \tauf$);
+Only Grokking runs are subject to the ordering analysis; each is
+labelled
+\textbf{G$<$F} ($\taug < \tauf$),
+\textbf{F$<$G} ($\taug > \tauf$),
 or \textbf{coincident} ($|\Dtau| \leq 500$ steps).
 When a hyperparameter cell yields mixed phases across seeds (e.g.,
 one seed Grokking and two seeds F\_only), the cell is reported as
@@ -864,6 +884,17 @@ The software stack is Python~3.14, PyTorch~2.5, and CUDA~12.4.
 \begin{thebibliography}{99}
 \addcontentsline{toc}{chapter}{References}
 
+\bibitem{anthropic2024claudecode}
+Anthropic, ``Claude Code,'' AI coding assistant (Claude Sonnet
+family of models), 2024--2026.
+[Online]. Available: \url{https://www.anthropic.com/claude-code}
+(Accessed: Apr.~21, 2026).
+
+\bibitem{openai2024chatgpt}
+OpenAI, ``ChatGPT (GPT-5.4),'' large language model, 2026.
+[Online]. Available: \url{https://chat.openai.com}
+(Accessed: Apr.~21, 2026).
+
 \bibitem{power2022grokking}
 A.~Power, Y.~Burda, H.~Edwards, I.~Babuschkin, and V.~Misra,
 ``Grokking: Generalization Beyond Overfitting on Small Algorithmic
@@ -879,33 +910,6 @@ Z.~Liu, O.~Kitouni, N.~Nolte, E.~J.~Michaud, M.~Tegmark, and
 M.~Williams, ``Towards Understanding Grokking: An Effective Theory
 of Representation Learning,'' in \textit{Advances in Neural
 Information Processing Systems}, vol.~35, 2022.
-
-\bibitem{rubin2024grokking}
-N.~Rubin, I.~Seroussi, and Z.~Ringel,
-``Grokking as a First Order Phase Transition in Two Layer Networks,''
-in \textit{International Conference on Learning Representations}, 2024.
-
-\bibitem{vaswani2017attention}
-A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones,
-A.~N.~Gomez, {\L}.~Kaiser, and I.~Polosukhin,
-``Attention Is All You Need,''
-in \textit{Advances in Neural Information Processing Systems},
-vol.~30, 2017.
-
-\bibitem{barak2022hidden}
-B.~Barak, B.~L.~Edelman, S.~Goel, S.~Kakade, E.~Malach, and
-C.~Zhang, ``Hidden Progress in Deep Learning: SGD Learns Parities
-Near the Computational Limit,'' in \textit{Advances in Neural
-Information Processing Systems}, vol.~35, 2022.
-
-\bibitem{elhage2021mathematical}
-N.~Elhage, N.~Nanda, C.~Olsson, T.~Henighan, N.~Joseph, B.~Mann,
-et~al., ``A Mathematical Framework for Transformer Circuits,''
-Anthropic, \textit{Transformer Circuits Thread}, web publication,
-Dec.~2021.
-[Online]. Available:
-\url{https://transformer-circuits.pub/2021/framework/index.html}
-(Accessed: Apr.~21, 2026).
 
 \bibitem{liu2023omnigrok}
 Z.~Liu, E.~J.~Michaud, and M.~Tegmark,
@@ -947,11 +951,31 @@ V.~Varma, R.~Shah, Z.~Kenton, J.~Kram{\'a}r, and R.~Kumar,
 ``Explaining Grokking Through Circuit Efficiency,''
 \textit{arXiv preprint arXiv:2309.02390}, 2023.
 
+\bibitem{barak2022hidden}
+B.~Barak, B.~L.~Edelman, S.~Goel, S.~Kakade, E.~Malach, and
+C.~Zhang, ``Hidden Progress in Deep Learning: SGD Learns Parities
+Near the Computational Limit,'' in \textit{Advances in Neural
+Information Processing Systems}, vol.~35, 2022.
+
 \bibitem{saxe2014exact}
 A.~M.~Saxe, J.~L.~McClelland, and S.~Ganguli,
 ``Exact Solutions to the Nonlinear Dynamics of Learning in Deep
 Linear Neural Networks,''
 in \textit{International Conference on Learning Representations}, 2014.
+
+\bibitem{elhage2021mathematical}
+N.~Elhage, N.~Nanda, C.~Olsson, T.~Henighan, N.~Joseph, B.~Mann,
+et~al., ``A Mathematical Framework for Transformer Circuits,''
+Anthropic, \textit{Transformer Circuits Thread}, web publication,
+Dec.~2021.
+[Online]. Available:
+\url{https://transformer-circuits.pub/2021/framework/index.html}
+(Accessed: Apr.~21, 2026).
+
+\bibitem{rubin2024grokking}
+N.~Rubin, I.~Seroussi, and Z.~Ringel,
+``Grokking as a First Order Phase Transition in Two Layer Networks,''
+in \textit{International Conference on Learning Representations}, 2024.
 
 \bibitem{kumar2024lazy}
 T.~Kumar, B.~Bordelon, S.~J.~Gershman, and C.~Pehlevan,
@@ -969,6 +993,13 @@ M.~A.~Mohamadi, Z.~Li, L.~Wu, and D.~J.~Sutherland,
 ``Why Do You Grok? A Theoretical Analysis on Grokking Modular
 Addition,''
 in \textit{International Conference on Machine Learning}, 2024.
+
+\bibitem{vaswani2017attention}
+A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones,
+A.~N.~Gomez, {\L}.~Kaiser, and I.~Polosukhin,
+``Attention Is All You Need,''
+in \textit{Advances in Neural Information Processing Systems},
+vol.~30, 2017.
 
 \bibitem{loshchilov2019decoupled}
 I.~Loshchilov and F.~Hutter,

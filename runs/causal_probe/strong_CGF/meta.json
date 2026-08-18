@@ -1,0 +1,46 @@
+{
+  "label": "strong_CGF",
+  "cell": {
+    "lr": 0.0016,
+    "wd": 2.7591,
+    "seed": 7,
+    "tau_circuit": 10000.0,
+    "tau_gen": 12500.0,
+    "tau_F": 18500.0,
+    "ordering": "C<G<F"
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_all": 5000,
+    "between_circ_gen": 11000,
+    "between_gen_F": 15500,
+    "post_all": 20500
+  },
+  "saved_checkpoints": {
+    "pre_all": {
+      "step": 5000,
+      "path": "strong_CGF\\checkpoints\\step_005000_pre_all.pt",
+      "train_acc": 0.9976246953010559,
+      "test_acc": 0.010676156729459763
+    },
+    "between_circ_gen": {
+      "step": 11000,
+      "path": "strong_CGF\\checkpoints\\step_011000_between_circ_gen.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9034062027931213
+    },
+    "between_gen_F": {
+      "step": 15500,
+      "path": "strong_CGF\\checkpoints\\step_015500_between_gen_F.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.9959328770637512
+    },
+    "post_all": {
+      "step": 20500,
+      "path": "strong_CGF\\checkpoints\\step_020500_post_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "runtime_sec": 814.1871256828308
+}

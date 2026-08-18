@@ -1,0 +1,46 @@
+{
+  "label": "FG_slow",
+  "cell": {
+    "lr": 0.0005,
+    "wd": 2.5,
+    "seed": 42,
+    "tau_circuit": 31500.0,
+    "tau_gen": 44500.0,
+    "tau_F": 42000.0,
+    "ordering": "C<F<G"
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_all": 16000,
+    "between_circ_F": 37000,
+    "between_F_gen": 43000,
+    "post_all": 48000
+  },
+  "saved_checkpoints": {
+    "pre_all": {
+      "step": 16000,
+      "path": "FG_slow\\checkpoints\\step_016000_pre_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.026436196640133858
+    },
+    "between_circ_F": {
+      "step": 37000,
+      "path": "FG_slow\\checkpoints\\step_037000_between_circ_F.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.10574478656053543
+    },
+    "between_F_gen": {
+      "step": 43000,
+      "path": "FG_slow\\checkpoints\\step_043000_between_F_gen.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.22318251430988312
+    },
+    "post_all": {
+      "step": 48000,
+      "path": "FG_slow\\checkpoints\\step_048000_post_all.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.5119471549987793
+    }
+  },
+  "runtime_sec": 808.6970300674438
+}

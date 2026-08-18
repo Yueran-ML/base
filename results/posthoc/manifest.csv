@@ -1,0 +1,9 @@
+label,category,lr,wd,seed,file,size_mb,T,runtime_sec,max_test_acc
+wd1.71_s7,strong_GF,0.0016,1.7145,7,traj_wd1.71_s7.npz,4.85,101,786.9,1.0000
+wd2.76_s42,strong_GF,0.0016,2.7591,42,traj_wd2.76_s42.npz,4.85,101,906.8,1.0000
+wd1.52_s42,medium_GF,0.0016,1.5223,42,traj_wd1.52_s42.npz,4.85,101,950.5,1.0000
+wd2.18_s42,medium_GF,0.0016,2.175,42,traj_wd2.18_s42.npz,4.85,101,562.6,1.0000
+wd2.45_s7,weak_GF,0.0016,2.4497,7,traj_wd2.45_s7.npz,4.85,101,461.6,1.0000
+wd3.50_s7,weak_GF,0.0016,3.5,7,traj_wd3.50_s7.npz,4.86,101,473.7,1.0000
+wd3.11_s2025,coincident,0.0016,3.1075,2025,traj_wd3.11_s2025.npz,4.85,101,481.3,1.0000
+lr6.8e4_s7,FG,0.0006804,2.5,7,traj_lr6.8e4_s7.npz,4.85,101,479.1,1.0000

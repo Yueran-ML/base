@@ -1,0 +1,44 @@
+{
+  "label": "lr_low_GF",
+  "cell": {
+    "lr": 0.0009259,
+    "wd": 2.5,
+    "seed": 42,
+    "task": "add",
+    "prime": 53,
+    "tau_circuit": null,
+    "tau_gen": 21500.0,
+    "tau_F": 29000.0,
+    "ordering": "G<F",
+    "max_steps": 80000
+  },
+  "max_steps": 80000,
+  "target_checkpoints": {
+    "pre_known_events": 11000,
+    "between_gen_F_partial": 25000,
+    "post_known_events": 31000
+  },
+  "saved_checkpoints": {
+    "pre_known_events": {
+      "step": 11000,
+      "path": "lr_low_GF\\checkpoints\\step_011000_pre_known_events.pt",
+      "train_acc": 1.0,
+      "test_acc": 0.09150991588830948
+    },
+    "between_gen_F_partial": {
+      "step": 25000,
+      "path": "lr_low_GF\\checkpoints\\step_025000_between_gen_F_partial.pt",
+      "train_acc": 0.9988123774528503,
+      "test_acc": 0.8998475074768066
+    },
+    "post_known_events": {
+      "step": 31000,
+      "path": "lr_low_GF\\checkpoints\\step_031000_post_known_events.pt",
+      "train_acc": 1.0,
+      "test_acc": 1.0
+    }
+  },
+  "used_fallback_taus": false,
+  "checkpoint_schedule": "partial",
+  "runtime_sec": 1495.662400484085
+}
